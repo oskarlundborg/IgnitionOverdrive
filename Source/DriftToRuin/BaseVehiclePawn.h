@@ -27,9 +27,6 @@ protected:
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
 
-private:
-	UChaosVehicleMovementComponent* VehicleMovementComponent;
-
 	
 	
 };
