@@ -2,6 +2,8 @@
 
 
 #include "BaseVehiclePawn.h"
+
+#include "HealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -10,6 +12,12 @@ ABaseVehiclePawn::ABaseVehiclePawn()
     //Get Vehicle Movement Component
 	UChaosVehicleMovementComponent* VehicleMovementComp = GetVehicleMovement();
 
+	//Creates Health Component and sets it max health value
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	HealthComponent->SetMaxHealth(MaxHealth);
+	
+	//Camera & SpringArm may not be necessary in AI, move to player subclass if decided.
+	
 	//Create SpringArm Component
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(RootComponent);
@@ -19,6 +27,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	SpringArmComponent->bInheritYaw = true;
 
 	//Create Camera Component
+	//(Camera panning constraints will be determined using Camera Manager)
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->FieldOfView = 90.0f;
