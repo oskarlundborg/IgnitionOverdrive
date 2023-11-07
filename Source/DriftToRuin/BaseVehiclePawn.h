@@ -27,6 +27,13 @@ protected:
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
 
+	UPROPERTY(Category=Health, EditAnywhere, BlueprintReadOnly)
+	class UHealthComponent* HealthComponent;
+
+	//May be irrelevant, will be tested later.
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
+	float MaxHealth = 100;
+
 	
 	
 };
