@@ -38,6 +38,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
+	FTimerHandle FireRateTimer;
 	/*Controlls weapons FireRate*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	float FireRate;
