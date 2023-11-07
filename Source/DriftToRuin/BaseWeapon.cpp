@@ -11,7 +11,7 @@ ABaseWeapon::ABaseWeapon()
 
 	WeaponRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Weapon Root"));
 	SetRootComponent(WeaponRoot);
-
+	
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
 	WeaponMesh->SetupAttachment(WeaponRoot);
 
