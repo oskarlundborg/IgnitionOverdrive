@@ -26,8 +26,8 @@ protected:
 	virtual void BeginPlay() override;
 	
 	/*Holds a blueprint projectile class set from derived weapon class blueprint*/
-	//UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	//TSubclassOf<class ABaseProjectile> ProjectileClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TSubclassOf<class ABaseProjectile> ProjectileClass;
 
 private:
 	UPROPERTY(VisibleAnywhere)
