@@ -2,15 +2,14 @@
 
 
 #include "BaseVehiclePawn.h"
-
 #include "HealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 ABaseVehiclePawn::ABaseVehiclePawn()
 {
-    //Get Vehicle Movement Component
-	UChaosVehicleMovementComponent* VehicleMovementComp = GetVehicleMovement();
+    //Get Vehicle Movement Component when its needed
+	
 
 	//Creates Health Component and sets it max health value
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
