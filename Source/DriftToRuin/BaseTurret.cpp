@@ -2,7 +2,7 @@
 
 #include "BaseTurret.h"
 
-// Sets default values
+
 ABaseTurret::ABaseTurret()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -15,7 +15,7 @@ ABaseTurret::ABaseTurret()
 	TurretMesh->SetupAttachment(TurretRoot);
 }
 
-// Called when the game starts or when spawned
+
 void ABaseTurret::BeginPlay()
 {
 	Super::BeginPlay();

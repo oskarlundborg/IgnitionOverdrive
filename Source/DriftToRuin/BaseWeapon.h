@@ -12,17 +12,15 @@ class DRIFTTORUIN_API ABaseWeapon : public AActor
 	GENERATED_BODY()
 	
 public:	
-	/*Sets default values for this actor's properties*/
 	ABaseWeapon();
 
-	/*Fire functionality based on input button started or completed*/
+	/*Fire functionality based on input action started or completed*/
 	virtual void PullTrigger() {}
 	virtual void ReleaseTrigger() {}
 
 	USkeletalMeshComponent* GetWeaponMesh() const;
 	USceneComponent* GetProjectileSpawnPoint() const;
 protected:
-	//Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
 	/*Holds a blueprint projectile class set from derived weapon class blueprint*/
@@ -39,7 +37,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* ProjectileSpawnPoint;
 public:	
-	//Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };

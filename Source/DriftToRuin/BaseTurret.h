@@ -12,12 +12,11 @@ class DRIFTTORUIN_API ABaseTurret : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ABaseTurret();
 	
 	USkeletalMeshComponent* GetTurretMesh() const;
 protected:
-	// Called when the game starts or when spawned
+	
 	virtual void BeginPlay() override;
 
 	/*Updates the rotation of the turret based on the controllers Yaw rotation*/

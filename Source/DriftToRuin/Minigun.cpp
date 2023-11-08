@@ -26,7 +26,7 @@ void AMinigun::BeginPlay()
 	Super::BeginPlay();
 }
 
-
+/*Called when input action is started*/
 void AMinigun::PullTrigger()
 {
 	if(bIsOverheated) return;
@@ -35,6 +35,7 @@ void AMinigun::PullTrigger()
 	OnPullTrigger();
 }
 
+/*Called when input action is released/completed*/
 void AMinigun::ReleaseTrigger()
 {
 	Super::ReleaseTrigger();
@@ -42,6 +43,7 @@ void AMinigun::ReleaseTrigger()
 	GetWorld()->GetTimerManager().ClearTimer(FireRateTimer);
 }
 
+/*Handles firing logic, meaning spawning projectiles*/
 void AMinigun::Fire()
 {
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
@@ -50,6 +52,7 @@ void AMinigun::Fire()
 	GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
 }
 
+/*Handles logic after input action is started*/
 void AMinigun::OnPullTrigger()
 {
 	if(!bIsFiring) return;
@@ -57,6 +60,7 @@ void AMinigun::OnPullTrigger()
 	GetWorld()->GetTimerManager().SetTimer(FireRateTimer, this, &AMinigun::OnPullTrigger, FireRate, true);
 }
 
+/*Builds up overheat while the weapon is firing*/
 void AMinigun::BuildUpOverheat()
 {
 	float OverheatAccumulation = OverheatValue + OverheatBuildUpRate;
@@ -70,17 +74,20 @@ void AMinigun::BuildUpOverheat()
 	}
 }
 
+/*Cools down the weapon when it is not firing*/
 void AMinigun::CoolDownWeapon()
 {
 	float OverheatCoolDown = OverheatValue - OverheatCoolDownRate;
 	OverheatValue = FMath::Clamp(OverheatCoolDown, 0.f, OverheatMax);
 }
 
+/*Called after Overheat cooldown timer*/
 void AMinigun::OverheatCooldown()
 {
 	bIsOverheated = false;
 }
 
+/*Updates overheat every tick if the gun is firing or not firing and is not at 0*/
 void AMinigun::UpdateOverheat()
 {
 	if(bIsFiring)
@@ -95,9 +102,9 @@ void AMinigun::UpdateOverheat()
 	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Overheat Value: %f"), OverheatValue));
 }
 
+/*Adjusts projectile rotation on spawn to aim towards the crosshair*/
 void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
 {
-	//Rotation of projectiles logic
 	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
 	AController* OwnerController = CarOwner->GetController();
