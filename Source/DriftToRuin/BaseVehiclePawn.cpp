@@ -34,12 +34,12 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 void ABaseVehiclePawn::BeginPlay()
 {
-	
+	Super::BeginPlay();
 }
 
 void ABaseVehiclePawn::Tick(float DeltaSeconds)
 {
-	
+	Super::Tick(DeltaSeconds);
 }
 
 
