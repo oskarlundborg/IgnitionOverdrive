@@ -3,10 +3,8 @@
 
 #include "BaseWeapon.h"
 
-// Sets default values
 ABaseWeapon::ABaseWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	WeaponRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Weapon Root"));
@@ -29,7 +27,6 @@ USceneComponent* ABaseWeapon::GetProjectileSpawnPoint() const
 	return ProjectileSpawnPoint;
 }
 
-// Called when the game starts or when spawned
 void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();

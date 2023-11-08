@@ -18,7 +18,6 @@ public:
 	APlayerTurret();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	/*Updates the rotation of the turret based on the controllers Yaw rotation*/
