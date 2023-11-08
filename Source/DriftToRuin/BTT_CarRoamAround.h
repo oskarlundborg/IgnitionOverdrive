@@ -32,5 +32,5 @@ public:
 private:
 	FVector PointLocation;
 
-	bool MoveToPoint(FVector& Point, class APawn* Pawn);
+	bool MoveToPoint(FVector& Point, APawn* Pawn);
 };

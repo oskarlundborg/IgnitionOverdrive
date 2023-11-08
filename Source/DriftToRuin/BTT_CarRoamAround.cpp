@@ -14,7 +14,7 @@ EBTNodeResult::Type UBTT_CarRoamAround::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	ensureMsgf(AIController != nullptr, TEXT("AI controller was nullptr"));
 
-	APawn* AIPawn;
+	APawn* AIPawn = nullptr;
 	if (AIController != nullptr)
 	{
 		AIPawn = AIController->GetPawn();
@@ -58,6 +58,7 @@ bool UBTT_CarRoamAround::MoveToPoint(FVector& Point, APawn*)
 		return false; 
 	}
 	*/
+	return false;
 }
 
 
