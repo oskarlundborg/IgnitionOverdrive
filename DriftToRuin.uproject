@@ -9,8 +9,7 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"ChaosVehicles",
-				"AIModule"
+				"ChaosVehicles", "Engine", "AIModule"
 			]
 		}
 	],
@@ -32,6 +31,10 @@
 		},
 		{
 			"Name": "NaniteDisplacedMesh",
+			"Enabled": true
+		},
+		{
+			"Name": "NiagaraFluids",
 			"Enabled": true
 		}
 	],
