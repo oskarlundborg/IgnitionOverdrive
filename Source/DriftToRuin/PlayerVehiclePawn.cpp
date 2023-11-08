@@ -57,7 +57,6 @@ void APlayerVehiclePawn::Tick(float DeltaSeconds)
 void APlayerVehiclePawn::ApplyThrottle(const FInputActionValue& Value)
 {
 	GetVehicleMovementComponent()->SetThrottleInput(Value.Get<float>());
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Cyan, TEXT("GASSING"));
 }
 
 void APlayerVehiclePawn::ApplyBraking(const FInputActionValue& Value)
@@ -72,7 +71,6 @@ void APlayerVehiclePawn::ApplySteering(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::LookAround(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Cyan, TEXT("CAMERING"));
 	if(Value.Get<float>() != 0.f)
 	{
 		AddControllerYawInput(Value.Get<float>());
@@ -81,7 +79,6 @@ void APlayerVehiclePawn::LookAround(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Cyan, TEXT("CAMERING"));
 	if(Value.Get<float>() != 0.f)
 	{
 		AddControllerPitchInput(Value.Get<float>());
