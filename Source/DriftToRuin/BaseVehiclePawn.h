@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "WheeledVehiclePawn.h"
 #include "BaseVehiclePawn.generated.h"
-/*See commented private section below*/
+/*Maybe should be moved to player and AI classes, should work for first playable for now*/
 class APlayerTurret;
 class AHomingMissileLauncher;
 class AMinigun;
@@ -33,6 +33,7 @@ protected:
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
 
+protected:
 	UPROPERTY(Category=Health, EditAnywhere, BlueprintReadOnly)
 	class UHealthComponent* HealthComponent;
 	
@@ -40,8 +41,8 @@ protected:
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
 	float MaxHealth = 100;
 
-	/* Commented for now as to not create nullptr errors. Will be implemented when we have car blueprint to spawn on runtime. 
-private:
+	
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
 	UPROPERTY()
@@ -55,5 +56,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AHomingMissileLauncher> HomingLauncherClass;
 	UPROPERTY()
-	AHomingMissileLauncher* HomingLauncher;*/
+	AHomingMissileLauncher* HomingLauncher;
 };
