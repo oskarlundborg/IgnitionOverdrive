@@ -16,8 +16,8 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->EngineSetup.MaxTorque = 1200.f;
 	VehicleMovementComp->EngineSetup.EngineIdleRPM = 1500.f;
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->Reset();
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.0f, 450.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1000.0f, 750.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.0f, 800.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1000.0f, 9000.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(2000.0f, 1000.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(5500.0f, 1193.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(8000.0f, 1000.0f);
