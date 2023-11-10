@@ -63,4 +63,13 @@ private:
 	float OverheatCoolDownRate;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Overheat", meta = (AllowPrivateAccess = "true"))
 	float OverheatCooldownDuration;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spread", meta = (AllowPrivateAccess = "true"))
+	float ProjSpreadMinY;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spread", meta = (AllowPrivateAccess = "true"))
+	float ProjSpreadMaxY;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spread", meta = (AllowPrivateAccess = "true"))
+	float ProjSpreadMinZ;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spread", meta = (AllowPrivateAccess = "true"))
+	float ProjSpreadMaxZ;
 };

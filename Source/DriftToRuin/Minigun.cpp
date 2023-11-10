@@ -10,7 +10,13 @@
 
 AMinigun::AMinigun()
 {
-	FireRate = 6.f;
+	/*Spread range variables*/
+	ProjSpreadMinY = -30.f;
+	ProjSpreadMaxY = 30.f;
+	ProjSpreadMinZ = -30.f;
+	ProjSpreadMaxZ = 30.f;
+	/*Firing and overheat variables*/
+	FireRate = 0.5f;
 	TraceDistance = 10000.f;
 	bIsFiring = false;
 	bIsOverheated = false;
@@ -24,6 +30,7 @@ AMinigun::AMinigun()
 void AMinigun::BeginPlay()
 {
 	Super::BeginPlay();
+	//SetActorScale3D(FVector(0.08f, 0.08f, 0.08f));
 }
 
 /*Called when input action is started*/
@@ -131,6 +138,11 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	{
 		HitEndLocation = HitResult.TraceEnd;
 	}
+
+	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
+	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
+
+	HitEndLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
 	
 	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, HitEndLocation);
 }
