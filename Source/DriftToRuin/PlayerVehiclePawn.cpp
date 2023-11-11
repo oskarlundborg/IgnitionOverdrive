@@ -5,6 +5,9 @@
 #include "EnhancedInputComponent.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "HomingMissileLauncher.h"
+#include "Minigun.h"
+#include "PlayerTurret.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
 
@@ -25,6 +28,18 @@ void APlayerVehiclePawn::BeginPlay()
 			Subsystem->AddMappingContext(VehicleMappingContext, 0);
 		}
 	}
+
+	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
+	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretSocket"));
+	Turret->SetOwner(this);
+
+	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
+	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("MinigunSocket"));
+	Minigun->SetOwner(this);
+
+	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
+	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("HomingSocket"));
+	HomingLauncher->SetOwner(this);
 }
 
 void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -45,6 +60,9 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Camera control axis
 		EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::LookUp);
 		EnhancedInputComponent->BindAction(LookAroundAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::LookAround);
+
+		EnhancedInputComponent->BindAction(FireMinigunAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::FireMinigun);
+		EnhancedInputComponent->BindAction(FireMinigunAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::FireMinigunCompleted);
 	}
 }
 
@@ -86,7 +104,15 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 	}
 }
 
+void APlayerVehiclePawn::FireMinigun()
+{
+	Minigun->PullTrigger();
+}
 
+void APlayerVehiclePawn::FireMinigunCompleted()
+{
+	Minigun->ReleaseTrigger();
+}
 
 
 
