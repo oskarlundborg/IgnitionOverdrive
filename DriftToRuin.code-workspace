@@ -6,7 +6,7 @@
 		},
 		{
 			"name": "UE5",
-			"path": "D:\\Epic Games\\UE_5.3"
+			"path": "C:\\Program Files\\Epic Games\\UE_5.3"
 		}
 	],
 	"settings": {
@@ -30,13 +30,13 @@
 					"DriftToRuin",
 					"Win64",
 					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -47,7 +47,7 @@
 					"DriftToRuin",
 					"Win64",
 					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -56,7 +56,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -67,13 +67,13 @@
 					"DriftToRuin",
 					"Win64",
 					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -84,13 +84,13 @@
 					"DriftToRuin",
 					"Win64",
 					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -101,7 +101,7 @@
 					"DriftToRuin",
 					"Win64",
 					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -110,7 +110,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -121,13 +121,13 @@
 					"DriftToRuin",
 					"Win64",
 					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -138,13 +138,13 @@
 					"DriftToRuin",
 					"Win64",
 					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -155,7 +155,7 @@
 					"DriftToRuin",
 					"Win64",
 					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -164,7 +164,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -175,13 +175,13 @@
 					"DriftToRuin",
 					"Win64",
 					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -192,13 +192,13 @@
 					"DriftToRuin",
 					"Win64",
 					"Test",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -209,7 +209,7 @@
 					"DriftToRuin",
 					"Win64",
 					"Test",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -218,7 +218,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -229,13 +229,13 @@
 					"DriftToRuin",
 					"Win64",
 					"Test",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -246,13 +246,13 @@
 					"DriftToRuin",
 					"Win64",
 					"Shipping",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -263,7 +263,7 @@
 					"DriftToRuin",
 					"Win64",
 					"Shipping",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -272,7 +272,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -283,283 +283,13 @@
 					"DriftToRuin",
 					"Win64",
 					"Shipping",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Debug Build",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Debug Rebuild",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"DriftToRuin IOS Debug Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Debug Clean",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS DebugGame Build",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS DebugGame Rebuild",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"DriftToRuin IOS DebugGame Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS DebugGame Clean",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Development Build",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Development Rebuild",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"DriftToRuin IOS Development Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Development Clean",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Test Build",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Test",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Test Rebuild",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Test",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"DriftToRuin IOS Test Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Test Clean",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Test",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Shipping Build",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Shipping",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Shipping Rebuild",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Shipping",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"DriftToRuin IOS Shipping Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
-				}
-			},
-			{
-				"label": "DriftToRuin IOS Shipping Clean",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-				"args": [
-					"DriftToRuin",
-					"IOS",
-					"Shipping",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -570,13 +300,13 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -587,7 +317,7 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -596,7 +326,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -607,13 +337,13 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"Debug",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -624,13 +354,13 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -641,7 +371,7 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -650,7 +380,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -661,13 +391,13 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"DebugGame",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -678,13 +408,13 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -695,7 +425,7 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -704,7 +434,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -715,13 +445,13 @@
 					"DriftToRuinEditor",
 					"Win64",
 					"Development",
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Epic Games\\UE_5.3"
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			}
 		]
@@ -732,132 +462,132 @@
 			{
 				"name": "Launch DriftToRuin (Debug)",
 				"request": "launch",
-				"program": "D:\\Unreal Projects\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame-Win64-Debug.exe",
+				"program": "C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame-Win64-Debug.exe",
 				"preLaunchTask": "DriftToRuin Win64 Debug Build",
 				"args": [
 				],
-				"cwd": "D:\\Epic Games\\UE_5.3",
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3",
 				"stopAtEntry": false,
 				"console": "externalTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Epic Games\\UE_5.3"
+					"D:\\build\\++UE5\\Sync": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
 				"name": "Launch DriftToRuin (DebugGame)",
 				"request": "launch",
-				"program": "D:\\Unreal Projects\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame-Win64-DebugGame.exe",
+				"program": "C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame-Win64-DebugGame.exe",
 				"preLaunchTask": "DriftToRuin Win64 DebugGame Build",
 				"args": [
 				],
-				"cwd": "D:\\Epic Games\\UE_5.3",
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3",
 				"stopAtEntry": false,
 				"console": "externalTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Epic Games\\UE_5.3"
+					"D:\\build\\++UE5\\Sync": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
 				"name": "Launch DriftToRuin (Development)",
 				"request": "launch",
-				"program": "D:\\Unreal Projects\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame.exe",
+				"program": "C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame.exe",
 				"preLaunchTask": "DriftToRuin Win64 Development Build",
 				"args": [
 				],
-				"cwd": "D:\\Epic Games\\UE_5.3",
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3",
 				"stopAtEntry": false,
 				"console": "externalTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Epic Games\\UE_5.3"
+					"D:\\build\\++UE5\\Sync": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
 				"name": "Launch DriftToRuin (Test)",
 				"request": "launch",
-				"program": "D:\\Unreal Projects\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame-Win64-Test.exe",
+				"program": "C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame-Win64-Test.exe",
 				"preLaunchTask": "DriftToRuin Win64 Test Build",
 				"args": [
 				],
-				"cwd": "D:\\Epic Games\\UE_5.3",
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3",
 				"stopAtEntry": false,
 				"console": "externalTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Epic Games\\UE_5.3"
+					"D:\\build\\++UE5\\Sync": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
 				"name": "Launch DriftToRuin (Shipping)",
 				"request": "launch",
-				"program": "D:\\Unreal Projects\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame-Win64-Shipping.exe",
+				"program": "C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\Binaries\\Win64\\UnrealGame-Win64-Shipping.exe",
 				"preLaunchTask": "DriftToRuin Win64 Shipping Build",
 				"args": [
 				],
-				"cwd": "D:\\Epic Games\\UE_5.3",
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3",
 				"stopAtEntry": false,
 				"console": "externalTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Epic Games\\UE_5.3"
+					"D:\\build\\++UE5\\Sync": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
 				"name": "Launch DriftToRuinEditor (Debug)",
 				"request": "launch",
-				"program": "D:\\Epic Games\\UE_5.3\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-Debug.exe",
+				"program": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-Debug.exe",
 				"preLaunchTask": "DriftToRuinEditor Win64 Debug Build",
 				"args": [
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject"
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject"
 				],
-				"cwd": "D:\\Epic Games\\UE_5.3",
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3",
 				"stopAtEntry": false,
 				"console": "externalTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Epic Games\\UE_5.3"
+					"D:\\build\\++UE5\\Sync": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
 				"name": "Launch DriftToRuinEditor (DebugGame)",
 				"request": "launch",
-				"program": "D:\\Epic Games\\UE_5.3\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-DebugGame.exe",
+				"program": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-DebugGame.exe",
 				"preLaunchTask": "DriftToRuinEditor Win64 DebugGame Build",
 				"args": [
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject"
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject"
 				],
-				"cwd": "D:\\Epic Games\\UE_5.3",
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3",
 				"stopAtEntry": false,
 				"console": "externalTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Epic Games\\UE_5.3"
+					"D:\\build\\++UE5\\Sync": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
 				"name": "Launch DriftToRuinEditor (Development)",
 				"request": "launch",
-				"program": "D:\\Epic Games\\UE_5.3\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
+				"program": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
 				"preLaunchTask": "DriftToRuinEditor Win64 Development Build",
 				"args": [
-					"D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject"
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject"
 				],
-				"cwd": "D:\\Epic Games\\UE_5.3",
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3",
 				"stopAtEntry": false,
 				"console": "externalTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Epic Games\\UE_5.3"
+					"D:\\build\\++UE5\\Sync": "C:\\Program Files\\Epic Games\\UE_5.3"
 				}
 			},
 			{
@@ -865,18 +595,18 @@
 				"type": "coreclr",
 				"request": "launch",
 				"preLaunchTask": "UnrealBuildTool Win64 Development Build",
-				"program": "D:\\Epic Games\\UE_5.3\\Engine\\Build\\BatchFiles\\RunUBT.bat",
+				"program": "C:\\Program Files\\Epic Games\\UE_5.3\\Engine\\Build\\BatchFiles\\RunUBT.bat",
 				"args": [
 					"-projectfiles",
 					"-vscode",
-					"-project=D:\\Unreal Projects\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-project=C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
 					"-game",
 					"-engine",
 					"-dotnet"
 				],
 				"console": "externalTerminal",
 				"stopAtEntry": false,
-				"cwd": "D:\\Epic Games\\UE_5.3"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
 			}
 		]
 	}

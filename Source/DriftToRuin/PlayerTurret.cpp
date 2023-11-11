@@ -4,6 +4,8 @@
 #include "PlayerTurret.h"
 
 #include "BaseVehiclePawn.h"
+#include "PlayerVehiclePawn.h"
+#include "Camera/CameraComponent.h"
 
 APlayerTurret::APlayerTurret()
 {
@@ -18,11 +20,10 @@ void APlayerTurret::BeginPlay()
 void APlayerTurret::UpdateTurretRotation()
 {
 	Super::UpdateTurretRotation();
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	const APlayerVehiclePawn* CarOwner = Cast<APlayerVehiclePawn>(GetOwner());
 	if(!CarOwner) return;
 	const AController* OwnerController = CarOwner->GetController();
 	if(!OwnerController) return;
-
 	const FRotator ControllerRotation = OwnerController->GetControlRotation();
 	const FRotator YawRotation(0.f, ControllerRotation.Yaw, 0.f);
 	const FRotator BaseRotation = GetTurretMesh()->GetRelativeRotation();

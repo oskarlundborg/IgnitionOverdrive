@@ -46,11 +46,17 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* LookAroundAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* FireMinigunAction;
+
 	void ApplyThrottle(const struct FInputActionValue& Value);
 	void ApplyBraking(const  FInputActionValue& Value);
 	void ApplySteering(const FInputActionValue& Value);
 
 	void LookUp(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
+
+	void FireMinigun();
+	void FireMinigunCompleted();
 	
 };
