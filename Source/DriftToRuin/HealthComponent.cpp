@@ -29,7 +29,7 @@ void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDa
 	if(Damage <= 0.f) return;
 	CurrentHealth -= Damage;
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
-	if(IsDead()) GetOwner()->Destroy();
+	//if(IsDead()) GetOwner()->Destroy();
 }
 
 // Called every frame
