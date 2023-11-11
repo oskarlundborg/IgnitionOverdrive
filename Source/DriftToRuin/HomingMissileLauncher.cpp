@@ -23,7 +23,7 @@ void AHomingMissileLauncher::ReleaseTrigger()
 void AHomingMissileLauncher::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	//SetActorScale3D(FVector(0.08f, 0.08f, 0.08f));
 }
 
 void AHomingMissileLauncher::Tick(float DeltaSeconds)
