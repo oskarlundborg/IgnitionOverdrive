@@ -20,7 +20,7 @@ ABaseProjectile::ABaseProjectile()
 void ABaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	ProjectileMesh->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
 }
 
 // Called every frame

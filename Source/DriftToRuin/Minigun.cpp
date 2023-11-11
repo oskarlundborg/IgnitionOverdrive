@@ -56,7 +56,8 @@ void AMinigun::Fire()
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation;
 	AdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
-	GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	Projectile->SetOwner(GetOwner());
 }
 
 /*Handles logic after input action is started*/
