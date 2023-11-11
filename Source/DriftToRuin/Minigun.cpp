@@ -154,5 +154,15 @@ void AMinigun::Tick(float DeltaSeconds)
 	UpdateOverheat();
 }
 
+float AMinigun::GetOverheatValue() const
+{
+	return OverheatValue;
+}
+
+float AMinigun::GetOverheatMaxValue() const
+{
+	return OverheatMax;
+}
+
 
 
