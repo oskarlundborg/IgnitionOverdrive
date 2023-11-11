@@ -86,3 +86,4 @@ DerivedDataCache/*
 
 # Built Visual Studio Code Extensions
 *.vsix
+DriftToRuin.code-workspace
