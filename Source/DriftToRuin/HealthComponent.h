@@ -20,6 +20,10 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+private:
+	UFUNCTION()
+	void DamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* Instigator, AActor* DamageCauser);
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -41,7 +45,7 @@ public:
 	
 private:
 	UPROPERTY(Category=Health, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
-	float CurrentHealth;
+	float CurrentHealth = 0.f;
 
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float MaxHealth = 100;
