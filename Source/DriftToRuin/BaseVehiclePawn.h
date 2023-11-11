@@ -57,4 +57,5 @@ protected:
 	TSubclassOf<AHomingMissileLauncher> HomingLauncherClass;
 	UPROPERTY()
 	AHomingMissileLauncher* HomingLauncher;
+	
 };

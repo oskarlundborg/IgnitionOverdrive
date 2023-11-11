@@ -114,5 +114,10 @@ void APlayerVehiclePawn::FireMinigunCompleted()
 	Minigun->ReleaseTrigger();
 }
 
+float APlayerVehiclePawn::GetMinigunOverheatPercent() const
+{
+	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
+}
+
 
 
