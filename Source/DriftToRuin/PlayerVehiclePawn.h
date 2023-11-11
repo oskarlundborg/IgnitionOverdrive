@@ -24,6 +24,9 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	float GetMinigunOverheatPercent() const;
+
 protected:
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category=Input)

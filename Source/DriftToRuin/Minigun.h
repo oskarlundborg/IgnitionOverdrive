@@ -53,8 +53,14 @@ private:
 	/*Overheat logic variables*/
 	UPROPERTY(VisibleAnywhere, Category = "Overheat")
 	bool bIsOverheated;
-	UPROPERTY(VisibleAnywhere, Category = "Overheat")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overheat", meta = (AllowPrivateAccess = "true"))
 	float OverheatValue;
+
+public:
+	float GetOverheatValue() const;
+	float GetOverheatMaxValue() const;
+
+private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Overheat", meta = (AllowPrivateAccess = "true"))
 	float OverheatMax;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Overheat", meta = (AllowPrivateAccess = "true"))
