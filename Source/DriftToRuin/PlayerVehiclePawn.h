@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetMinigunOverheatPercent() const;
 
+	UPROPERTY(BlueprintReadWrite)
+	float Sensitivity;
+
 protected:
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category=Input)
