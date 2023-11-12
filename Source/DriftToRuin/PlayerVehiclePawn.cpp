@@ -89,9 +89,11 @@ void APlayerVehiclePawn::ApplySteering(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::LookAround(const FInputActionValue& Value)
 {
+	// möjligtvis fixa olika sensitivity för upp/ner och vänster/höger för mus och kontroller
+
 	if(Value.Get<float>() != 0.f)
 	{
-		AddControllerYawInput(Value.Get<float>());
+		AddControllerYawInput(Value.Get<float>()*Sensitivity);
 	}
 }
 
@@ -99,7 +101,7 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 {
 	if(Value.Get<float>() != 0.f)
 	{
-		AddControllerPitchInput(Value.Get<float>());
+		AddControllerPitchInput(Value.Get<float>()*Sensitivity);
 		
 	}
 }
