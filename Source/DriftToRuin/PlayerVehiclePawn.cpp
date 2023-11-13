@@ -61,6 +61,9 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::LookUp);
 		EnhancedInputComponent->BindAction(LookAroundAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::LookAround);
 
+		EnhancedInputComponent->BindAction(HandbrakeAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::OnHandbrakePressed);
+		EnhancedInputComponent->BindAction(HandbrakeAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::OnHandbrakeReleased);
+
 		EnhancedInputComponent->BindAction(FireMinigunAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::FireMinigun);
 		EnhancedInputComponent->BindAction(FireMinigunAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::FireMinigunCompleted);
 	}
@@ -105,6 +108,18 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 		
 	}
 }
+
+void APlayerVehiclePawn::OnHandbrakePressed()
+{
+	GetVehicleMovementComponent()->SetHandbrakeInput(true);	
+}
+
+void APlayerVehiclePawn::OnHandbrakeReleased()
+{
+	GetVehicleMovementComponent()->SetHandbrakeInput(false);
+}
+
+
 
 void APlayerVehiclePawn::FireMinigun()
 {
