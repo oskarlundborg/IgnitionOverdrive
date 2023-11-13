@@ -16,6 +16,9 @@ UCLASS()
 class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 {
 	GENERATED_BODY()
+	
+	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool bPlayEngineSound = false;
 
 public:
 	
@@ -27,22 +30,28 @@ public:
 	
 protected:
 	
+	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
+	class UChaosWheeledVehicleMovementComponent* VehicleMovementComp;
+	
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;
 
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
-
-protected:
+	
 	UPROPERTY(Category=Health, EditAnywhere, BlueprintReadOnly)
 	class UHealthComponent* HealthComponent;
 	
 	//May be irrelevant, will be tested later.
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
 	float MaxHealth = 100;
-
 	
-protected:
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* EngineAudioComponent;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* EngineAudioSound;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
 	UPROPERTY()

@@ -3,6 +3,7 @@
 
 #include "BaseVehiclePawn.h"
 #include "HealthComponent.h"
+#include "Components/AudioComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -10,14 +11,14 @@
 ABaseVehiclePawn::ABaseVehiclePawn()
 {
     //Get Vehicle Movement Component when its needed
-	UChaosWheeledVehicleMovementComponent* VehicleMovementComp = CastChecked<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
+	VehicleMovementComp = CastChecked<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
 
 	//Engine value defaults
 	VehicleMovementComp->EngineSetup.MaxTorque = 1200.f;
 	VehicleMovementComp->EngineSetup.EngineIdleRPM = 1500.f;
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->Reset();
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.0f, 800.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1000.0f, 9000.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1000.0f, 900.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(2000.0f, 1000.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(5500.0f, 1193.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(8000.0f, 1000.0f);
@@ -40,6 +41,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Creates Health Component and sets it max health value
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->SetMaxHealth(MaxHealth);
+
+	//Creates Audio Component for Engine or something...
+	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
 	
 	//Camera & SpringArm may not be necessary in AI, move to player subclass if decided.
 	
@@ -61,11 +65,24 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 void ABaseVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if(EngineAudioComponent)
+	{
+		EngineAudioComponent->SetSound(EngineAudioSound);
+		EngineAudioComponent->SetVolumeMultiplier(1);
+		EngineAudioComponent->SetActive(bPlayEngineSound);
+	}
 }
 
 void ABaseVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	//Magic numbers are minimum and maximum frequency for given sound.
+	const float MappedEngineRotationSpeed = FMath::GetMappedRangeValueClamped(FVector2d(VehicleMovementComp->EngineSetup.EngineIdleRPM, VehicleMovementComp->GetEngineMaxRotationSpeed()),
+		FVector2d(74.0f, 375.0f),
+		VehicleMovementComp->GetEngineRotationSpeed());
+	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
 }
 
 

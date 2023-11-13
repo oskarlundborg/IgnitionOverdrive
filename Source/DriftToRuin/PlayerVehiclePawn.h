@@ -53,6 +53,9 @@ private:
 	UInputAction* LookAroundAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* HandbrakeAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* FireMinigunAction;
 
 	void ApplyThrottle(const struct FInputActionValue& Value);
@@ -61,6 +64,9 @@ private:
 
 	void LookUp(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
+
+	void OnHandbrakePressed();
+	void OnHandbrakeReleased();
 
 	void FireMinigun();
 	void FireMinigunCompleted();
