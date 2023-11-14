@@ -16,6 +16,9 @@ class DRIFTTORUIN_API AEnemyVehiclePawn : public ABaseVehiclePawn
 	
 public:
 
+	AEnemyVehiclePawn();
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
 	
 };
