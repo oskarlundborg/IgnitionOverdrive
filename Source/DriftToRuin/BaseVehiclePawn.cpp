@@ -109,3 +109,18 @@ void ABaseVehiclePawn::RemoveDamageBoost(float OriginalDamage)
 {
 	Damage = OriginalDamage;
 }
+
+APlayerTurret* ABaseVehiclePawn::GetTurret() const
+{
+	return Turret;
+}
+
+AMinigun* ABaseVehiclePawn::GetMinigun() const
+{
+	return Minigun;
+}
+
+AHomingMissileLauncher* ABaseVehiclePawn::GetHomingLauncher() const
+{
+	return HomingLauncher;
+}

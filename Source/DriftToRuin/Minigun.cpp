@@ -6,6 +6,9 @@
 #include "BaseProjectile.h"
 #include "BaseVehiclePawn.h"
 #include "DrawDebugHelpers.h"
+#include "PlayerTurret.h"
+#include "HomingMissileLauncher.h"
+#include "PlayerVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AMinigun::AMinigun()
@@ -30,7 +33,14 @@ AMinigun::AMinigun()
 void AMinigun::BeginPlay()
 {
 	Super::BeginPlay();
-	//SetActorScale3D(FVector(0.08f, 0.08f, 0.08f));
+	
+	auto MinigunOwner = GetOwner();
+	if(!MinigunOwner) return;
+	auto OwnerPlayerCar = Cast<APlayerVehiclePawn>(MinigunOwner);
+	ToIgnore.Add(MinigunOwner);
+	ToIgnore.Add(OwnerPlayerCar->GetTurret());
+	ToIgnore.Add(OwnerPlayerCar->GetHomingLauncher());
+	ToIgnore.Add(this);
 }
 
 /*Called when input action is started*/
@@ -122,14 +132,17 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	
 	FVector CameraLocation;
 	FRotator CameraRotation;
-	FHitResult HitResult;
 	
 	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
-	FVector TraceStart = CameraLocation;
+	FVector OffsetVector = CarOwner->GetTurret()->GetActorLocation() - CameraLocation;
+	float OffsetLenght = OffsetVector.Length();
+	FVector TraceStart = CameraLocation + (CameraRotation.Vector() * OffsetLenght);
 	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * TraceDistance);
 	
 	FCollisionQueryParams TraceParams;
-	TraceParams.AddIgnoredActor(this); //CHANGE TO AN ARRAY OF ACTORS TO IGNORE!
+	TraceParams.AddIgnoredActors(ToIgnore);
+	
+	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
 
 	FVector HitEndLocation; 
@@ -148,6 +161,7 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	HitEndLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
 	
 	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, HitEndLocation);
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
 }
 
 void AMinigun::Tick(float DeltaSeconds)
