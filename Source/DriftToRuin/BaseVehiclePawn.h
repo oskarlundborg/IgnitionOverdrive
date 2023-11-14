@@ -71,11 +71,18 @@ protected:
 	UPROPERTY()
 	APlayerTurret* Turret;
 	
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AMinigun> MinigunClass;
 	UPROPERTY()
 	AMinigun* Minigun;
 
+public:
+	APlayerTurret* GetTurret() const;
+	AMinigun* GetMinigun() const;
+	AHomingMissileLauncher* GetHomingLauncher() const;
+
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AHomingMissileLauncher> HomingLauncherClass;
 	UPROPERTY()

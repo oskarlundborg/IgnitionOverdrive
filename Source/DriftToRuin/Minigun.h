@@ -39,6 +39,9 @@ public:
 
 private:
 	FTimerHandle FireRateTimer;
+
+	UPROPERTY()
+	TArray<AActor*> ToIgnore;
 	/*Controlls weapons FireRate*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	float FireRate;
