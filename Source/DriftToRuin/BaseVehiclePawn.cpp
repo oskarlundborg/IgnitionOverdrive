@@ -85,5 +85,27 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
 }
 
+float ABaseVehiclePawn::GetDamage()
+{
+	return Damage;
+}
 
+void ABaseVehiclePawn::SetDamage(float NewDamage)
+{
+	Damage = NewDamage;
+}
 
+void ABaseVehiclePawn::ApplyDamageBoost(float NewDamage, float TimerDuration)
+{
+	float OriginalDamage = Damage;
+	Damage = NewDamage;
+	FTimerDelegate Delegate;
+	Delegate.BindUFunction(this, "RemoveDamageBoost", OriginalDamage);
+	//set timer to clear effect
+	GetWorld()->GetTimerManager().SetTimer(DamageBoostTimerHandle, Delegate,TimerDuration,false);
+}
+
+void ABaseVehiclePawn::RemoveDamageBoost(float OriginalDamage)
+{
+	Damage = OriginalDamage;
+}
