@@ -27,6 +27,17 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void BeginPlay() override;
+
+	float GetDamage();
+
+	UFUNCTION(BlueprintCallable)
+	void SetDamage(float NewDamage);
+
+	UFUNCTION(BlueprintCallable)
+	void ApplyDamageBoost(float NewDamage, float TimerDuration);
+
+	UFUNCTION()
+	void RemoveDamageBoost(float OriginalDamage);
 	
 protected:
 	
@@ -45,6 +56,9 @@ protected:
 	//May be irrelevant, will be tested later.
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
 	float MaxHealth = 100;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
+	float Damage = 5;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
@@ -66,5 +80,7 @@ protected:
 	TSubclassOf<AHomingMissileLauncher> HomingLauncherClass;
 	UPROPERTY()
 	AHomingMissileLauncher* HomingLauncher;
-	
+
+	//timer för att ta bort damage-effekten
+	FTimerHandle DamageBoostTimerHandle;
 };

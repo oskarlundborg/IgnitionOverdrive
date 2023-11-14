@@ -2,7 +2,7 @@
 
 
 #include "MinigunProjectile.h"
-
+#include "BaseVehiclePawn.h"
 #include "Kismet/GameplayStatics.h"
 
 AMinigunProjectile::AMinigunProjectile()
@@ -17,9 +17,12 @@ void AMinigunProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpusle, Hit);
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
+	auto OwnerBaseVehiclePawn = Cast<ABaseVehiclePawn>(ProjectileOwner);
 	auto OwnerInstigator = ProjectileOwner->GetInstigatorController();
 	if(!OwnerInstigator) return;
 	auto DamageTypeClass = UDamageType::StaticClass();
+	Damage = OwnerBaseVehiclePawn->GetDamage();
+	
 
 	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
 	Destroy();
