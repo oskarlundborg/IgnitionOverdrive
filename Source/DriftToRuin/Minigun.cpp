@@ -39,6 +39,7 @@ void AMinigun::PullTrigger()
 	if(bIsOverheated) return;
 	Super::PullTrigger();
 	bIsFiring = true;
+	OverheatValue += 2.5f;
 	OnPullTrigger();
 }
 
@@ -85,6 +86,7 @@ void AMinigun::BuildUpOverheat()
 /*Cools down the weapon when it is not firing*/
 void AMinigun::CoolDownWeapon()
 {
+	if(bIsFiring || bIsOverheated) return;
 	float OverheatCoolDown = OverheatValue - OverheatCoolDownRate;
 	OverheatValue = FMath::Clamp(OverheatCoolDown, 0.f, OverheatMax);
 }
@@ -102,10 +104,10 @@ void AMinigun::UpdateOverheat()
 	{
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::BuildUpOverheat, 0.1f, false);
-	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated)
+	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated) 
 	{
 		FTimerHandle THandle;
-		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::CoolDownWeapon, 0.04f, false);
+		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::CoolDownWeapon, 0.15f, false);
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Overheat Value: %f"), OverheatValue));
 }
