@@ -34,13 +34,13 @@ void AMinigun::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	auto MinigunOwner = GetOwner();
+	/*auto MinigunOwner = GetOwner();
 	if(!MinigunOwner) return;
 	auto OwnerPlayerCar = Cast<APlayerVehiclePawn>(MinigunOwner);
-	ToIgnore.Add(MinigunOwner);
+	ToIgnore.Add(GetOwner());
 	ToIgnore.Add(OwnerPlayerCar->GetTurret());
 	ToIgnore.Add(OwnerPlayerCar->GetHomingLauncher());
-	ToIgnore.Add(this);
+	ToIgnore.Add(this);*/
 }
 
 /*Called when input action is started*/
@@ -139,6 +139,11 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	FVector TraceStart = CameraLocation + (CameraRotation.Vector() * OffsetLenght);
 	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * TraceDistance);
 	
+	ToIgnore.AddUnique(GetOwner());
+	ToIgnore.AddUnique(CarOwner->GetTurret());
+	ToIgnore.AddUnique(CarOwner->GetHomingLauncher());
+	ToIgnore.AddUnique(this);
+	
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
 	
@@ -149,6 +154,7 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	if(bHit)
 	{
 		HitEndLocation = HitResult.ImpactPoint;
+		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("HIT %s"), *HitResult.GetActor()->GetName()));
 	}
 	else
 	{
