@@ -6,6 +6,11 @@
 #include "Minigun.h"
 #include "PlayerTurret.h"
 
+AEnemyVehiclePawn::AEnemyVehiclePawn()
+{
+	
+}
+
 void AEnemyVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -21,4 +26,9 @@ void AEnemyVehiclePawn::BeginPlay()
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
 	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("HomingSocket"));
 	HomingLauncher->SetOwner(this);
+}
+
+void AEnemyVehiclePawn::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
 }
