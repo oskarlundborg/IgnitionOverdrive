@@ -20,6 +20,11 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
 
+	FTimerHandle BoostTimer;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	float ConsumptionRate = 0.1f;
+
 public:
 	
 	ABaseVehiclePawn();
@@ -28,8 +33,35 @@ public:
 
 	virtual void BeginPlay() override;
 
+	struct 
+	{
+		bool bEnabled = false;
+		float MaxBoostAmount = 100; //Max possible boost amount.
+		float BoostAmount = 10000; //Initial boost amount.
+		float BoostTorque = 10000.0f; //Max torque when boosting.
+		float DefaultTorque = 800.0f; //Default max torque on vehicle.
+		void SetBoostAmount(const float AmountToSet)
+		{
+			BoostAmount=AmountToSet;
+		}
+		void SetEnabled(const bool Enabled)
+		{
+			bEnabled=Enabled;
+		}
+	} Booster;
+
+	void OnBoostPressed();
+	void OnBoostReleased();
+	void OnBoosting();
+
 	float GetDamage();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BoostStartEvent();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BoostStopEvent();
+	
 	UFUNCTION(BlueprintCallable)
 	void SetDamage(float NewDamage);
 

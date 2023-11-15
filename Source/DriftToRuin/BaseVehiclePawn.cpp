@@ -18,10 +18,10 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->EngineSetup.EngineIdleRPM = 1500.f;
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->Reset();
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.0f, 550.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1000.0f, 600.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(2000.0f, 750.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(5500.0f, 800.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(8000.0f, 750.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.125f, 600.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.25f, 750.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.6875f, 800.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1.0f, 750.0f);
 	
 	
 	//Steering value defaults
@@ -83,6 +83,33 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		FVector2d(74.0f, 375.0f),
 		VehicleMovementComp->GetEngineRotationSpeed());
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
+}
+
+void ABaseVehiclePawn::OnBoostPressed()
+{
+	if(Booster.BoostAmount <= 0) return;
+	BoostStartEvent();
+	Booster.SetEnabled(true);
+	OnBoosting();
+}
+
+void ABaseVehiclePawn::OnBoostReleased()
+{
+	Booster.SetEnabled(false);
+}
+
+void ABaseVehiclePawn::OnBoosting()
+{
+	if(!Booster.bEnabled || Booster.BoostAmount <= 0)
+	{
+		VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
+		BoostStopEvent();
+		return;
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING"));
+	VehicleMovementComp->SetMaxEngineTorque(Booster.BoostTorque);
+	Booster.BoostAmount-=2.5f;
+	GetWorld()->GetTimerManager().SetTimer(BoostTimer, this, &ABaseVehiclePawn::OnBoosting, ConsumptionRate, true);
 }
 
 float ABaseVehiclePawn::GetDamage()
