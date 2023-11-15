@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BaseVehiclePawn.h"
 #include "HealthComponent.h"
 #include "Components/AudioComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
 
 ABaseVehiclePawn::ABaseVehiclePawn()
@@ -22,7 +22,6 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.25f, 750.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.6875f, 800.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1.0f, 750.0f);
-	
 	
 	//Steering value defaults
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->Reset();
@@ -60,6 +59,11 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->FieldOfView = 90.0f;
+
+	//Create Bumper Collision Component
+	BumperCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Bumper"));
+	BumperCollisionBox->SetupAttachment(RootComponent);
+	BumperCollisionBox->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnBumperHit);
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -175,4 +179,15 @@ AMinigun* ABaseVehiclePawn::GetMinigun() const
 AHomingMissileLauncher* ABaseVehiclePawn::GetHomingLauncher() const
 {
 	return HomingLauncher;
+}
+
+void ABaseVehiclePawn::OnBumperHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult)
+{
+	GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, TEXT("Hit"));
+	if( ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor) )
+	{
+		const double ForwardVelocity = UE::Geometry::Dot(VehicleMovementComp->Velocity, VehicleMovementComp->Velocity.ForwardVector);
+		OtherVehicle->TakeDamage(ForwardVelocity / 1000.f, FDamageEvent(), nullptr, this);
+		GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, TEXT("Damage"));
+	}
 }

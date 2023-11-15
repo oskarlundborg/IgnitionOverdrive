@@ -30,13 +30,10 @@ USceneComponent* ABaseWeapon::GetProjectileSpawnPoint() const
 void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void ABaseWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-

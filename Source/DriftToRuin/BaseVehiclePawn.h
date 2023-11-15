@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "WheeledVehiclePawn.h"
+#include "Components/BoxComponent.h"
 #include "BaseVehiclePawn.generated.h"
 /*Maybe should be moved to player and AI classes, should work for first playable for now*/
 class APlayerTurret;
@@ -64,11 +65,12 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	float BoostMaxTorque = 10000.0f;
 
 public:
-	
 	ABaseVehiclePawn();
 
+	UFUNCTION()
 	virtual void Tick(float DeltaSeconds) override;
 
+	UFUNCTION()
 	virtual void BeginPlay() override;
 
 	void OnBoostPressed();
@@ -135,6 +137,9 @@ protected:
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
 	UPROPERTY()
 	APlayerTurret* Turret;
+
+	UPROPERTY(EditDefaultsOnly)
+	UBoxComponent* BumperCollisionBox;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AMinigun> MinigunClass;
