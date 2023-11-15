@@ -4,18 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTT_PathFind.generated.h"
+#include "BTTask_PathFind.generated.h"
 
 
 /**
  * 
  */
 UCLASS()
-class DRIFTTORUIN_API UBTT_PathFind : public UBTTaskNode
+class DRIFTTORUIN_API UBTTask_PathFind : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
+	UBTTask_PathFind();
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 	
 private:
