@@ -16,7 +16,6 @@ APlayerVehiclePawn::APlayerVehiclePawn()
 	
 }
 
-
 void APlayerVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -30,15 +29,15 @@ void APlayerVehiclePawn::BeginPlay()
 	}
 
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
-	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretSocket"));
+	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
-	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("MinigunSocket"));
+	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("Root_Turret"));
 	Minigun->SetOwner(this);
 
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
-	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("HomingSocket"));
+	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("Root_MissileLauncher"));
 	HomingLauncher->SetOwner(this);
 }
 
@@ -111,7 +110,6 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 	if(Value.Get<float>() != 0.f)
 	{
 		AddControllerPitchInput(Value.Get<float>()*Sensitivity);
-		
 	}
 }
 
@@ -149,6 +147,3 @@ float APlayerVehiclePawn::GetMinigunOverheatPercent() const
 {
 	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
 }
-
-
-

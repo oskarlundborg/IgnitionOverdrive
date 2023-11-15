@@ -63,7 +63,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Create Bumper Collision Component
 	BumperCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Bumper"));
 	BumperCollisionBox->SetupAttachment(RootComponent);
-	BumperCollisionBox->SetRelativeLocation({285,0,-57.5});
+	BumperCollisionBox->SetRelativeLocation({285,0,0});
 	BumperCollisionBox->SetRelativeScale3D({1,3.25,0.75});
 	BumperCollisionBox->SetNotifyRigidBodyCollision(true);
 	BumperCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBumperBeginOverlap);
@@ -142,7 +142,6 @@ float ABaseVehiclePawn::GetBoostPercentage() const
 {
 	return Booster.BoostAmount/Booster.MaxBoostAmount;
 }
-
 
 float ABaseVehiclePawn::GetDamage()
 {

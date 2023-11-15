@@ -181,6 +181,3 @@ float AMinigun::GetOverheatMaxValue() const
 {
 	return OverheatMax;
 }
-
-
-

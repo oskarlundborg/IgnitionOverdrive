@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseWeapon.h"
+#include "Components/PoseableMeshComponent.h"
 #include "Minigun.generated.h"
 
 /**
