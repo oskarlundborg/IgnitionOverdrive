@@ -102,12 +102,15 @@ public:
 	UFUNCTION()
 	void RemoveDamageBoost(float OriginalDamage);
 
+	UFUNCTION()
+	void OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
 	APlayerTurret* GetTurret() const;
 	AMinigun* GetMinigun() const;
 	AHomingMissileLauncher* GetHomingLauncher() const;
 	
 protected:
-	
 	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
 	class UChaosWheeledVehicleMovementComponent* VehicleMovementComp;
 	
@@ -140,13 +143,23 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UBoxComponent* BumperCollisionBox;
+
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess=true))
+	float DamageMultiplier = .004f;
+
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess=true))
+	float BumperDamage = 10.f;
+	
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess=true))
+	bool bFlatDamage = false;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AMinigun> MinigunClass;
 	
 	UPROPERTY()
 	AMinigun* Minigun;
-	
+
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AHomingMissileLauncher> HomingLauncherClass;
 	

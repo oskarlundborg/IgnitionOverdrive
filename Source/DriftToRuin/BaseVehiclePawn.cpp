@@ -63,7 +63,10 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Create Bumper Collision Component
 	BumperCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Bumper"));
 	BumperCollisionBox->SetupAttachment(RootComponent);
-	BumperCollisionBox->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnBumperHit);
+	BumperCollisionBox->SetRelativeLocation({285,0,-57.5});
+	BumperCollisionBox->SetRelativeScale3D({1,3.25,0.75});
+	BumperCollisionBox->SetNotifyRigidBodyCollision(true);
+	BumperCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBumperBeginOverlap);
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -181,13 +184,20 @@ AHomingMissileLauncher* ABaseVehiclePawn::GetHomingLauncher() const
 	return HomingLauncher;
 }
 
-void ABaseVehiclePawn::OnBumperHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult)
+void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, TEXT("Hit"));
+	if( OtherActor == this ) { return; }
 	if( ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor) )
 	{
-		const double ForwardVelocity = UE::Geometry::Dot(VehicleMovementComp->Velocity, VehicleMovementComp->Velocity.ForwardVector);
-		OtherVehicle->TakeDamage(ForwardVelocity / 1000.f, FDamageEvent(), nullptr, this);
-		GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, TEXT("Damage"));
+		if( bFlatDamage )
+		{
+			OtherVehicle->TakeDamage(BumperDamage, FDamageEvent(), nullptr, this);
+			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), BumperDamage));
+		}
+		else
+		{
+			OtherVehicle->TakeDamage(VehicleMovementComp->GetForwardSpeed() * DamageMultiplier, FDamageEvent(), nullptr, this);
+			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), VehicleMovementComp->GetForwardSpeed() * DamageMultiplier));
+		}
 	}
 }
