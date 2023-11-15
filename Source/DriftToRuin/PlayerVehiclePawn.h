@@ -73,5 +73,4 @@ private:
 
 	void FireMinigun();
 	void FireMinigunCompleted();
-	
 };

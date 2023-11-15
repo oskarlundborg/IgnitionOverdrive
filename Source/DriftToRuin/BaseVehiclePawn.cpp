@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BaseVehiclePawn.h"
 #include "HealthComponent.h"
 #include "Components/AudioComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
 
 ABaseVehiclePawn::ABaseVehiclePawn()
@@ -22,7 +22,6 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.25f, 750.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.6875f, 800.0f);
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1.0f, 750.0f);
-	
 	
 	//Steering value defaults
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->Reset();
@@ -60,6 +59,14 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->FieldOfView = 90.0f;
+
+	//Create Bumper Collision Component
+	BumperCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Bumper"));
+	BumperCollisionBox->SetupAttachment(RootComponent);
+	BumperCollisionBox->SetRelativeLocation({285,0,-57.5});
+	BumperCollisionBox->SetRelativeScale3D({1,3.25,0.75});
+	BumperCollisionBox->SetNotifyRigidBodyCollision(true);
+	BumperCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBumperBeginOverlap);
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -175,4 +182,22 @@ AMinigun* ABaseVehiclePawn::GetMinigun() const
 AHomingMissileLauncher* ABaseVehiclePawn::GetHomingLauncher() const
 {
 	return HomingLauncher;
+}
+
+void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if( OtherActor == this ) { return; }
+	if( ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor) )
+	{
+		if( bFlatDamage && VehicleMovementComp->GetForwardSpeed() > 0.01f )
+		{
+			OtherVehicle->TakeDamage(BumperDamage, FDamageEvent(), nullptr, this);
+			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), BumperDamage));
+		}
+		else
+		{
+			OtherVehicle->TakeDamage(VehicleMovementComp->GetForwardSpeed() * DamageMultiplier, FDamageEvent(), nullptr, this);
+			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), VehicleMovementComp->GetForwardSpeed() * DamageMultiplier));
+		}
+	}
 }
