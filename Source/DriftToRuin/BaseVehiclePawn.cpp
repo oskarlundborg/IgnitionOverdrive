@@ -189,7 +189,7 @@ void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	if( OtherActor == this ) { return; }
 	if( ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor) )
 	{
-		if( bFlatDamage )
+		if( bFlatDamage && VehicleMovementComp->GetForwardSpeed() > 0.01f )
 		{
 			OtherVehicle->TakeDamage(BumperDamage, FDamageEvent(), nullptr, this);
 			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), BumperDamage));
