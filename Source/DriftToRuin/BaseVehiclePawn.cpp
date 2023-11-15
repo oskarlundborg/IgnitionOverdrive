@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BaseVehiclePawn.h"
 #include "HealthComponent.h"
 #include "Components/AudioComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
 
 ABaseVehiclePawn::ABaseVehiclePawn()
@@ -18,11 +18,10 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->EngineSetup.EngineIdleRPM = 1500.f;
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->Reset();
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.0f, 550.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1000.0f, 600.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(2000.0f, 750.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(5500.0f, 800.0f);
-	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(8000.0f, 750.0f);
-	
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.125f, 600.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.25f, 750.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.6875f, 800.0f);
+	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1.0f, 750.0f);
 	
 	//Steering value defaults
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->Reset();
@@ -60,6 +59,14 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->FieldOfView = 90.0f;
+
+	//Create Bumper Collision Component
+	BumperCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Bumper"));
+	BumperCollisionBox->SetupAttachment(RootComponent);
+	BumperCollisionBox->SetRelativeLocation({285,0,-57.5});
+	BumperCollisionBox->SetRelativeScale3D({1,3.25,0.75});
+	BumperCollisionBox->SetNotifyRigidBodyCollision(true);
+	BumperCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBumperBeginOverlap);
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -83,7 +90,59 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		FVector2d(74.0f, 375.0f),
 		VehicleMovementComp->GetEngineRotationSpeed());
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
+	
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, FString::Printf(TEXT("BOOST AMOUNT: %f"), Booster.BoostAmount)); //DEBUG FÖR BOOST AMOUNT
 }
+
+void ABaseVehiclePawn::OnBoostPressed()
+{
+	if(Booster.BoostAmount <= 0) return;
+	BoostStartEvent();
+	//DELAY??
+	Booster.SetEnabled(true);
+	OnBoosting();
+}
+
+void ABaseVehiclePawn::OnBoostReleased()
+{
+	Booster.SetEnabled(false);
+}
+
+void ABaseVehiclePawn::OnBoosting()
+{
+	if(!Booster.bEnabled || Booster.BoostAmount <= 0)
+	{
+		VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
+		VehicleMovementComp->SetThrottleInput(0);
+		RechargeBoost();
+		BoostStopEvent();
+		return;
+	}
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
+	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
+	VehicleMovementComp->SetThrottleInput(1);
+	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
+	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
+}
+
+void ABaseVehiclePawn::RechargeBoost()
+{
+	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
+	
+	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount, 0.0f, Booster.MaxBoostAmount));
+	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate, true);
+}
+
+void ABaseVehiclePawn::SetBoostAmount(float NewAmount)
+{
+	Booster.BoostAmount=NewAmount;
+}
+
+float ABaseVehiclePawn::GetBoostPercentage() const
+{
+	return Booster.BoostAmount/Booster.MaxBoostAmount;
+}
+
 
 float ABaseVehiclePawn::GetDamage()
 {
@@ -123,4 +182,22 @@ AMinigun* ABaseVehiclePawn::GetMinigun() const
 AHomingMissileLauncher* ABaseVehiclePawn::GetHomingLauncher() const
 {
 	return HomingLauncher;
+}
+
+void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if( OtherActor == this ) { return; }
+	if( ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor) )
+	{
+		if( bFlatDamage && VehicleMovementComp->GetForwardSpeed() > 0.01f )
+		{
+			OtherVehicle->TakeDamage(BumperDamage, FDamageEvent(), nullptr, this);
+			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), BumperDamage));
+		}
+		else
+		{
+			OtherVehicle->TakeDamage(VehicleMovementComp->GetForwardSpeed() * DamageMultiplier, FDamageEvent(), nullptr, this);
+			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), VehicleMovementComp->GetForwardSpeed() * DamageMultiplier));
+		}
+	}
 }

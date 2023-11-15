@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerTurret.h"
 
 #include "BaseVehiclePawn.h"
@@ -38,5 +37,3 @@ void APlayerTurret::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	UpdateTurretRotation();
 }
-
-
