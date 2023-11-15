@@ -34,13 +34,6 @@ void AMinigun::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	/*auto MinigunOwner = GetOwner();
-	if(!MinigunOwner) return;
-	auto OwnerPlayerCar = Cast<APlayerVehiclePawn>(MinigunOwner);
-	ToIgnore.Add(GetOwner());
-	ToIgnore.Add(OwnerPlayerCar->GetTurret());
-	ToIgnore.Add(OwnerPlayerCar->GetHomingLauncher());
-	ToIgnore.Add(this);*/
 }
 
 /*Called when input action is started*/
@@ -163,8 +156,11 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 
 	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
 	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
-
+	//float RandomSpawnSpreadY = FMath::RandRange(-50.f, 50.f);
+	//float RandomSpawnSpreadZ = FMath::RandRange(-50.f, 50.f);
+	
 	HitEndLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
+	//FVector SpawnSpread = SpawnLocation + FVector(0.f, RandomSpawnSpreadY, RandomSpawnSpreadZ);
 	
 	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, HitEndLocation);
 	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
