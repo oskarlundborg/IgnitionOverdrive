@@ -22,19 +22,22 @@ public:
 	virtual void ReleaseTrigger() override;
 
 private:
-	FTimerHandle TargetingHandle;
+	FTimerHandle ChargeHandle;
+	FTimerHandle FireTimer;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
-	float AmmoCapacity;
+	int32 AmmoCapacity;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
-	float AmmoAmount;
+	int32 AmmoAmount;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
 	float TargetingRange;
 
+	int32 ChargeAmount;
+
 	UPROPERTY()
-	ABaseVehiclePawn* CurrentTarget;
+	AActor* CurrentTarget;
 	
 
 protected:
@@ -42,6 +45,10 @@ protected:
 
 private:
 	void FindTarget();
+	void ChargeFire();
+	void OnChargeFire();
+	void Fire();
+	void OnFire();
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
