@@ -56,6 +56,9 @@ private:
 	UInputAction* HandbrakeAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* BoostAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* FireMinigunAction;
 
 	void ApplyThrottle(const struct FInputActionValue& Value);

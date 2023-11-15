@@ -6,6 +6,9 @@
 #include "BaseProjectile.h"
 #include "BaseVehiclePawn.h"
 #include "DrawDebugHelpers.h"
+#include "PlayerTurret.h"
+#include "HomingMissileLauncher.h"
+#include "PlayerVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AMinigun::AMinigun()
@@ -30,7 +33,7 @@ AMinigun::AMinigun()
 void AMinigun::BeginPlay()
 {
 	Super::BeginPlay();
-	//SetActorScale3D(FVector(0.08f, 0.08f, 0.08f));
+	
 }
 
 /*Called when input action is started*/
@@ -39,6 +42,7 @@ void AMinigun::PullTrigger()
 	if(bIsOverheated) return;
 	Super::PullTrigger();
 	bIsFiring = true;
+	OverheatValue += 2.5f;
 	OnPullTrigger();
 }
 
@@ -85,6 +89,7 @@ void AMinigun::BuildUpOverheat()
 /*Cools down the weapon when it is not firing*/
 void AMinigun::CoolDownWeapon()
 {
+	if(bIsFiring || bIsOverheated) return;
 	float OverheatCoolDown = OverheatValue - OverheatCoolDownRate;
 	OverheatValue = FMath::Clamp(OverheatCoolDown, 0.f, OverheatMax);
 }
@@ -102,10 +107,10 @@ void AMinigun::UpdateOverheat()
 	{
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::BuildUpOverheat, 0.1f, false);
-	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated)
+	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated) 
 	{
 		FTimerHandle THandle;
-		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::CoolDownWeapon, 0.04f, false);
+		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::CoolDownWeapon, 0.15f, false);
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Overheat Value: %f"), OverheatValue));
 }
@@ -120,20 +125,29 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	
 	FVector CameraLocation;
 	FRotator CameraRotation;
-	FHitResult HitResult;
 	
 	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
-	FVector TraceStart = CameraLocation;
+	FVector OffsetVector = CarOwner->GetTurret()->GetActorLocation() - CameraLocation;
+	float OffsetLenght = OffsetVector.Length();
+	FVector TraceStart = CameraLocation + (CameraRotation.Vector() * OffsetLenght);
 	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * TraceDistance);
 	
+	ToIgnore.AddUnique(GetOwner());
+	ToIgnore.AddUnique(CarOwner->GetTurret());
+	ToIgnore.AddUnique(CarOwner->GetHomingLauncher());
+	ToIgnore.AddUnique(this);
+	
 	FCollisionQueryParams TraceParams;
-	TraceParams.AddIgnoredActor(this); //CHANGE TO AN ARRAY OF ACTORS TO IGNORE!
+	TraceParams.AddIgnoredActors(ToIgnore);
+	
+	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
 
 	FVector HitEndLocation; 
 	if(bHit)
 	{
 		HitEndLocation = HitResult.ImpactPoint;
+		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("HIT %s"), *HitResult.GetActor()->GetName()));
 	}
 	else
 	{
@@ -142,10 +156,14 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 
 	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
 	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
-
+	//float RandomSpawnSpreadY = FMath::RandRange(-50.f, 50.f);
+	//float RandomSpawnSpreadZ = FMath::RandRange(-50.f, 50.f);
+	
 	HitEndLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
+	//FVector SpawnSpread = SpawnLocation + FVector(0.f, RandomSpawnSpreadY, RandomSpawnSpreadZ);
 	
 	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, HitEndLocation);
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
 }
 
 void AMinigun::Tick(float DeltaSeconds)
