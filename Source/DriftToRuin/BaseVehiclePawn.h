@@ -9,6 +9,25 @@
 class APlayerTurret;
 class AHomingMissileLauncher;
 class AMinigun;
+
+USTRUCT()
+struct FBooster
+{
+	GENERATED_BODY()
+
+	FTimerHandle BoostTimer;
+	FTimerHandle RechargeTimer;
+	
+	bool bEnabled = false;
+	float MaxBoostAmount = 100; //Max possible boost amount.
+	float BoostAmount = 100; //Initial boost amount.
+	float DefaultTorque = 800.0f; //Default max torque on vehicle.
+
+	void SetEnabled(const bool Enabled)
+	{
+		bEnabled=Enabled;
+	}
+};
 /**
  * 
  */
@@ -19,11 +38,30 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
-
-	FTimerHandle BoostTimer;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float ConsumptionRate = 0.1f;
+	//Struct for booster
+	UPROPERTY()
+	FBooster Booster;
+	
+	//How often boost is consumed.
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	float BoostConsumptionRate = 0.1f;
+
+	//Amount of boost consumed per call (BoostConsumptionRate).
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	float BoostCost = 2.5f;
+
+	//How often boost recharges.
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	float BoostRechargeRate = 0.1f;
+
+	//Boost Recharge amount per tick.
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	float BoostRechargeAmount = 0.5f;
+	
+	//Max Torque when boosting.
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	float BoostMaxTorque = 10000.0f;
 
 public:
 	
@@ -33,26 +71,17 @@ public:
 
 	virtual void BeginPlay() override;
 
-	struct 
-	{
-		bool bEnabled = false;
-		float MaxBoostAmount = 100; //Max possible boost amount.
-		float BoostAmount = 10000; //Initial boost amount.
-		float BoostTorque = 10000.0f; //Max torque when boosting.
-		float DefaultTorque = 800.0f; //Default max torque on vehicle.
-		void SetBoostAmount(const float AmountToSet)
-		{
-			BoostAmount=AmountToSet;
-		}
-		void SetEnabled(const bool Enabled)
-		{
-			bEnabled=Enabled;
-		}
-	} Booster;
-
 	void OnBoostPressed();
 	void OnBoostReleased();
 	void OnBoosting();
+	
+	void RechargeBoost();
+
+	UFUNCTION(BlueprintCallable)
+	void SetBoostAmount(float NewAmount);
+
+	UFUNCTION(BlueprintPure)
+	float GetBoostPercentage() const;
 
 	float GetDamage();
 
@@ -70,6 +99,10 @@ public:
 
 	UFUNCTION()
 	void RemoveDamageBoost(float OriginalDamage);
+
+	APlayerTurret* GetTurret() const;
+	AMinigun* GetMinigun() const;
+	AHomingMissileLauncher* GetHomingLauncher() const;
 	
 protected:
 	
@@ -103,20 +136,15 @@ protected:
 	UPROPERTY()
 	APlayerTurret* Turret;
 	
-protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AMinigun> MinigunClass;
+	
 	UPROPERTY()
 	AMinigun* Minigun;
-
-public:
-	APlayerTurret* GetTurret() const;
-	AMinigun* GetMinigun() const;
-	AHomingMissileLauncher* GetHomingLauncher() const;
-
-protected:
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AHomingMissileLauncher> HomingLauncherClass;
+	
 	UPROPERTY()
 	AHomingMissileLauncher* HomingLauncher;
 
