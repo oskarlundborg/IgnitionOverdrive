@@ -7,7 +7,6 @@
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 ABaseVehiclePawn::ABaseVehiclePawn()
 {
