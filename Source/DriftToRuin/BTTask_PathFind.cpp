@@ -1,14 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "BTT_PathFind.h"
+#include "BTTask_PathFind.h"
 
 #include "AIController.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
-EBTNodeResult::Type UBTT_PathFind::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+UBTTask_PathFind::UBTTask_PathFind()
+{
+	NodeName = "Car Path finding";
+}
+
+EBTNodeResult::Type UBTTask_PathFind::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
@@ -39,6 +43,9 @@ EBTNodeResult::Type UBTT_PathFind::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
 	AIPawn->SetActorLocation(Destination);
 	int r = 5;
+
+	UChaosVehicleMovementComponent* VehicleMovementComponent = Cast<UChaosVehicleMovementComponent>(AIPawn->GetMovementComponent());
+	VehicleMovementComponent->SetThrottleInput(0.5);
 	
 	return EBTNodeResult::Succeeded;
 }
