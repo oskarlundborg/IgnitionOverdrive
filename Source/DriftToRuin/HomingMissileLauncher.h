@@ -6,6 +6,7 @@
 #include "BaseWeapon.h"
 #include "HomingMissileLauncher.generated.h"
 
+class ABaseVehiclePawn;
 /**
  * 
  */
@@ -20,8 +21,27 @@ public:
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
 
+private:
+	FTimerHandle TargetingHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
+	float AmmoCapacity;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
+	float AmmoAmount;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	float TargetingRange;
+
+	UPROPERTY()
+	ABaseVehiclePawn* CurrentTarget;
+	
+
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	void FindTarget();
 
 public:
 	virtual void Tick(float DeltaSeconds) override;

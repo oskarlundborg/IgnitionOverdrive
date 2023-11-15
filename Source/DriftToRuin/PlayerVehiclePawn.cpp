@@ -69,6 +69,9 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		EnhancedInputComponent->BindAction(FireMinigunAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::FireMinigun);
 		EnhancedInputComponent->BindAction(FireMinigunAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::FireMinigunCompleted);
+
+		EnhancedInputComponent->BindAction(FireHomingMissilesAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::FireHomingMissiles);
+		EnhancedInputComponent->BindAction(FireHomingMissilesAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::FireHomingMissilesCompleted);
 	}
 }
 
@@ -130,6 +133,16 @@ void APlayerVehiclePawn::FireMinigun()
 void APlayerVehiclePawn::FireMinigunCompleted()
 {
 	Minigun->ReleaseTrigger();
+}
+
+void APlayerVehiclePawn::FireHomingMissiles()
+{
+	HomingLauncher->PullTrigger();
+}
+
+void APlayerVehiclePawn::FireHomingMissilesCompleted()
+{
+	HomingLauncher->ReleaseTrigger();
 }
 
 float APlayerVehiclePawn::GetMinigunOverheatPercent() const
