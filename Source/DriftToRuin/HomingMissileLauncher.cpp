@@ -3,33 +3,76 @@
 
 #include "HomingMissileLauncher.h"
 
+#include "BaseProjectile.h"
 #include "BaseVehiclePawn.h"
 #include "PlayerTurret.h"
 #include "Minigun.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 AHomingMissileLauncher::AHomingMissileLauncher()
 {
 	TargetingRange = 7000.f;
-	AmmoCapacity = 4.f;
+	AmmoCapacity = 3.f;
 	AmmoAmount = AmmoCapacity;
-}
+	ChargeAmount = 0;
 
-void AHomingMissileLauncher::PullTrigger()
-{
-	Super::PullTrigger();
-	
-}
-
-void AHomingMissileLauncher::ReleaseTrigger()
-{
-	Super::ReleaseTrigger();
-	
+	CurrentTarget = nullptr;
 }
 
 void AHomingMissileLauncher::BeginPlay()
 {
 	Super::BeginPlay();
-	//SetActorScale3D(FVector(0.08f, 0.08f, 0.08f));
+	
+}
+
+void AHomingMissileLauncher::PullTrigger()
+{
+	if(AmmoAmount == 0) return;
+	ChargeAmount = 0;
+	CurrentTarget = nullptr; 
+	Super::PullTrigger();
+	FindTarget();
+	if(CurrentTarget) OnChargeFire();
+}
+
+void AHomingMissileLauncher::ReleaseTrigger()
+{
+	Super::ReleaseTrigger();
+	if(GetWorldTimerManager().IsTimerActive(ChargeHandle)) GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
+	
+	if(!CurrentTarget || ChargeAmount == 0) return;
+	OnFire();
+}
+
+void AHomingMissileLauncher::ChargeFire()
+{
+	if(++ChargeAmount == AmmoAmount) GetWorldTimerManager().ClearTimer(ChargeHandle);
+}
+
+void AHomingMissileLauncher::OnChargeFire()
+{
+	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, 2.f, true, 2.f);
+}
+
+void AHomingMissileLauncher::Fire()
+{
+	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
+	FRotator ProjectileRotation = GetProjectileSpawnPoint()->GetComponentRotation();
+	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	Projectile->SetOwner(GetOwner());
+	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CurrentTarget->GetRootComponent();
+	AmmoAmount--;
+
+	if(--ChargeAmount <= 0)
+	{
+		GetWorldTimerManager().ClearTimer(FireTimer);
+		CurrentTarget = nullptr;
+	}
+}
+
+void AHomingMissileLauncher::OnFire()
+{
+	GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
 }
 
 void AHomingMissileLauncher::FindTarget()
@@ -38,7 +81,7 @@ void AHomingMissileLauncher::FindTarget()
 	if(CarOwner == nullptr) return;
 	AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
-
+	
 	FVector CameraLocation;
 	FRotator CameraRotation;
 	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
@@ -51,9 +94,17 @@ void AHomingMissileLauncher::FindTarget()
 	ToIgnore.Add(CarOwner->GetTurret());
 	ToIgnore.Add(CarOwner->GetMinigun());
 
+	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	//GetWorld()->LineTraceSingleByObjectType()
+	
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Vehicle, TraceParams);
+	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
+	{
+		CurrentTarget = HitResult.GetActor();
+	}
+
+	//UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitResult.GetActor()->GetName())
 }
 
 void AHomingMissileLauncher::Tick(float DeltaSeconds)
