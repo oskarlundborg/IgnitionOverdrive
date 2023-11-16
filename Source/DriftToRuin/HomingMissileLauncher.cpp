@@ -28,7 +28,7 @@ void AHomingMissileLauncher::BeginPlay()
 void AHomingMissileLauncher::PullTrigger()
 {
 	if(AmmoAmount == 0) return;
-	ChargeAmount = 0;
+	//ChargeAmount = 0;
 	CurrentTarget = nullptr; 
 	Super::PullTrigger();
 	FindTarget();
@@ -48,6 +48,11 @@ void AHomingMissileLauncher::ReleaseTrigger()
 bool AHomingMissileLauncher::IsCharging()
 {
 	return bIsCharging;
+}
+
+int32 AHomingMissileLauncher::GetChargeAmount()
+{
+	return ChargeAmount;
 }
 
 void AHomingMissileLauncher::ChargeFire()
