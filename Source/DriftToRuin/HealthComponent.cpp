@@ -29,6 +29,12 @@ void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDa
 	if(Damage <= 0.f) return;
 	CurrentHealth -= Damage;
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
+
+	if (CurrentHealth <= 0 )
+	{
+		OnVehicleDeath(DamageCauser->GetOwner());
+	}
+	
 	//if(IsDead()) GetOwner()->Destroy();
 }
 
@@ -60,6 +66,14 @@ void UHealthComponent::SetMaxHealth(float NewMaxHealth)
 	MaxHealth = NewMaxHealth;
 }
 
+void UHealthComponent::OnVehicleDeath(AActor* DamageCauser)
+{
+	//Vad som ska hända vid vehicle death
+	OnVehicleDeathDelegate.Broadcast(DamageCauser);
+
+	//Respawnar via blueprint just nu (med denna delegate)
+
+}
 
 bool UHealthComponent::IsDead() const
 {
