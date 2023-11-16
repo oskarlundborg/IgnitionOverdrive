@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetMinigunOverheatPercent() const;
 
+	UFUNCTION(BlueprintCallable)
+	bool GetHomingIsCharging() const;
+
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
 
