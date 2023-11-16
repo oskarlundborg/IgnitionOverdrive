@@ -13,7 +13,6 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 {
 	TargetingRange = 7000.f;
 	AmmoCapacity = 3.f;
-	AmmoAmount = AmmoCapacity;
 	ChargeAmount = 0;
 	bIsCharging = false;
 
@@ -23,13 +22,13 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 void AHomingMissileLauncher::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	AmmoAmount = AmmoCapacity;
 }
 
 void AHomingMissileLauncher::PullTrigger()
 {
 	if(AmmoAmount == 0) return;
-	ChargeAmount = 0;
+	//ChargeAmount = 0;
 	CurrentTarget = nullptr; 
 	Super::PullTrigger();
 	FindTarget();
@@ -49,6 +48,11 @@ void AHomingMissileLauncher::ReleaseTrigger()
 bool AHomingMissileLauncher::IsCharging()
 {
 	return bIsCharging;
+}
+
+int32 AHomingMissileLauncher::GetChargeAmount()
+{
+	return ChargeAmount;
 }
 
 void AHomingMissileLauncher::ChargeFire()

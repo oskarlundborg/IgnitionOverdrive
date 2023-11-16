@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetHomingIsCharging() const;
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetHomingChargeAmount() const;
+
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
 
