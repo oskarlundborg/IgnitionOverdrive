@@ -85,7 +85,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetBoostPercentage() const;
 
-	float GetDamage();
+	float GetMinigunDamage();
+	float GetHomingDamage();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BoostStartEvent();
@@ -128,10 +129,19 @@ protected:
 	float MaxHealth = 100;
 
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
-	float Damage = 5;
+	float MinigunDamage = 5;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
+	float HomingDamage = 20.f;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
+
+	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraComponent* BoostVfxNiagaraComponent;
+
+	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraSystem* BoostVfxNiagaraSystem;
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
