@@ -13,7 +13,6 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 {
 	TargetingRange = 7000.f;
 	AmmoCapacity = 3.f;
-	AmmoAmount = AmmoCapacity;
 	ChargeAmount = 0;
 	bIsCharging = false;
 
@@ -23,7 +22,7 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 void AHomingMissileLauncher::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	AmmoAmount = AmmoCapacity;
 }
 
 void AHomingMissileLauncher::PullTrigger()
