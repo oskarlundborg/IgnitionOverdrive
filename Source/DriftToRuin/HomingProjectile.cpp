@@ -3,9 +3,11 @@
 
 #include "HomingProjectile.h"
 
+#include "GameFramework/ProjectileMovementComponent.h"
+
 AHomingProjectile::AHomingProjectile()
 {
-	
+	ProjectileMovementComponent->bIsHomingProjectile = true;
 }
 
 void AHomingProjectile::BeginPlay()

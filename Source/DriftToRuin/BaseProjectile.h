@@ -16,6 +16,8 @@ class DRIFTTORUIN_API ABaseProjectile : public AActor
 public:	
 	ABaseProjectile();
 
+	UProjectileMovementComponent* GetProjectileMovementComponent();
+
 protected:
 	/*Projectile callback function for collision*/
 	UFUNCTION()
@@ -28,7 +30,8 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* ProjectileMesh;
-
+	
+protected:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
