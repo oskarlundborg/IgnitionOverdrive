@@ -147,3 +147,8 @@ float APlayerVehiclePawn::GetMinigunOverheatPercent() const
 {
 	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
 }
+
+bool APlayerVehiclePawn::GetHomingIsCharging() const
+{
+	return HomingLauncher->IsCharging();
+}
