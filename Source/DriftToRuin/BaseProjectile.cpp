@@ -17,6 +17,11 @@ ABaseProjectile::ABaseProjectile()
 	ProjectileMovementComponent->InitialSpeed = 8000.f;
 }
 
+UProjectileMovementComponent* ABaseProjectile::GetProjectileMovementComponent()
+{
+	return ProjectileMovementComponent;
+}
+
 void ABaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -27,6 +32,4 @@ void ABaseProjectile::BeginPlay()
 void ABaseProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-

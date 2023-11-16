@@ -42,7 +42,7 @@ void AMinigun::PullTrigger()
 	if(bIsOverheated) return;
 	Super::PullTrigger();
 	bIsFiring = true;
-	OverheatValue += 2.5f;
+	OverheatValue += 4.5f;
 	OnPullTrigger();
 }
 
@@ -181,6 +181,3 @@ float AMinigun::GetOverheatMaxValue() const
 {
 	return OverheatMax;
 }
-
-
-

@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetMinigunOverheatPercent() const;
 
+	UFUNCTION(BlueprintCallable)
+	bool GetHomingIsCharging() const;
+
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
 
@@ -61,6 +64,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* FireMinigunAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* FireHomingMissilesAction;
+
 	void ApplyThrottle(const struct FInputActionValue& Value);
 	void ApplyBraking(const  FInputActionValue& Value);
 	void ApplySteering(const FInputActionValue& Value);
@@ -73,4 +79,7 @@ private:
 
 	void FireMinigun();
 	void FireMinigunCompleted();
+
+	void FireHomingMissiles();
+	void FireHomingMissilesCompleted();
 };
