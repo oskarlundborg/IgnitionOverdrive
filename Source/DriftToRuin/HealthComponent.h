@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnVehicleDeathSignature, AActor*, DamageCauser);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DRIFTTORUIN_API UHealthComponent : public UActorComponent
@@ -42,6 +44,12 @@ public:
 
 	//Is preferably called upon in the constructor of any object using the HealthComponent.
 	void SetMaxHealth(float NewHealth);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnVehicleDeathSignature OnVehicleDeathDelegate;
+
+	UFUNCTION()
+	void OnVehicleDeath(AActor* DamageCauser);
 	
 private:
 	UPROPERTY(Category=Health, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
