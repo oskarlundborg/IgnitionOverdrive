@@ -22,6 +22,7 @@ public:
 	virtual void ReleaseTrigger() override;
 
 	bool IsCharging();
+	int32 GetChargeAmount();
 
 private:
 	FTimerHandle ChargeHandle;
