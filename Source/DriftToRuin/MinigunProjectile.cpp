@@ -21,7 +21,7 @@ void AMinigunProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	auto OwnerInstigator = ProjectileOwner->GetInstigatorController();
 	if(!OwnerInstigator) return;
 	auto DamageTypeClass = UDamageType::StaticClass();
-	Damage = OwnerBaseVehiclePawn->GetDamage();
+	Damage = OwnerBaseVehiclePawn->GetMinigunDamage();
 
 	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
 	Destroy();
