@@ -24,8 +24,13 @@ public:
 	bool IsCharging();
 	int32 GetChargeAmount();
 
+	UFUNCTION(BlueprintCallable)
 	void ResetAmmo();
+
+	UFUNCTION(BlueprintCallable)
 	void SetAmmo(int32 Amount);
+
+	UFUNCTION(BlueprintCallable)
 	int32 GetAmmo();
 
 private:
