@@ -21,6 +21,8 @@ public:
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
 
+	bool IsCharging();
+
 private:
 	FTimerHandle ChargeHandle;
 	FTimerHandle FireTimer;
@@ -35,6 +37,8 @@ private:
 	float TargetingRange;
 
 	int32 ChargeAmount;
+
+	bool bIsCharging;
 
 	UPROPERTY()
 	AActor* CurrentTarget;
