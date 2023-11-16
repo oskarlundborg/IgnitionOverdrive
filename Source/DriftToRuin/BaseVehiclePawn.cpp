@@ -85,7 +85,13 @@ void ABaseVehiclePawn::BeginPlay()
 		EngineAudioComponent->SetActive(bPlayEngineSound);
 	}
 
-	if(BoostVfxNiagaraComponent) BoostVfxNiagaraComponent->SetAsset(BoostVfxNiagaraSystem);
+	if(BoostVfxNiagaraComponent)
+	{
+		BoostVfxNiagaraComponent->SetAsset(BoostVfxNiagaraSystem);
+		BoostVfxNiagaraComponent->Deactivate();
+	}
+
+	
 	
 }
 
@@ -106,6 +112,7 @@ void ABaseVehiclePawn::OnBoostPressed()
 {
 	if(Booster.BoostAmount <= 0) return;
 	BoostStartEvent();
+	BoostVfxNiagaraComponent->Activate(true);
 	//DELAY??
 	Booster.SetEnabled(true);
 	OnBoosting();
@@ -123,6 +130,7 @@ void ABaseVehiclePawn::OnBoosting()
 		VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
 		VehicleMovementComp->SetThrottleInput(0);
 		RechargeBoost();
+		BoostVfxNiagaraComponent->Deactivate();
 		BoostStopEvent();
 		return;
 	}
