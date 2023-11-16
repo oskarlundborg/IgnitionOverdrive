@@ -3,6 +3,7 @@
 #include "BaseVehiclePawn.h"
 #include "HealthComponent.h"
 #include "Components/AudioComponent.h"
+#include "NiagaraComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
@@ -43,6 +44,10 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Creates Audio Component for Engine or something...
 	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
+
+	//Creates Niagara system for boost vfx
+	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
+	BoostVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
 	
 	//Camera & SpringArm may not be necessary in AI, move to player subclass if decided.
 	
@@ -79,6 +84,9 @@ void ABaseVehiclePawn::BeginPlay()
 		EngineAudioComponent->SetVolumeMultiplier(1);
 		EngineAudioComponent->SetActive(bPlayEngineSound);
 	}
+
+	if(BoostVfxNiagaraComponent) BoostVfxNiagaraComponent->SetAsset(BoostVfxNiagaraSystem);
+	
 }
 
 void ABaseVehiclePawn::Tick(float DeltaSeconds)
