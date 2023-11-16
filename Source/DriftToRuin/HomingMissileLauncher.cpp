@@ -15,6 +15,7 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	AmmoCapacity = 3.f;
 	AmmoAmount = AmmoCapacity;
 	ChargeAmount = 0;
+	bIsCharging = false;
 
 	CurrentTarget = nullptr;
 }
@@ -38,10 +39,16 @@ void AHomingMissileLauncher::PullTrigger()
 void AHomingMissileLauncher::ReleaseTrigger()
 {
 	Super::ReleaseTrigger();
+	bIsCharging = false;
 	if(GetWorldTimerManager().IsTimerActive(ChargeHandle)) GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
 	
 	if(!CurrentTarget || ChargeAmount == 0) return;
 	OnFire();
+}
+
+bool AHomingMissileLauncher::IsCharging()
+{
+	return bIsCharging;
 }
 
 void AHomingMissileLauncher::ChargeFire()
@@ -51,6 +58,7 @@ void AHomingMissileLauncher::ChargeFire()
 
 void AHomingMissileLauncher::OnChargeFire()
 {
+	bIsCharging = true;
 	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, 2.f, true, 2.f);
 }
 
