@@ -24,6 +24,10 @@ public:
 	bool IsCharging();
 	int32 GetChargeAmount();
 
+	void ResetAmmo();
+	void SetAmmo(int32 Amount);
+	int32 GetAmmo();
+
 private:
 	FTimerHandle ChargeHandle;
 	FTimerHandle FireTimer;

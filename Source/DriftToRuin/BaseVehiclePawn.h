@@ -106,9 +106,11 @@ public:
 	UFUNCTION()
 	void OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	APlayerTurret* GetTurret() const;
+	UFUNCTION(BlueprintCallable)
 	AMinigun* GetMinigun() const;
+	UFUNCTION(BlueprintCallable)
 	AHomingMissileLauncher* GetHomingLauncher() const;
 	
 protected:

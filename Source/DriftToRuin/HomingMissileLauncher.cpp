@@ -55,6 +55,22 @@ int32 AHomingMissileLauncher::GetChargeAmount()
 	return ChargeAmount;
 }
 
+void AHomingMissileLauncher::ResetAmmo()
+{
+	AmmoAmount = AmmoCapacity;
+}
+
+void AHomingMissileLauncher::SetAmmo(int32 Amount)
+{
+	if(Amount > AmmoCapacity) return;
+	AmmoAmount = Amount;
+}
+
+int32 AHomingMissileLauncher::GetAmmo()
+{
+	return AmmoAmount;
+}
+
 void AHomingMissileLauncher::ChargeFire()
 {
 	if(++ChargeAmount == AmmoAmount) GetWorldTimerManager().ClearTimer(ChargeHandle);
