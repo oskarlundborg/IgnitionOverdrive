@@ -137,6 +137,12 @@ protected:
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
 
+	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraComponent* BoostVfxNiagaraComponent;
+
+	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraSystem* BoostVfxNiagaraSystem;
+
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
 	
