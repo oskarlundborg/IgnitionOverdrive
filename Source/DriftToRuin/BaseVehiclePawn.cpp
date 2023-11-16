@@ -143,20 +143,25 @@ float ABaseVehiclePawn::GetBoostPercentage() const
 	return Booster.BoostAmount/Booster.MaxBoostAmount;
 }
 
-float ABaseVehiclePawn::GetDamage()
+float ABaseVehiclePawn::GetMinigunDamage()
 {
-	return Damage;
+	return MinigunDamage;
+}
+
+float ABaseVehiclePawn::GetHomingDamage()
+{
+	return HomingDamage;
 }
 
 void ABaseVehiclePawn::SetDamage(float NewDamage)
 {
-	Damage = NewDamage;
+	MinigunDamage = NewDamage;
 }
 
 void ABaseVehiclePawn::ApplyDamageBoost(float NewDamage, float TimerDuration)
 {
-	float OriginalDamage = Damage;
-	Damage = NewDamage;
+	float OriginalDamage = MinigunDamage;
+	MinigunDamage = NewDamage;
 	FTimerDelegate Delegate;
 	Delegate.BindUFunction(this, "RemoveDamageBoost", OriginalDamage);
 	//set timer to clear effect
@@ -165,7 +170,7 @@ void ABaseVehiclePawn::ApplyDamageBoost(float NewDamage, float TimerDuration)
 
 void ABaseVehiclePawn::RemoveDamageBoost(float OriginalDamage)
 {
-	Damage = OriginalDamage;
+	MinigunDamage = OriginalDamage;
 }
 
 APlayerTurret* ABaseVehiclePawn::GetTurret() const
