@@ -152,3 +152,8 @@ bool APlayerVehiclePawn::GetHomingIsCharging() const
 {
 	return HomingLauncher->IsCharging();
 }
+
+int32 APlayerVehiclePawn::GetHomingChargeAmount() const
+{
+	return HomingLauncher->GetChargeAmount();
+}
