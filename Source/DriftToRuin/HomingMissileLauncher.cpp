@@ -125,8 +125,11 @@ void AHomingMissileLauncher::FindTarget()
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Vehicle, TraceParams);
+	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(50.f);
+	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepSphere, TraceParams);
+	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
+	//GetWorld()->SweepSingleByChannel()
+	//bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Vehicle, TraceParams);
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
 	{
 		CurrentTarget = HitResult.GetActor();
