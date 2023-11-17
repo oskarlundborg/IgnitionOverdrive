@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ABaseVehiclePawn::ABaseVehiclePawn()
 {
@@ -104,6 +105,17 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		FVector2d(74.0f, 375.0f),
 		VehicleMovementComp->GetEngineRotationSpeed());
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
+
+	if(VehicleMovementComp->IsMovingOnGround())
+	{
+		GetMesh()->SetAngularDamping(0.0f);
+		InterpSpringArmToOriginalRotation();
+	}
+	else
+	{
+		GetMesh()->SetAngularDamping(0.3f);
+		InterpSpringArmToOriginalRotation();
+	}
 	
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, FString::Printf(TEXT("BOOST AMOUNT: %f"), Booster.BoostAmount)); //DEBUG FÖR BOOST AMOUNT
 }
@@ -148,6 +160,14 @@ void ABaseVehiclePawn::RechargeBoost()
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount, 0.0f, Booster.MaxBoostAmount));
 	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate, true);
 }
+
+void ABaseVehiclePawn::InterpSpringArmToOriginalRotation()
+{
+	float NewYaw = SpringArmComponent->GetRelativeRotation().Yaw;
+	NewYaw = FMath::FInterpTo(NewYaw, 0, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 1);
+	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, NewYaw));
+}
+
 
 void ABaseVehiclePawn::SetBoostAmount(float NewAmount)
 {
