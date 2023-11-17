@@ -79,7 +79,7 @@ void AHomingMissileLauncher::ChargeFire()
 void AHomingMissileLauncher::OnChargeFire()
 {
 	bIsCharging = true;
-	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, 2.f, true, 2.f);
+	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, ChargeTime, true, ChargeTime);
 }
 
 void AHomingMissileLauncher::Fire()
