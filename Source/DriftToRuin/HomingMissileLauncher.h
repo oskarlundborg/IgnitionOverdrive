@@ -67,6 +67,10 @@ private:
 	void Fire();
 	void OnFire();
 
+	void CheckTargetVisibility();
+	bool CheckTargetLineOfSight(AController* Controller);
+	bool CheckTargetInScreenBounds(APlayerController* PlayerController);
+
 public:
 	virtual void Tick(float DeltaSeconds) override;
 };
