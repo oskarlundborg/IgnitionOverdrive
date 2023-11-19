@@ -14,6 +14,7 @@ class DRIFTTORUIN_API ABaseTurret : public AActor
 public:	
 	ABaseTurret();
 	
+	UFUNCTION(BlueprintCallable)
 	USkeletalMeshComponent* GetTurretMesh() const;
 protected:
 	
