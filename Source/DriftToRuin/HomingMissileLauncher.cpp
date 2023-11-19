@@ -73,7 +73,7 @@ int32 AHomingMissileLauncher::GetAmmo()
 
 void AHomingMissileLauncher::ChargeFire()
 {
-	if(++ChargeAmount == AmmoAmount) GetWorldTimerManager().ClearTimer(ChargeHandle);
+	if(!CurrentTarget || ++ChargeAmount == AmmoAmount) GetWorldTimerManager().ClearTimer(ChargeHandle);
 }
 
 void AHomingMissileLauncher::OnChargeFire()
@@ -103,6 +103,44 @@ void AHomingMissileLauncher::OnFire()
 	GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
 }
 
+void AHomingMissileLauncher::CheckTargetVisibility()
+{
+	if(!CurrentTarget) return;
+	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	if(CarOwner == nullptr) return;
+	AController* OwnerController = CarOwner->GetController();
+	if(OwnerController == nullptr) return;
+	APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
+	if(OwnerPlayerController == nullptr) return;
+
+	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController))
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Lost sight!"))
+		CurrentTarget = nullptr;
+		ChargeAmount = 0;
+		bIsCharging = false;
+	}
+}
+
+bool AHomingMissileLauncher::CheckTargetLineOfSight(AController* Controller)
+{
+	return Controller->LineOfSightTo(CurrentTarget);
+}
+
+bool AHomingMissileLauncher::CheckTargetInScreenBounds(APlayerController* PlayerController)
+{
+	int32 ViewportSizeX;
+	int32 ViewportSizeY;
+	PlayerController->GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+	FVector TargetLocation = CurrentTarget->GetActorLocation();
+	FVector2D ScreenLocation;
+	bool bIsOnScreen = PlayerController->ProjectWorldLocationToScreen(TargetLocation, ScreenLocation);
+
+	if(bIsOnScreen && ScreenLocation.X >= 0 && ScreenLocation.X <= ViewportSizeX && ScreenLocation.Y >= 0 && ScreenLocation.Y <= ViewportSizeY) return true;
+	return false;
+}
+
 void AHomingMissileLauncher::FindTarget()
 {
 	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
@@ -128,19 +166,17 @@ void AHomingMissileLauncher::FindTarget()
 	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(50.f);
 	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepSphere, TraceParams);
 	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
-	//GetWorld()->SweepSingleByChannel()
-	//bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Vehicle, TraceParams);
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
 	{
 		CurrentTarget = HitResult.GetActor();
 	}
-
 	//UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitResult.GetActor()->GetName())
 }
 
 void AHomingMissileLauncher::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	CheckTargetVisibility();
 }
 
 
