@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ABaseVehiclePawn::ABaseVehiclePawn()
 {
@@ -104,7 +105,20 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		FVector2d(74.0f, 375.0f),
 		VehicleMovementComp->GetEngineRotationSpeed());
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
+
 	
+	if(IsGrounded())
+	{
+		GetMesh()->SetAngularDamping(0.0f);
+		InterpSpringArmToOriginalRotation();
+	}
+	else
+	{
+		GetMesh()->SetAngularDamping(0.3f);
+		InterpSpringArmToOriginalRotation();
+	}
+	
+	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("IS GROUNDED: %d"), IsGrounded()));
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, FString::Printf(TEXT("BOOST AMOUNT: %f"), Booster.BoostAmount)); //DEBUG FÖR BOOST AMOUNT
 }
 
@@ -138,7 +152,7 @@ void ABaseVehiclePawn::OnBoosting()
 	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
 	VehicleMovementComp->SetThrottleInput(1);
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
+	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
 }
 
 void ABaseVehiclePawn::RechargeBoost()
@@ -146,8 +160,29 @@ void ABaseVehiclePawn::RechargeBoost()
 	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
 	
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount, 0.0f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate, true);
+	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
 }
+
+void ABaseVehiclePawn::InterpSpringArmToOriginalRotation()
+{
+	float NewYaw = SpringArmComponent->GetRelativeRotation().Yaw;
+	NewYaw = FMath::FInterpTo(NewYaw, 0, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 1);
+	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, NewYaw));
+}
+
+bool ABaseVehiclePawn::IsGrounded()
+{
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(!Wheel->IsInAir())
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 
 void ABaseVehiclePawn::SetBoostAmount(float NewAmount)
 {
