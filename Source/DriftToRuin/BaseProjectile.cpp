@@ -26,6 +26,7 @@ void ABaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	ProjectileMesh->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
+	ProjectileMesh->OnComponentBeginOverlap.AddDynamic(this, &ABaseProjectile::OnOverlap);
 }
 
 // Called every frame
