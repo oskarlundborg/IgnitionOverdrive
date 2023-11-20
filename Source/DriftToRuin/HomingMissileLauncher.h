@@ -36,22 +36,26 @@ public:
 private:
 	FTimerHandle ChargeHandle;
 	FTimerHandle FireTimer;
+	FTimerHandle CooldownTimer;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
-	int32 AmmoCapacity;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	int32 ChargeCap;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
-	int32 AmmoAmount;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
+	//int32 AmmoAmount;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
-    float ChargeTime = 2.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+    float ChargeTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownDuration;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
 	float TargetingRange;
 
 	int32 ChargeAmount;
 
 	bool bIsCharging;
+	bool bIsOnCooldown;
 
 	UPROPERTY()
 	AActor* CurrentTarget;
@@ -70,6 +74,8 @@ private:
 	void CheckTargetVisibility();
 	bool CheckTargetLineOfSight(AController* Controller);
 	bool CheckTargetInScreenBounds(APlayerController* PlayerController);
+
+	void ResetCooldown();
 
 public:
 	virtual void Tick(float DeltaSeconds) override;

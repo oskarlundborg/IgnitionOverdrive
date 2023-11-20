@@ -12,22 +12,24 @@
 AHomingMissileLauncher::AHomingMissileLauncher()
 {
 	TargetingRange = 7000.f;
-	AmmoCapacity = 3.f;
+	ChargeCap = 3.f; 
 	ChargeAmount = 0;
+	ChargeTime = 2.f;
+	CooldownDuration = 10.f;
 	bIsCharging = false;
-
+	bIsOnCooldown = false;
 	CurrentTarget = nullptr;
 }
 
 void AHomingMissileLauncher::BeginPlay()
 {
 	Super::BeginPlay();
-	AmmoAmount = AmmoCapacity;
+	//AmmoAmount = ChargeCap; // here
 }
 
 void AHomingMissileLauncher::PullTrigger()
 {
-	if(AmmoAmount == 0) return;
+	if(bIsOnCooldown) return;
 	//ChargeAmount = 0;
 	CurrentTarget = nullptr; 
 	Super::PullTrigger();
@@ -41,7 +43,9 @@ void AHomingMissileLauncher::ReleaseTrigger()
 	bIsCharging = false;
 	if(GetWorldTimerManager().IsTimerActive(ChargeHandle)) GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
 	
-	if(!CurrentTarget || ChargeAmount == 0) return;
+	if(!CurrentTarget || ChargeAmount == 0 || GetWorldTimerManager().IsTimerActive(FireTimer)) return;
+	bIsOnCooldown = true;
+	GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, CooldownDuration, false, CooldownDuration);
 	OnFire();
 }
 
@@ -55,25 +59,32 @@ int32 AHomingMissileLauncher::GetChargeAmount()
 	return ChargeAmount;
 }
 
+void AHomingMissileLauncher::ResetCooldown()
+{
+	bIsOnCooldown = false;
+	GetWorldTimerManager().ClearTimer(CooldownTimer);
+}
+
 void AHomingMissileLauncher::ResetAmmo()
 {
-	AmmoAmount = AmmoCapacity;
+	//AmmoAmount = ChargeCap; // here
 }
 
 void AHomingMissileLauncher::SetAmmo(int32 Amount)
 {
-	if(Amount > AmmoCapacity) return;
-	AmmoAmount = Amount;
+	//if(Amount > ChargeCap) return; // here
+	//AmmoAmount = Amount;
 }
 
 int32 AHomingMissileLauncher::GetAmmo()
 {
-	return AmmoAmount;
+	//return AmmoAmount; // here
+	return 0;
 }
 
 void AHomingMissileLauncher::ChargeFire()
 {
-	if(!CurrentTarget || ++ChargeAmount == AmmoAmount) GetWorldTimerManager().ClearTimer(ChargeHandle);
+	if(!CurrentTarget || ++ChargeAmount == ChargeCap) GetWorldTimerManager().ClearTimer(ChargeHandle);
 }
 
 void AHomingMissileLauncher::OnChargeFire()
@@ -89,7 +100,6 @@ void AHomingMissileLauncher::Fire()
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
 	Projectile->SetOwner(GetOwner());
 	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CurrentTarget->GetRootComponent();
-	AmmoAmount--;
 
 	if(--ChargeAmount <= 0)
 	{
@@ -119,6 +129,8 @@ void AHomingMissileLauncher::CheckTargetVisibility()
 		CurrentTarget = nullptr;
 		ChargeAmount = 0;
 		bIsCharging = false;
+		//GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
+		//GetWorldTimerManager().ClearTimer(FireTimer);
 	}
 }
 
