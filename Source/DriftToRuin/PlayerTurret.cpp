@@ -19,7 +19,7 @@ void APlayerTurret::BeginPlay()
 void APlayerTurret::UpdateTurretRotation()
 {
 	Super::UpdateTurretRotation();
-	const APlayerVehiclePawn* CarOwner = Cast<APlayerVehiclePawn>(GetOwner());
+	/*const APlayerVehiclePawn* CarOwner = Cast<APlayerVehiclePawn>(GetOwner());
 	if(!CarOwner) return;
 	const AController* OwnerController = CarOwner->GetController();
 	if(!OwnerController) return;
@@ -29,11 +29,11 @@ void APlayerTurret::UpdateTurretRotation()
 	const FRotator TurretRotation = GetTurretMesh()->GetComponentRotation();
 	const FRotator NewTurretRotation = FMath::RInterpTo(TurretRotation, YawRotation, GetWorld()->GetDeltaSeconds(), 30);
 	//GetTurretMesh()->SetRelativeRotation(NewBaseRotation);
-	GetTurretMesh()->SetWorldRotation(NewTurretRotation);
+	GetTurretMesh()->SetWorldRotation(NewTurretRotation);*/
 }
 
 void APlayerTurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UpdateTurretRotation();
+	//UpdateTurretRotation();
 }

@@ -14,6 +14,7 @@ class DRIFTTORUIN_API ABaseTurret : public AActor
 public:	
 	ABaseTurret();
 	
+	UFUNCTION(BlueprintCallable)
 	USkeletalMeshComponent* GetTurretMesh() const;
 protected:
 	
@@ -25,7 +26,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* TurretRoot;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* TurretMesh;
 
 public:
