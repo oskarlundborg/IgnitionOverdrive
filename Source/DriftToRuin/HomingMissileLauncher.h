@@ -71,8 +71,9 @@ private:
 	void OnFire();
 
 	void CheckTargetVisibility();
-	bool CheckTargetLineOfSight(AController* Controller);
-	bool CheckTargetInScreenBounds(APlayerController* PlayerController);
+	bool CheckTargetLineOfSight(const AController* Controller) const;
+	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
+	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
 
 	void ResetCooldown();
 
