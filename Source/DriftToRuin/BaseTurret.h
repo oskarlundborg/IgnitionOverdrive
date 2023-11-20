@@ -26,7 +26,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* TurretRoot;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* TurretMesh;
 
 public:
