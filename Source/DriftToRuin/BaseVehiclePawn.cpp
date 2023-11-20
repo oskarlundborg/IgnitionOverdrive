@@ -114,7 +114,7 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 	}
 	else
 	{
-		GetMesh()->SetAngularDamping(0.3f);
+		GetMesh()->SetAngularDamping(10.0f);
 		InterpSpringArmToOriginalRotation();
 	}
 	
