@@ -59,7 +59,6 @@ private:
 
 	UPROPERTY()
 	AActor* CurrentTarget;
-	
 
 protected:
 	virtual void BeginPlay() override;

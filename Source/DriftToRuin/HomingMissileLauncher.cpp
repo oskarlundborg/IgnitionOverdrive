@@ -95,6 +95,12 @@ void AHomingMissileLauncher::OnChargeFire()
 
 void AHomingMissileLauncher::Fire()
 {
+	if(!GetOwner()) return;
+	if(!CurrentTarget)
+	{
+		GetWorldTimerManager().ClearTimer(FireTimer);
+		return;
+	}
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation = GetProjectileSpawnPoint()->GetComponentRotation();
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
@@ -125,7 +131,6 @@ void AHomingMissileLauncher::CheckTargetVisibility()
 
 	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Lost sight!"))
 		CurrentTarget = nullptr;
 		ChargeAmount = 0;
 		bIsCharging = false;
