@@ -4,7 +4,6 @@
 #include "PlayerVehiclePawn.h"
 #include "EnhancedInputComponent.h"
 #include "ChaosVehicleMovementComponent.h"
-#include "ChaosWheeledVehicleMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "HomingMissileLauncher.h"
 #include "Minigun.h"
