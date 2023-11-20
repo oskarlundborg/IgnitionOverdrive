@@ -46,11 +46,11 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	
 	//How often boost is consumed.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostConsumptionRate = 0.1f;
+	float BoostConsumptionRate = 1.0f;
 
 	//Amount of boost consumed per call (BoostConsumptionRate).
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostCost = 2.5f;
+	float BoostCost = 0.5f;
 
 	//How often boost recharges.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
@@ -58,7 +58,7 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 
 	//Boost Recharge amount per tick.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostRechargeAmount = 0.5f;
+	float BoostRechargeAmount = 0.05f;
 	
 	//Max Torque when boosting.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
