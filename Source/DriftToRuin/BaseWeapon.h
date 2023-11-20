@@ -31,7 +31,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* WeaponRoot;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere)
