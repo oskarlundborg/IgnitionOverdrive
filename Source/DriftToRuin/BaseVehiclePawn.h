@@ -64,6 +64,8 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostMaxTorque = 10000.0f;
 
+	void InterpSpringArmToOriginalRotation();
+
 public:
 	ABaseVehiclePawn();
 
@@ -84,6 +86,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	float GetBoostPercentage() const;
+
+	UFUNCTION()
+	bool IsGrounded();
 
 	float GetMinigunDamage();
 	float GetHomingDamage();
