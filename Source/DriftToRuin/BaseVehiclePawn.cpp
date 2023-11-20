@@ -106,7 +106,8 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		VehicleMovementComp->GetEngineRotationSpeed());
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
 
-	if(VehicleMovementComp->IsMovingOnGround())
+	
+	if(IsGrounded())
 	{
 		GetMesh()->SetAngularDamping(0.0f);
 		InterpSpringArmToOriginalRotation();
@@ -117,6 +118,7 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		InterpSpringArmToOriginalRotation();
 	}
 	
+	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("IS GROUNDED: %d"), IsGrounded()));
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, FString::Printf(TEXT("BOOST AMOUNT: %f"), Booster.BoostAmount)); //DEBUG FÖR BOOST AMOUNT
 }
 
@@ -166,6 +168,19 @@ void ABaseVehiclePawn::InterpSpringArmToOriginalRotation()
 	float NewYaw = SpringArmComponent->GetRelativeRotation().Yaw;
 	NewYaw = FMath::FInterpTo(NewYaw, 0, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 1);
 	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, NewYaw));
+}
+
+bool ABaseVehiclePawn::IsGrounded()
+{
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(!Wheel->IsInAir())
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 

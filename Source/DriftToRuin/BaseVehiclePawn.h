@@ -87,6 +87,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetBoostPercentage() const;
 
+	UFUNCTION()
+	bool IsGrounded();
+
 	float GetMinigunDamage();
 	float GetHomingDamage();
 
