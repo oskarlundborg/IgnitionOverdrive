@@ -106,11 +106,24 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 
 	if(!IsGrounded())
 	{
-		VehicleMovementComp->SetDownforceCoefficient(5.0f);
+		if(!Booster.bEnabled)
+		{
+			VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+			GetMesh()->SetLinearDamping(0.2f);
+			GetMesh()->SetAngularDamping(0.3f);
+		}
+		else
+		{
+			GetMesh()->SetLinearDamping(0.05f);
+			GetMesh()->SetAngularDamping(0.3f);
+		}
+		
 	}
 	else if(IsGrounded())
 	{
-		VehicleMovementComp->SetDownforceCoefficient(1.0f);
+		GetMesh()->SetLinearDamping(0.01f);
+		GetMesh()->SetAngularDamping(0.0f);
+		VehicleMovementComp->SetDownforceCoefficient(VehicleMovementComp->DownforceCoefficient);
 	}
 	
 	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("IS GROUNDED: %d"), IsGrounded()));
@@ -180,6 +193,11 @@ void ABaseVehiclePawn::SetBoostAmount(float NewAmount)
 float ABaseVehiclePawn::GetBoostPercentage() const
 {
 	return Booster.BoostAmount/Booster.MaxBoostAmount;
+}
+
+bool ABaseVehiclePawn::GetIsBoostEnabled() const
+{
+	return Booster.bEnabled;
 }
 
 float ABaseVehiclePawn::GetMinigunDamage()
