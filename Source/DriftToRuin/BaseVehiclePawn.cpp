@@ -171,7 +171,7 @@ void ABaseVehiclePawn::RechargeBoost()
 	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
 }
 
-bool ABaseVehiclePawn::IsGrounded()
+bool ABaseVehiclePawn::IsGrounded() const
 {
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
