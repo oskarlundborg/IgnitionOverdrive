@@ -41,7 +41,7 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	bool bPlayEngineSound = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Physics", meta = (AllowPrivateAccess = "true"))
-	float AirborneDownforceCoefficient = 4.0f;
+	float AirborneDownforceCoefficient = 2.5f;
 	
 	//Struct for booster
 	UPROPERTY()
