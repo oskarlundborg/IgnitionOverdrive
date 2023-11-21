@@ -28,6 +28,7 @@ void APlayerVehiclePawn::BeginPlay()
 		}
 	}
 
+	if(PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
@@ -175,35 +176,42 @@ void APlayerVehiclePawn::ApplyAirRollPitch(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::FireMinigun()
 {
+	if(MinigunClass == nullptr || Minigun == nullptr) return;
 	Minigun->PullTrigger();
 }
 
 void APlayerVehiclePawn::FireMinigunCompleted()
 {
+	if(MinigunClass == nullptr || Minigun == nullptr) return;
 	Minigun->ReleaseTrigger();
 }
 
 void APlayerVehiclePawn::FireHomingMissiles()
 {
+	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return;
 	HomingLauncher->PullTrigger();
 }
 
 void APlayerVehiclePawn::FireHomingMissilesCompleted()
 {
+	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return;
 	HomingLauncher->ReleaseTrigger();
 }
 
 float APlayerVehiclePawn::GetMinigunOverheatPercent() const
 {
+	if(MinigunClass == nullptr || Minigun == nullptr) return 0;
 	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
 }
 
 bool APlayerVehiclePawn::GetHomingIsCharging() const
 {
+	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return false;
 	return HomingLauncher->IsCharging();
 }
 
 int32 APlayerVehiclePawn::GetHomingChargeAmount() const
 {
+	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return false;
 	return HomingLauncher->GetChargeAmount();
 }
