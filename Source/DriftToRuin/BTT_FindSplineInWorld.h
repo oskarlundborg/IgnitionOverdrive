@@ -4,24 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_PathFind.generated.h"
-
+#include "BTT_FindSplineInWorld.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DRIFTTORUIN_API UBTTask_PathFind : public UBTTaskNode
+class DRIFTTORUIN_API UBTT_FindSplineInWorld : public UBTTaskNode
 {
 	GENERATED_BODY()
-
 public:
-	UBTTask_PathFind();
+	UBTT_FindSplineInWorld();
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
-	
+
 private:
-	APawn* AIPawn;
 	AAIController* AIController;
+	APawn* AIPawn;
 	UBlackboardComponent* BlackboardComp;
-	FVector Destination;
+	void ScanForSplines() const;
+	bool InitializeAIComponents(UBehaviorTreeComponent& OwnerComp);
 };
