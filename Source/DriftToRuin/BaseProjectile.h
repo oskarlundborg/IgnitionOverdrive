@@ -35,6 +35,13 @@ private:
 	UStaticMeshComponent* ProjectileMesh;
 	
 protected:
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraComponent* ProjectileVfxNiagaraComponent;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraSystem* ProjectileVfxNiagaraSystem;
+	
+protected:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
