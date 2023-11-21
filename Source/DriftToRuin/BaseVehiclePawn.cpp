@@ -106,11 +106,11 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 
 	if(!IsGrounded())
 	{
-		VehicleMovementComp->SetDownforceCoefficient(5.0f);
+		VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
 	}
 	else if(IsGrounded())
 	{
-		VehicleMovementComp->SetDownforceCoefficient(1.0f);
+		VehicleMovementComp->SetDownforceCoefficient(VehicleMovementComp->DownforceCoefficient);
 	}
 	
 	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("IS GROUNDED: %d"), IsGrounded()));
