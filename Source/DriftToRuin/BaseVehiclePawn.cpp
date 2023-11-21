@@ -91,8 +91,6 @@ void ABaseVehiclePawn::BeginPlay()
 		BoostVfxNiagaraComponent->SetAsset(BoostVfxNiagaraSystem);
 		BoostVfxNiagaraComponent->Deactivate();
 	}
-
-	
 	
 }
 
@@ -106,16 +104,26 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		VehicleMovementComp->GetEngineRotationSpeed());
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
 
-	
-	if(IsGrounded())
+	if(!IsGrounded())
 	{
-		GetMesh()->SetAngularDamping(0.0f);
-		InterpSpringArmToOriginalRotation();
+		if(!Booster.bEnabled)
+		{
+			VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+			GetMesh()->SetLinearDamping(0.2f);
+			GetMesh()->SetAngularDamping(0.3f);
+		}
+		else
+		{
+			GetMesh()->SetLinearDamping(0.05f);
+			GetMesh()->SetAngularDamping(0.3f);
+		}
+		
 	}
-	else
+	else if(IsGrounded())
 	{
-		GetMesh()->SetAngularDamping(0.3f);
-		InterpSpringArmToOriginalRotation();
+		GetMesh()->SetLinearDamping(0.01f);
+		GetMesh()->SetAngularDamping(0.0f);
+		VehicleMovementComp->SetDownforceCoefficient(VehicleMovementComp->DownforceCoefficient);
 	}
 	
 	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("IS GROUNDED: %d"), IsGrounded()));
@@ -163,13 +171,6 @@ void ABaseVehiclePawn::RechargeBoost()
 	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
 }
 
-void ABaseVehiclePawn::InterpSpringArmToOriginalRotation()
-{
-	float NewYaw = SpringArmComponent->GetRelativeRotation().Yaw;
-	NewYaw = FMath::FInterpTo(NewYaw, 0, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 1);
-	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, NewYaw));
-}
-
 bool ABaseVehiclePawn::IsGrounded()
 {
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
@@ -192,6 +193,11 @@ void ABaseVehiclePawn::SetBoostAmount(float NewAmount)
 float ABaseVehiclePawn::GetBoostPercentage() const
 {
 	return Booster.BoostAmount/Booster.MaxBoostAmount;
+}
+
+bool ABaseVehiclePawn::GetIsBoostEnabled() const
+{
+	return Booster.bEnabled;
 }
 
 float ABaseVehiclePawn::GetMinigunDamage()

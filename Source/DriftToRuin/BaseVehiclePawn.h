@@ -39,6 +39,9 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Physics", meta = (AllowPrivateAccess = "true"))
+	float AirborneDownforceCoefficient = 2.5f;
 	
 	//Struct for booster
 	UPROPERTY()
@@ -64,8 +67,6 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostMaxTorque = 10000.0f;
 
-	void InterpSpringArmToOriginalRotation();
-
 public:
 	ABaseVehiclePawn();
 
@@ -86,6 +87,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	float GetBoostPercentage() const;
+
+	UFUNCTION(BlueprintPure)
+	bool GetIsBoostEnabled() const;
 
 	UFUNCTION()
 	bool IsGrounded();
