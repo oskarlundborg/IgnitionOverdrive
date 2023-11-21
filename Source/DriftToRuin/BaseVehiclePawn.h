@@ -46,11 +46,11 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	
 	//How often boost is consumed.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostConsumptionRate = 0.1f;
+	float BoostConsumptionRate = 1.0f;
 
 	//Amount of boost consumed per call (BoostConsumptionRate).
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostCost = 2.5f;
+	float BoostCost = 0.5f;
 
 	//How often boost recharges.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
@@ -58,11 +58,13 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 
 	//Boost Recharge amount per tick.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostRechargeAmount = 0.5f;
+	float BoostRechargeAmount = 0.05f;
 	
 	//Max Torque when boosting.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostMaxTorque = 10000.0f;
+
+	void InterpSpringArmToOriginalRotation();
 
 public:
 	ABaseVehiclePawn();
@@ -85,7 +87,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetBoostPercentage() const;
 
-	float GetDamage();
+	UFUNCTION()
+	bool IsGrounded();
+
+	float GetMinigunDamage();
+	float GetHomingDamage();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BoostStartEvent();
@@ -105,9 +111,11 @@ public:
 	UFUNCTION()
 	void OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	APlayerTurret* GetTurret() const;
+	UFUNCTION(BlueprintCallable)
 	AMinigun* GetMinigun() const;
+	UFUNCTION(BlueprintCallable)
 	AHomingMissileLauncher* GetHomingLauncher() const;
 	
 protected:
@@ -128,10 +136,19 @@ protected:
 	float MaxHealth = 100;
 
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
-	float Damage = 5;
+	float MinigunDamage = 5;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
+	float HomingDamage = 20.f;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
+
+	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraComponent* BoostVfxNiagaraComponent;
+
+	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraSystem* BoostVfxNiagaraSystem;
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;

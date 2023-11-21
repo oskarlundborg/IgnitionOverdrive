@@ -17,16 +17,20 @@ ABaseProjectile::ABaseProjectile()
 	ProjectileMovementComponent->InitialSpeed = 8000.f;
 }
 
+UProjectileMovementComponent* ABaseProjectile::GetProjectileMovementComponent()
+{
+	return ProjectileMovementComponent;
+}
+
 void ABaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	ProjectileMesh->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
+	ProjectileMesh->OnComponentBeginOverlap.AddDynamic(this, &ABaseProjectile::OnOverlap);
 }
 
 // Called every frame
 void ABaseProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-

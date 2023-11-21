@@ -3,10 +3,12 @@
 #include "BaseVehiclePawn.h"
 #include "HealthComponent.h"
 #include "Components/AudioComponent.h"
+#include "NiagaraComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ABaseVehiclePawn::ABaseVehiclePawn()
 {
@@ -43,6 +45,10 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Creates Audio Component for Engine or something...
 	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
+
+	//Creates Niagara system for boost vfx
+	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
+	BoostVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
 	
 	//Camera & SpringArm may not be necessary in AI, move to player subclass if decided.
 	
@@ -63,7 +69,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Create Bumper Collision Component
 	BumperCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Bumper"));
 	BumperCollisionBox->SetupAttachment(RootComponent);
-	BumperCollisionBox->SetRelativeLocation({285,0,-57.5});
+	BumperCollisionBox->SetRelativeLocation({285,0,0});
 	BumperCollisionBox->SetRelativeScale3D({1,3.25,0.75});
 	BumperCollisionBox->SetNotifyRigidBodyCollision(true);
 	BumperCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBumperBeginOverlap);
@@ -79,6 +85,15 @@ void ABaseVehiclePawn::BeginPlay()
 		EngineAudioComponent->SetVolumeMultiplier(1);
 		EngineAudioComponent->SetActive(bPlayEngineSound);
 	}
+
+	if(BoostVfxNiagaraComponent)
+	{
+		BoostVfxNiagaraComponent->SetAsset(BoostVfxNiagaraSystem);
+		BoostVfxNiagaraComponent->Deactivate();
+	}
+
+	
+	
 }
 
 void ABaseVehiclePawn::Tick(float DeltaSeconds)
@@ -90,7 +105,20 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		FVector2d(74.0f, 375.0f),
 		VehicleMovementComp->GetEngineRotationSpeed());
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
+
 	
+	if(IsGrounded())
+	{
+		GetMesh()->SetAngularDamping(0.0f);
+		InterpSpringArmToOriginalRotation();
+	}
+	else
+	{
+		GetMesh()->SetAngularDamping(0.3f);
+		InterpSpringArmToOriginalRotation();
+	}
+	
+	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("IS GROUNDED: %d"), IsGrounded()));
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, FString::Printf(TEXT("BOOST AMOUNT: %f"), Booster.BoostAmount)); //DEBUG FÖR BOOST AMOUNT
 }
 
@@ -98,6 +126,7 @@ void ABaseVehiclePawn::OnBoostPressed()
 {
 	if(Booster.BoostAmount <= 0) return;
 	BoostStartEvent();
+	BoostVfxNiagaraComponent->Activate(true);
 	//DELAY??
 	Booster.SetEnabled(true);
 	OnBoosting();
@@ -115,6 +144,7 @@ void ABaseVehiclePawn::OnBoosting()
 		VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
 		VehicleMovementComp->SetThrottleInput(0);
 		RechargeBoost();
+		BoostVfxNiagaraComponent->Deactivate();
 		BoostStopEvent();
 		return;
 	}
@@ -122,7 +152,7 @@ void ABaseVehiclePawn::OnBoosting()
 	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
 	VehicleMovementComp->SetThrottleInput(1);
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
+	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
 }
 
 void ABaseVehiclePawn::RechargeBoost()
@@ -130,8 +160,29 @@ void ABaseVehiclePawn::RechargeBoost()
 	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
 	
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount, 0.0f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate, true);
+	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
 }
+
+void ABaseVehiclePawn::InterpSpringArmToOriginalRotation()
+{
+	float NewYaw = SpringArmComponent->GetRelativeRotation().Yaw;
+	NewYaw = FMath::FInterpTo(NewYaw, 0, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 1);
+	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, NewYaw));
+}
+
+bool ABaseVehiclePawn::IsGrounded()
+{
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(!Wheel->IsInAir())
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 
 void ABaseVehiclePawn::SetBoostAmount(float NewAmount)
 {
@@ -143,21 +194,25 @@ float ABaseVehiclePawn::GetBoostPercentage() const
 	return Booster.BoostAmount/Booster.MaxBoostAmount;
 }
 
-
-float ABaseVehiclePawn::GetDamage()
+float ABaseVehiclePawn::GetMinigunDamage()
 {
-	return Damage;
+	return MinigunDamage;
+}
+
+float ABaseVehiclePawn::GetHomingDamage()
+{
+	return HomingDamage;
 }
 
 void ABaseVehiclePawn::SetDamage(float NewDamage)
 {
-	Damage = NewDamage;
+	MinigunDamage = NewDamage;
 }
 
 void ABaseVehiclePawn::ApplyDamageBoost(float NewDamage, float TimerDuration)
 {
-	float OriginalDamage = Damage;
-	Damage = NewDamage;
+	float OriginalDamage = MinigunDamage;
+	MinigunDamage = NewDamage;
 	FTimerDelegate Delegate;
 	Delegate.BindUFunction(this, "RemoveDamageBoost", OriginalDamage);
 	//set timer to clear effect
@@ -166,7 +221,7 @@ void ABaseVehiclePawn::ApplyDamageBoost(float NewDamage, float TimerDuration)
 
 void ABaseVehiclePawn::RemoveDamageBoost(float OriginalDamage)
 {
-	Damage = OriginalDamage;
+	MinigunDamage = OriginalDamage;
 }
 
 APlayerTurret* ABaseVehiclePawn::GetTurret() const

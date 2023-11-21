@@ -10,21 +10,27 @@ AMinigunProjectile::AMinigunProjectile()
 	
 }
 
-/*Projectile callback function for collision*/
-void AMinigunProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpusle, const FHitResult& Hit)
+void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpusle, Hit);
+	Super::OnOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
 	auto OwnerBaseVehiclePawn = Cast<ABaseVehiclePawn>(ProjectileOwner);
 	auto OwnerInstigator = ProjectileOwner->GetInstigatorController();
 	if(!OwnerInstigator) return;
 	auto DamageTypeClass = UDamageType::StaticClass();
-	Damage = OwnerBaseVehiclePawn->GetDamage();
-	
+	Damage = OwnerBaseVehiclePawn->GetMinigunDamage();
 
 	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
+	Destroy();
+}
+
+/*Projectile callback function for collision*/
+void AMinigunProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpusle, const FHitResult& Hit)
+{
+	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpusle, Hit);
 	Destroy();
 }
 

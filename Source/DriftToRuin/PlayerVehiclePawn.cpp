@@ -16,7 +16,6 @@ APlayerVehiclePawn::APlayerVehiclePawn()
 	
 }
 
-
 void APlayerVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -30,15 +29,15 @@ void APlayerVehiclePawn::BeginPlay()
 	}
 
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
-	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretSocket"));
+	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
-	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("MinigunSocket"));
+	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root_Turret"));
 	Minigun->SetOwner(this);
 
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
-	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("HomingSocket"));
+	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("Root_MissileLauncher"));
 	HomingLauncher->SetOwner(this);
 }
 
@@ -67,8 +66,21 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::OnBoostPressed);
 		EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::OnBoostReleased);
 
+		EnhancedInputComponent->BindAction(AirRollYawAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollYaw);
+		EnhancedInputComponent->BindAction(AirRollYawAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollYaw);
+
+		EnhancedInputComponent->BindAction(AirRollRollAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollRoll);
+		EnhancedInputComponent->BindAction(AirRollRollAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollRoll);
+
+		EnhancedInputComponent->BindAction(AirRollPitchAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollPitch);
+		EnhancedInputComponent->BindAction(AirRollPitchAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollPitch);
+		
+
 		EnhancedInputComponent->BindAction(FireMinigunAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::FireMinigun);
 		EnhancedInputComponent->BindAction(FireMinigunAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::FireMinigunCompleted);
+
+		EnhancedInputComponent->BindAction(FireHomingMissilesAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::FireHomingMissiles);
+		EnhancedInputComponent->BindAction(FireHomingMissilesAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::FireHomingMissilesCompleted);
 	}
 }
 
@@ -108,7 +120,6 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 	if(Value.Get<float>() != 0.f)
 	{
 		AddControllerPitchInput(Value.Get<float>()*Sensitivity);
-		
 	}
 }
 
@@ -122,6 +133,46 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 	GetVehicleMovementComponent()->SetHandbrakeInput(false);
 }
 
+void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
+{
+	if(IsGrounded())
+	{
+		GetVehicleMovementComponent()->SetYawInput(0);
+	}
+	
+	if(!IsGrounded() || Value.Get<float>() == 0.f)
+	{
+		GetVehicleMovementComponent()->SetYawInput(Value.Get<float>());
+	}
+}
+
+void APlayerVehiclePawn::ApplyAirRollRoll(const FInputActionValue& Value)
+{
+	if(IsGrounded())
+	{
+		GetVehicleMovementComponent()->SetRollInput(0);
+	}
+	
+	else if(!IsGrounded() || Value.Get<float>() == 0.f)
+	{
+		GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
+	}
+}
+
+void APlayerVehiclePawn::ApplyAirRollPitch(const FInputActionValue& Value)
+{
+	if(IsGrounded())
+	{
+		GetVehicleMovementComponent()->SetPitchInput(0);
+	}
+	
+	if(!IsGrounded() || Value.Get<float>() == 0.f)
+	{
+		GetVehicleMovementComponent()->SetPitchInput(Value.Get<float>());
+	}
+}
+
+
 void APlayerVehiclePawn::FireMinigun()
 {
 	Minigun->PullTrigger();
@@ -132,10 +183,27 @@ void APlayerVehiclePawn::FireMinigunCompleted()
 	Minigun->ReleaseTrigger();
 }
 
+void APlayerVehiclePawn::FireHomingMissiles()
+{
+	HomingLauncher->PullTrigger();
+}
+
+void APlayerVehiclePawn::FireHomingMissilesCompleted()
+{
+	HomingLauncher->ReleaseTrigger();
+}
+
 float APlayerVehiclePawn::GetMinigunOverheatPercent() const
 {
 	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
 }
 
+bool APlayerVehiclePawn::GetHomingIsCharging() const
+{
+	return HomingLauncher->IsCharging();
+}
 
-
+int32 APlayerVehiclePawn::GetHomingChargeAmount() const
+{
+	return HomingLauncher->GetChargeAmount();
+}

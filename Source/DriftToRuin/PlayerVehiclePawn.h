@@ -27,6 +27,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetMinigunOverheatPercent() const;
 
+	UFUNCTION(BlueprintCallable)
+	bool GetHomingIsCharging() const;
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetHomingChargeAmount() const;
+
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
 
@@ -59,7 +65,19 @@ private:
 	UInputAction* BoostAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* AirRollYawAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* AirRollRollAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* AirRollPitchAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* FireMinigunAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* FireHomingMissilesAction;
 
 	void ApplyThrottle(const struct FInputActionValue& Value);
 	void ApplyBraking(const  FInputActionValue& Value);
@@ -71,6 +89,13 @@ private:
 	void OnHandbrakePressed();
 	void OnHandbrakeReleased();
 
+	void ApplyAirRollYaw(const FInputActionValue& Value);
+	void ApplyAirRollRoll(const FInputActionValue& Value);
+	void ApplyAirRollPitch(const FInputActionValue& Value);
+
 	void FireMinigun();
 	void FireMinigunCompleted();
+
+	void FireHomingMissiles();
+	void FireHomingMissilesCompleted();
 };
