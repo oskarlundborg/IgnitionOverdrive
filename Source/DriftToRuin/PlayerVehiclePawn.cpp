@@ -28,6 +28,7 @@ void APlayerVehiclePawn::BeginPlay()
 		}
 	}
 
+	
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);

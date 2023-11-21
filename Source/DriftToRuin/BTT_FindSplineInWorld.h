@@ -16,5 +16,11 @@ class DRIFTTORUIN_API UBTT_FindSplineInWorld : public UBTTaskNode
 public:
 	UBTT_FindSplineInWorld();
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
-	
+
+private:
+	AAIController* AIController;
+	APawn* AIPawn;
+	UBlackboardComponent* BlackboardComp;
+	void ScanForSplines() const;
+	bool InitializeAIComponents(UBehaviorTreeComponent& OwnerComp);
 };
