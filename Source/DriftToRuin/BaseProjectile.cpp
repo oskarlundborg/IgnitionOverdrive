@@ -3,6 +3,7 @@
 
 #include "BaseProjectile.h"
 
+#include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 ABaseProjectile::ABaseProjectile()
@@ -11,6 +12,9 @@ ABaseProjectile::ABaseProjectile()
 	
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	SetRootComponent(ProjectileMesh);
+
+	ProjectileVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
+	ProjectileVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("VFX"));
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 	ProjectileMovementComponent->MaxSpeed = 8000.f;
@@ -27,6 +31,12 @@ void ABaseProjectile::BeginPlay()
 	Super::BeginPlay();
 	ProjectileMesh->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
 	ProjectileMesh->OnComponentBeginOverlap.AddDynamic(this, &ABaseProjectile::OnOverlap);
+
+	if(ProjectileVfxNiagaraComponent)
+	{
+		ProjectileVfxNiagaraComponent->SetAsset(ProjectileVfxNiagaraSystem);
+		//ProjectileVfxNiagaraComponent->Deactivate();
+	}
 }
 
 // Called every frame
