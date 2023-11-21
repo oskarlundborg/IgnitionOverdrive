@@ -88,6 +88,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetBoostPercentage() const;
 
+	UFUNCTION(BlueprintPure)
+	bool GetIsBoostEnabled() const;
+
 	UFUNCTION()
 	bool IsGrounded();
 

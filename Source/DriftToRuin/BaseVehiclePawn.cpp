@@ -195,6 +195,11 @@ float ABaseVehiclePawn::GetBoostPercentage() const
 	return Booster.BoostAmount/Booster.MaxBoostAmount;
 }
 
+bool ABaseVehiclePawn::GetIsBoostEnabled() const
+{
+	return Booster.bEnabled;
+}
+
 float ABaseVehiclePawn::GetMinigunDamage()
 {
 	return MinigunDamage;
