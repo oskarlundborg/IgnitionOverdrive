@@ -124,27 +124,27 @@ void AHomingMissileLauncher::CheckTargetVisibility()
 	if(!CurrentTarget) return;
 	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
-	AController* OwnerController = CarOwner->GetController();
+	const AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
-	APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
+	const APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
 	if(OwnerPlayerController == nullptr) return;
 
-	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController))
+	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner))
 	{
 		CurrentTarget = nullptr;
 		ChargeAmount = 0;
 		bIsCharging = false;
-		//GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
+		//GetWorldTimerManager().ClearTimer(ChargeHandle);
 		//GetWorldTimerManager().ClearTimer(FireTimer);
 	}
 }
 
-bool AHomingMissileLauncher::CheckTargetLineOfSight(AController* Controller)
+bool AHomingMissileLauncher::CheckTargetLineOfSight(const AController* Controller) const
 {
 	return Controller->LineOfSightTo(CurrentTarget);
 }
 
-bool AHomingMissileLauncher::CheckTargetInScreenBounds(APlayerController* PlayerController)
+bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* PlayerController) const
 {
 	int32 ViewportSizeX;
 	int32 ViewportSizeY;
@@ -155,6 +155,13 @@ bool AHomingMissileLauncher::CheckTargetInScreenBounds(APlayerController* Player
 	bool bIsOnScreen = PlayerController->ProjectWorldLocationToScreen(TargetLocation, ScreenLocation);
 
 	if(bIsOnScreen && ScreenLocation.X >= 0 && ScreenLocation.X <= ViewportSizeX && ScreenLocation.Y >= 0 && ScreenLocation.Y <= ViewportSizeY) return true;
+	return false;
+}
+
+bool AHomingMissileLauncher::CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const
+{
+	float CurrentDistance = Owner->GetDistanceTo(CurrentTarget);
+	if(CurrentDistance <= TargetingRange) return true;
 	return false;
 }
 
@@ -180,7 +187,7 @@ void AHomingMissileLauncher::FindTarget()
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(50.f);
+	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(60.f);
 	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepSphere, TraceParams);
 	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
