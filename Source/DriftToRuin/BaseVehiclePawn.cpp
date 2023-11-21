@@ -106,10 +106,23 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 
 	if(!IsGrounded())
 	{
-		VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+		if(!Booster.bEnabled)
+		{
+			VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+			GetMesh()->SetLinearDamping(0.2f);
+			GetMesh()->SetAngularDamping(0.3f);
+		}
+		else
+		{
+			GetMesh()->SetLinearDamping(0.05f);
+			GetMesh()->SetAngularDamping(0.3f);
+		}
+		
 	}
 	else if(IsGrounded())
 	{
+		GetMesh()->SetLinearDamping(0.01f);
+		GetMesh()->SetAngularDamping(0.0f);
 		VehicleMovementComp->SetDownforceCoefficient(VehicleMovementComp->DownforceCoefficient);
 	}
 	
