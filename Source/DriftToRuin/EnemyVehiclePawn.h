@@ -20,11 +20,14 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-
+	std::string SetSwitchString(std::string NewSwitchString);
+	
 	
 private:
 	float ThrottleInput;
 	float BrakeInput;
-	float SteeringInput; 
+	float SteeringInput;
+
+	std::string SwitchString; 
 	
 };

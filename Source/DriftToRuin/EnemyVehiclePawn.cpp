@@ -8,27 +8,49 @@
 
 AEnemyVehiclePawn::AEnemyVehiclePawn()
 {
-	
 }
 
 void AEnemyVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretSocket"));
 	Turret->SetOwner(this);
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
-	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("MinigunSocket"));
+	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+	                           TEXT("MinigunSocket"));
 	Minigun->SetOwner(this);
 
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
-	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("HomingSocket"));
+	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+	                                  TEXT("HomingSocket"));
 	HomingLauncher->SetOwner(this);
 }
 
 void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	switch (SwitchString)
+	{
+	case "Drive":
+
+		break;
+	case "DriveAndShoot":
+		break;
+	case "RushInto":
+		break;
+
+
+	default:
+
+		break;
+	}
+}
+
+std::string AEnemyVehiclePawn::SetSwitchString(std::string NewSwitchString)
+{
+	SwitchString = NewSwitchString;
 }

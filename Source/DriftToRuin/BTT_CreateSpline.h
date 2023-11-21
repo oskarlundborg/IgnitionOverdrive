@@ -4,24 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_PathFind.generated.h"
-
+#include "BTT_CreateSpline.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DRIFTTORUIN_API UBTTask_PathFind : public UBTTaskNode
+class DRIFTTORUIN_API UBTT_CreateSpline : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
-	UBTTask_PathFind();
+	UBTT_CreateSpline();
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
-	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
-	float DistanceThreshold = 500;
+	float DistanceThreshold = 1000;
 
 	UPROPERTY(EditAnywhere)
 	float MaxTraceDistance = 10000;
@@ -29,7 +27,6 @@ public:
 	float SplinePointThreshold = 200;
 
 private:
-	
 	APawn* AIPawn;
 	AAIController* AIController;
 	UBlackboardComponent* BlackboardComp;
@@ -45,12 +42,8 @@ private:
 	FVector SplineLocationPoint;
 	FVector SplineTangent;
 
-	//sensor point
-	USceneComponent* LeftSensor;
-	USceneComponent* RightSensor;
-
-	//helper function
+	
+	void CreateSpline();
 	bool InitializeAIComponents(UBehaviorTreeComponent& OwnerComp);
-	bool InitializeSplineAndSensors();
+	
 };
-
