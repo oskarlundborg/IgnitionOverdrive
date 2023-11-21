@@ -91,8 +91,6 @@ void ABaseVehiclePawn::BeginPlay()
 		BoostVfxNiagaraComponent->SetAsset(BoostVfxNiagaraSystem);
 		BoostVfxNiagaraComponent->Deactivate();
 	}
-
-	
 	
 }
 
@@ -106,16 +104,13 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 		VehicleMovementComp->GetEngineRotationSpeed());
 	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
 
-	
-	if(IsGrounded())
+	if(!IsGrounded())
 	{
-		GetMesh()->SetAngularDamping(0.0f);
-		InterpSpringArmToOriginalRotation();
+		VehicleMovementComp->SetDownforceCoefficient(5.0f);
 	}
-	else
+	else if(IsGrounded())
 	{
-		GetMesh()->SetAngularDamping(0.3f);
-		InterpSpringArmToOriginalRotation();
+		VehicleMovementComp->SetDownforceCoefficient(1.0f);
 	}
 	
 	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("IS GROUNDED: %d"), IsGrounded()));
@@ -161,13 +156,6 @@ void ABaseVehiclePawn::RechargeBoost()
 	
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount, 0.0f, Booster.MaxBoostAmount));
 	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
-}
-
-void ABaseVehiclePawn::InterpSpringArmToOriginalRotation()
-{
-	float NewYaw = SpringArmComponent->GetRelativeRotation().Yaw;
-	NewYaw = FMath::FInterpTo(NewYaw, 0, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 1);
-	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, NewYaw));
 }
 
 bool ABaseVehiclePawn::IsGrounded()
