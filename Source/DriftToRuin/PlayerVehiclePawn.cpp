@@ -204,6 +204,12 @@ float APlayerVehiclePawn::GetMinigunOverheatPercent() const
 	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
 }
 
+bool APlayerVehiclePawn::GetMinigunIsOverheated() const
+{
+	if(MinigunClass == nullptr || Minigun == nullptr) return false;
+	return Minigun->GetIsOverheated();
+}
+
 float APlayerVehiclePawn::GetMissileChargePercent() const
 {
 	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
