@@ -14,33 +14,36 @@ UCLASS()
 class DRIFTTORUIN_API AHomingMissileLauncher : public ABaseWeapon
 {
 	GENERATED_BODY()
-
+	
 public:
 	AHomingMissileLauncher();
-
+	
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
-
+	
 	bool IsCharging();
 	int32 GetChargeAmount();
 
+	float GetChargeValue();
+	float GetChargeCapValue();
+	
 	UFUNCTION(BlueprintCallable)
 	void ResetAmmo();
-
+	
 	UFUNCTION(BlueprintCallable)
 	void SetAmmo(int32 Amount);
-
+	
 	UFUNCTION(BlueprintCallable)
 	int32 GetAmmo();
-
+	
 private:
 	FTimerHandle ChargeHandle;
 	FTimerHandle FireTimer;
 	FTimerHandle CooldownTimer;
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	int32 ChargeCap;
-
+	
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
 	//int32 AmmoAmount;
 	
@@ -49,17 +52,24 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	float CooldownDuration;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
-	float TargetingRange;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float ChargeBuildUpRate;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float ChargeValue;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float ChargeValueCap;
+	
 	int32 ChargeAmount;
-
+	
 	bool bIsCharging;
 	bool bIsOnCooldown;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	float TargetingRange;
+	
 	UPROPERTY()
 	AActor* CurrentTarget;
-
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -76,7 +86,6 @@ private:
 	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
 
 	void ResetCooldown();
-
 public:
 	virtual void Tick(float DeltaSeconds) override;
 };

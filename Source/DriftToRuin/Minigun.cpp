@@ -142,7 +142,7 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	
 	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
-
+	
 	FVector HitEndLocation; 
 	if(bHit)
 	{
@@ -153,7 +153,7 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	{
 		HitEndLocation = HitResult.TraceEnd;
 	}
-
+	
 	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
 	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
 	//float RandomSpawnSpreadY = FMath::RandRange(-50.f, 50.f);
