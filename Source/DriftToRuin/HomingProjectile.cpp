@@ -8,17 +8,22 @@
 #include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 AHomingProjectile::AHomingProjectile()
 {
 	ProjectileMovementComponent->bIsHomingProjectile = true;
 	DestructionTime = 0.8f;
+
+	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>(TEXT("Radial force"));
+	RadialForceComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Radial Foce Component"));
 }
 
 void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	RadialForceComponent->FireImpulse();
 	ProjectileVfxNiagaraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
