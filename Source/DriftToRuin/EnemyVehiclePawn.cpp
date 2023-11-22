@@ -5,6 +5,7 @@
 
 #include "AIController.h"
 #include "ChaosVehicleMovementComponent.h"
+#include "FrameTypes.h"
 #include "HomingMissileLauncher.h"
 #include "Minigun.h"
 #include "PlayerTurret.h"
@@ -109,23 +110,31 @@ void AEnemyVehiclePawn::DrivePath()
 		RightSensor->GetComponentLocation(), SplineLocationPoint);
 
 	SensorGapDifference = FMath::Abs(SensorGapDifference);
-	UE_LOG(LogTemp, Warning, TEXT("sensor gap diiff : %f"), SensorGapDifference);
+	float TempSteeringInput = SteeringInput;
+	//UE_LOG(LogTemp, Warning, TEXT("sensor gap diiff : %f"), SensorGapDifference);
 	if (SensorGapDifference < 10)
 	{
-		VehicleMovementComponent->SetSteeringInput(0);
-		UE_LOG(LogTemp, Warning, TEXT("sensor gap diiff : %f"), SensorGapDifference);
+		SteeringInput = 0;
+		//UE_LOG(LogTemp, Warning, TEXT("sensor gap diiff : %f"), SensorGapDifference);
 	}
 	else if (FVector::Dist(LeftSensor->GetComponentLocation(), SplineLocationPoint) > FVector::Dist(
 		RightSensor->GetComponentLocation(), SplineLocationPoint))
 	{
-		VehicleMovementComponent->SetSteeringInput(0.6);
+		SteeringInput = 0.6;
 	}
 	else
 	{
-		VehicleMovementComponent->SetSteeringInput(-0.6);
+		SteeringInput = -0.6;
+		
 	}
+	// find out waht delta time * 40 does
+	const float LerpValue = FMath::Lerp(TempSteeringInput, SteeringInput, GetWorld()->DeltaTimeSeconds * 40);
+	//lerp for smoother turning curve
+	TempSteeringInput = LerpValue;
+	VehicleMovementComponent->SetSteeringInput(LerpValue);
 	//	UE_LOG(LogTemp, Warning, TEXT("Destination, %f, %f, %f"), Destination.X, Destination.Y, Destination.Z);
 	//	UE_LOG(LogTemp, Warning, TEXT("actor location, %s"), *GetActorLocation().ToString());
+	
 	if (BlackboardComp != nullptr)
 	{
 		Destination = BlackboardComp->GetValueAsVector("PointLocation");

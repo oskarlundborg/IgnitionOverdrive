@@ -28,18 +28,28 @@ EBTNodeResult::Type UBTT_FindSplineInWorld::ExecuteTask(UBehaviorTreeComponent& 
 void UBTT_FindSplineInWorld::ScanForSplines() const
 {
 	// Get the player controller
+
+	//scan is not that pretty, leave for now and work on AI find opponent instead. 
+
 	
 	// Parameters for the scan
 	float ScanRadius = 2000.0f;
 	float ScanAngle = 90.0f;
-
+	float TraceDistance = 100;
+	float Offset = 10;
 	// Calculate the start and end points for the scan
+	//FVector ForwardVector = AIPawn->GetActorForwardVector();
+	//FVector ScanStart = AIPawn->GetActorLocation();
+
 	FVector ForwardVector = AIPawn->GetActorForwardVector();
-	FVector ScanStart = AIPawn->GetActorLocation();
+	FVector ScanStart = AIPawn->GetActorLocation() + ForwardVector * Offset;  // Adjust Offset as needed
+	FVector ScanEnd = ScanStart + ForwardVector * TraceDistance;  // Adjust TraceDistance as needed
+
 	
 	//this might be wierd
-	FVector ScanEnd = ScanStart + ForwardVector.RotateAngleAxis(ScanAngle * 0.5f, FVector::UpVector) * ScanRadius *
+	//FVector ScanEnd = ScanStart + ForwardVector.RotateAngleAxis(ScanAngle * 0.5f, FVector::UpVector) * ScanRadius *
 		2.0f;
+	float ScanHalfHeight  = 100.0f;
 
 	// Perform the scan
 	TArray<FHitResult> HitResults;
@@ -84,8 +94,11 @@ void UBTT_FindSplineInWorld::ScanForSplines() const
 		}
 	}
 
-	// Draw debug line for visualization (optional)
-	DrawDebugLine(AIPawn->GetWorld(), ScanStart, ScanEnd, FColor::Green, false, 10.0f, 0, 5.0f);
+	// Draw debug sphere for visualization (optional)
+	//DrawDebugSphere(AIPawn->GetWorld(), ScanStart, ScanRadius, 32, FColor::Green, false, 20.0f);
+	DrawDebugCapsule(AIPawn->GetWorld(), ScanStart, ScanHalfHeight, ScanRadius, FQuat::Identity, FColor::Green, false, 10.0f);
+
+
 }
 
 
