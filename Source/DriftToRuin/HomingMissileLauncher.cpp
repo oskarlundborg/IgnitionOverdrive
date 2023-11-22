@@ -76,17 +76,6 @@ void AHomingMissileLauncher::ResetCooldown()
 	GetWorldTimerManager().ClearTimer(CooldownTimer);
 }
 
-float AHomingMissileLauncher::GetCooldownTime()
-{
-	if(GetWorldTimerManager().IsTimerActive(CooldownTimer)) return FMath::Floor(GetWorldTimerManager().GetTimerRemaining(CooldownTimer));
-	return FMath::Floor(CooldownDuration);
-}
-
-bool AHomingMissileLauncher::GetIsOnCooldown()
-{
-	return bIsOnCooldown;
-}
-
 float AHomingMissileLauncher::GetChargeValue()
 {
 	return ChargeValue;
@@ -252,6 +241,7 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	CheckTargetVisibility();
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue);
 }
 
 
