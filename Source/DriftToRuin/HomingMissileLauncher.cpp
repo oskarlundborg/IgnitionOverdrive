@@ -142,7 +142,7 @@ void AHomingMissileLauncher::Fire()
 	Projectile->SetOwner(GetOwner());
 	const ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(CarTarget == nullptr) return;
-	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CurrentTarget->GetRootComponent();
+	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CarTarget->GetHomingTargetPoint();
 	
 	if(--ChargeAmount <= 0)
 	{
