@@ -31,6 +31,9 @@ void APlayerVehiclePawn::BeginPlay()
 	}
 
 	VehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
+
+	DefaultRearFrictionForceMultiplier = VehicleMovementComp->Wheels[3]->FrictionForceMultiplier;
+	DefaultFrontFrictionForceMultiplier = VehicleMovementComp->Wheels[0]->FrictionForceMultiplier;
 	
 	if(PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
@@ -94,6 +97,8 @@ void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Torque Control Enabled?: %d"), VehicleMovementComp->TorqueControl.Enabled));
+
 	/*
 	 *Air rolling stuff, tar sönder annan nödvändig fysik på bilen
 	 *
@@ -142,12 +147,34 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::OnHandbrakePressed()
 {
-	GetVehicleMovementComponent()->SetHandbrakeInput(true);	
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(Wheel->AxleType==EAxleType::Rear)
+		{
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftRearFrictionForceMultiplier);
+		}
+	}
+
+	VehicleMovementComp->TorqueControl.Enabled = true;
+	VehicleMovementComp->TargetRotationControl.Enabled = true;
+	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 100.0f;
+	VehicleMovementComp->TorqueControl.YawFromSteering = 100.0f;
+	VehicleMovementComp->TorqueControl.YawTorqueScaling = 10.0f;
+	
 }
 
 void APlayerVehiclePawn::OnHandbrakeReleased()
 {
-	GetVehicleMovementComponent()->SetHandbrakeInput(false);
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(Wheel->AxleType==EAxleType::Rear)
+		{
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultRearFrictionForceMultiplier);
+		}
+	}
+
+	VehicleMovementComp->TorqueControl.Enabled = false;
+	VehicleMovementComp->TargetRotationControl.Enabled = false;
 }
 
 void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
