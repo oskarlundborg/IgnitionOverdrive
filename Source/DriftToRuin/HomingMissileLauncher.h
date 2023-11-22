@@ -30,6 +30,12 @@ public:
 	float GetChargeCapValue();
 	
 	UFUNCTION(BlueprintCallable)
+	float GetCooldownTime();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsOnCooldown();
+	
+	UFUNCTION(BlueprintCallable)
 	void ResetAmmo();
 	
 	UFUNCTION(BlueprintCallable)
