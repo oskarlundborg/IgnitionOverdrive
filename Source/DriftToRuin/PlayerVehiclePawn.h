@@ -28,6 +28,12 @@ public:
 	float GetMinigunOverheatPercent() const;
 
 	UFUNCTION(BlueprintCallable)
+	bool GetMinigunIsOverheated() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetMissileChargePercent() const;
+	
+	UFUNCTION(BlueprintCallable)
 	bool GetHomingIsCharging() const;
 
 	UFUNCTION(BlueprintCallable)

@@ -204,6 +204,18 @@ float APlayerVehiclePawn::GetMinigunOverheatPercent() const
 	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
 }
 
+bool APlayerVehiclePawn::GetMinigunIsOverheated() const
+{
+	if(MinigunClass == nullptr || Minigun == nullptr) return false;
+	return Minigun->GetIsOverheated();
+}
+
+float APlayerVehiclePawn::GetMissileChargePercent() const
+{
+	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
+	return HomingLauncher->GetChargeValue() / HomingLauncher->GetChargeCapValue();
+}
+
 bool APlayerVehiclePawn::GetHomingIsCharging() const
 {
 	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return false;
@@ -212,6 +224,6 @@ bool APlayerVehiclePawn::GetHomingIsCharging() const
 
 int32 APlayerVehiclePawn::GetHomingChargeAmount() const
 {
-	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return false;
+	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
 	return HomingLauncher->GetChargeAmount();
 }

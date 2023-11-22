@@ -4,6 +4,7 @@
 #include "HomingProjectile.h"
 
 #include "BaseVehiclePawn.h"
+#include "HomingMissileLauncher.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -28,6 +29,23 @@ void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	Destroy();
 }
 
+void AHomingProjectile::CheckIfTargetDied()
+{
+	if(GetProjectileMovementComponent()->HomingTargetComponent == nullptr) return;
+	auto OwnerPawn = Cast<ABaseVehiclePawn>(GetOwner());
+	if(!OwnerPawn) return;
+	auto Target = Cast<ABaseVehiclePawn>(OwnerPawn->GetHomingLauncher()->GetLastTarget());
+	if(!Target) return;
+	//UE_LOG(LogTemp, Warning, TEXT("Dead"));
+	if(Target->GetIsDead())
+	{
+		//GetProjectileMovementComponent()->HomingTargetComponent = nullptr;
+		//GetProjectileMovementComponent()->ProjectileGravityScale(1.0);
+		Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("Dead"));
+	}
+}
+
 void AHomingProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpusle, const FHitResult& Hit)
 {
@@ -43,6 +61,7 @@ void AHomingProjectile::BeginPlay()
 void AHomingProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	CheckIfTargetDied();
 }
 
 
