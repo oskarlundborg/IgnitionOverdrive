@@ -4,12 +4,14 @@
 #include "PlayerVehiclePawn.h"
 #include "EnhancedInputComponent.h"
 #include "ChaosVehicleMovementComponent.h"
+#include "ChaosWheeledVehicleMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "HomingMissileLauncher.h"
 #include "Minigun.h"
 #include "PlayerTurret.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
+#include "Kismet/GameplayStatics.h"
 
 APlayerVehiclePawn::APlayerVehiclePawn()
 {
@@ -28,6 +30,11 @@ void APlayerVehiclePawn::BeginPlay()
 		}
 	}
 
+	VehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
+
+	DefaultRearFrictionForceMultiplier = VehicleMovementComp->Wheels[3]->FrictionForceMultiplier;
+	DefaultFrontFrictionForceMultiplier = VehicleMovementComp->Wheels[0]->FrictionForceMultiplier;
+	
 	if(PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
@@ -89,6 +96,20 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Torque Control Enabled?: %d"), VehicleMovementComp->TorqueControl.Enabled));
+
+	/*
+	 *Air rolling stuff, tar sönder annan nödvändig fysik på bilen
+	 *
+	if(IsGrounded() || !VehicleMovementComp->IsFlying()) bCanAirRoll = false;
+	
+	else if(!IsGrounded() && bCanAirRoll == false)
+	{
+		GetWorld()->GetTimerManager().SetTimer(AirRollTimer, this, &APlayerVehiclePawn::SetCanAirRollTrue, 0.5, false);
+	}
+
+	*/
 }
 
 void APlayerVehiclePawn::ApplyThrottle(const FInputActionValue& Value)
@@ -126,24 +147,48 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::OnHandbrakePressed()
 {
-	GetVehicleMovementComponent()->SetHandbrakeInput(true);	
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(Wheel->AxleType==EAxleType::Rear)
+		{
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftRearFrictionForceMultiplier);
+		}
+	}
+
+	VehicleMovementComp->TorqueControl.Enabled = true;
+	VehicleMovementComp->TargetRotationControl.Enabled = true;
+	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 100.0f;
+	VehicleMovementComp->TorqueControl.YawFromSteering = 100.0f;
+	VehicleMovementComp->TorqueControl.YawTorqueScaling = 10.0f;
+	
 }
 
 void APlayerVehiclePawn::OnHandbrakeReleased()
 {
-	GetVehicleMovementComponent()->SetHandbrakeInput(false);
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(Wheel->AxleType==EAxleType::Rear)
+		{
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultRearFrictionForceMultiplier);
+		}
+	}
+
+	VehicleMovementComp->TorqueControl.Enabled = false;
+	VehicleMovementComp->TargetRotationControl.Enabled = false;
 }
 
 void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 {
 	if(IsGrounded())
 	{
-		GetVehicleMovementComponent()->SetYawInput(0);
+		bCanAirRoll = false;
 	}
 	
-	if(!IsGrounded() || Value.Get<float>() == 0.f)
+	if(!IsGrounded() || Value.Get<float>() == 0.f && bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetYawInput(Value.Get<float>());
+		//Förstör resten av bilens fysik :,,))
+		//GEngine->AddOnScreenDebugMessage(-1, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), FColor::Green, TEXT("YAWING"));
+		//VehicleMovementComp->UpdatedPrimitive->SetPhysicsAngularVelocityInDegrees(FVector(0, 0, Value.Get<float>() * AirRollSensitivity), true, TEXT("Root"));
 	}
 }
 
@@ -151,12 +196,14 @@ void APlayerVehiclePawn::ApplyAirRollRoll(const FInputActionValue& Value)
 {
 	if(IsGrounded())
 	{
-		GetVehicleMovementComponent()->SetRollInput(0);
+		bCanAirRoll = false;
 	}
 	
-	else if(!IsGrounded() || Value.Get<float>() == 0.f)
+	else if(!IsGrounded() || Value.Get<float>() == 0.f && bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
+		//Förstör resten av bilens fysik :,,))
+		//GEngine->AddOnScreenDebugMessage(-1, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), FColor::Green, TEXT("ROLLING"));
+		//VehicleMovementComp->UpdatedPrimitive->SetPhysicsAngularVelocityInDegrees(FVector(0, Value.Get<float>() * AirRollSensitivity, 0), true, TEXT("Root"));
 	}
 }
 
@@ -164,12 +211,14 @@ void APlayerVehiclePawn::ApplyAirRollPitch(const FInputActionValue& Value)
 {
 	if(IsGrounded())
 	{
-		GetVehicleMovementComponent()->SetPitchInput(0);
+		bCanAirRoll = false;
 	}
 	
-	if(!IsGrounded() || Value.Get<float>() == 0.f)
+	if(!IsGrounded() || Value.Get<float>() == 0.f && bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetPitchInput(Value.Get<float>());
+		//Förstör resten av bilens fysik :,,))
+		//GEngine->AddOnScreenDebugMessage(-1, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), FColor::Green, TEXT("PITCHING"));
+		//VehicleMovementComp->UpdatedPrimitive->SetPhysicsAngularVelocityInDegrees(FVector(Value.Get<float>() * AirRollSensitivity, 0, 0), true, TEXT("Root"));
 	}
 }
 
