@@ -273,6 +273,25 @@ float ABaseVehiclePawn::GetScrapToDrop()
     return ScrapToDrop;
 }
 
+int ABaseVehiclePawn::GetKillpointWorth()
+{
+    return KillpointWorth;
+}
+
+void ABaseVehiclePawn::ResetScrapLevel()
+{
+	MinigunDamage = DefaultMinigunDamage;
+	HomingDamage = DefaultHomingDamage;
+	HealthComponent->ResetMaxHealth();
+	HealthComponent->SetHealth(HealthComponent->GetDefaultMaxHealth());
+	KillpointWorth = 1;
+	ScrapToDrop = 10;
+	bHitLevelOne = false;
+	bHitLevelTwo = false;
+	bHitLevelThree = false;
+	ScrapAmount = 0;
+}
+
 void ABaseVehiclePawn::CheckScrapLevel()
 {
 	if (ScrapAmount < 20)
@@ -281,25 +300,29 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		ScrapToDrop = 10;
 	}
 	
-	if (ScrapAmount >= 20 && ScrapAmount < 50)
+	if (ScrapAmount >= 20 && ScrapAmount < 50 && !bHitLevelOne)
 	{
 		KillpointWorth = 2;
 		ScrapToDrop = 15;
 		MinigunDamage = MinigunDamage * 1.1;
 		HomingDamage = HomingDamage * 1.1;
 		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.1);
+		HealthComponent->SetHealth(HealthComponent->GetHealth() + 10);
+		bHitLevelOne = true;
 	}
 
-	if (ScrapAmount >= 50 && ScrapAmount < 100)
-	{
+	if (ScrapAmount >= 50 && ScrapAmount < 100 && !bHitLevelTwo)
+	{	
 		KillpointWorth = 3;
 		ScrapToDrop = 25;
 		MinigunDamage = MinigunDamage * 1.25;
 		HomingDamage = HomingDamage * 1.25;
 		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.25);
+		HealthComponent->SetHealth(HealthComponent->GetHealth() + 15);
+		bHitLevelTwo = true;
 	}
 
-	if (ScrapAmount == 100)
+	if (ScrapAmount == 100 && !bHitLevelThree)
 	{
 		//Aktivera en marker som visar vart spelaren är (light pillar)
 
@@ -308,6 +331,8 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		MinigunDamage = MinigunDamage * 1.5;
 		HomingDamage = HomingDamage * 1.5;
 		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.5);
+		HealthComponent->SetHealth(HealthComponent->GetHealth() + 25);
+		bHitLevelThree = true;
 	}
 	
 	
