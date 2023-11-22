@@ -230,6 +230,11 @@ void ABaseVehiclePawn::RemoveDamageBoost(float OriginalDamage)
 	MinigunDamage = OriginalDamage;
 }
 
+bool ABaseVehiclePawn::GetIsDead()
+{
+	return HealthComponent->IsDead();
+}
+
 APlayerTurret* ABaseVehiclePawn::GetTurret() const
 {
 	return Turret;

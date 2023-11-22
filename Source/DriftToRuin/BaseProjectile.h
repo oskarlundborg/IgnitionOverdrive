@@ -31,15 +31,8 @@ protected:
 	float Damage = 0.f;
 	
 private:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ProjectileMesh;
-	
-protected:
-	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
-	class UNiagaraComponent* ProjectileVfxNiagaraComponent;
-
-	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
-	class UNiagaraSystem* ProjectileVfxNiagaraSystem;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")

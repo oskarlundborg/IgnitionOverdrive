@@ -20,6 +20,7 @@ public:
 
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
+	bool GetIsOverheated();
 
 protected:
 	virtual void BeginPlay() override;
@@ -47,7 +48,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	float FireRate;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	bool bIsFiring;
 
 	/*Projectile crosshair aim variables*/
@@ -55,7 +56,7 @@ private:
 	float TraceDistance;
 
 	/*Overheat logic variables*/
-	UPROPERTY(VisibleAnywhere, Category = "Overheat")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overheat", meta = (AllowPrivateAccess = "true"))
 	bool bIsOverheated;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overheat", meta = (AllowPrivateAccess = "true"))
 	float OverheatValue;

@@ -35,7 +35,8 @@ void AHomingMissileLauncher::PullTrigger()
 {
 	if(bIsOnCooldown) return;
 	//ChargeAmount = 0;
-	CurrentTarget = nullptr; 
+	CurrentTarget = nullptr;
+	LastTarget = nullptr;
 	Super::PullTrigger();
 	FindTarget();
 	if(CurrentTarget) OnChargeFire();
@@ -52,6 +53,11 @@ void AHomingMissileLauncher::ReleaseTrigger()
 	bIsOnCooldown = true;
 	GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, CooldownDuration, false, CooldownDuration);
 	OnFire();
+}
+
+AActor* AHomingMissileLauncher::GetLastTarget() const
+{
+	return LastTarget;
 }
 
 bool AHomingMissileLauncher::IsCharging()
@@ -223,6 +229,7 @@ void AHomingMissileLauncher::FindTarget()
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
 	{
 		CurrentTarget = HitResult.GetActor();
+		LastTarget = CurrentTarget;
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitResult.GetActor()->GetName())
 }

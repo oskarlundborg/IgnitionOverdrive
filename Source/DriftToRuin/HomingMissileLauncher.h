@@ -20,6 +20,8 @@ public:
 	
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
+
+	AActor* GetLastTarget() const;
 	
 	bool IsCharging();
 	int32 GetChargeAmount();
@@ -69,6 +71,9 @@ private:
 	
 	UPROPERTY()
 	AActor* CurrentTarget;
+
+	UPROPERTY()
+	AActor* LastTarget;
 	
 protected:
 	virtual void BeginPlay() override;
