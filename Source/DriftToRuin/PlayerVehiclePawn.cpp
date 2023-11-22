@@ -11,7 +11,6 @@
 #include "PlayerTurret.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
-#include "Kismet/GameplayStatics.h"
 
 APlayerVehiclePawn::APlayerVehiclePawn()
 {
