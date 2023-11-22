@@ -148,7 +148,7 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	
 	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
-	
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Green, true);
 	FVector HitEndLocation; 
 	if(bHit)
 	{

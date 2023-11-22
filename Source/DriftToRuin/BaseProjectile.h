@@ -33,10 +33,15 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ProjectileMesh;
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraComponent* ProjectileVfxNiagaraComponent;
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	class UNiagaraSystem* ProjectileVfxNiagaraSystem;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
