@@ -123,6 +123,18 @@ public:
 	AMinigun* GetMinigun() const;
 	UFUNCTION(BlueprintCallable)
 	AHomingMissileLauncher* GetHomingLauncher() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetScrapPercentage();
+	UFUNCTION(BlueprintCallable)
+	void AddScrapAmount(float Scrap, float HealAmount);
+	UFUNCTION(BlueprintCallable)
+	void RemoveScrapAmount(float Scrap);
+	UFUNCTION(BlueprintCallable)
+	float GetScrapToDrop();
+
+	UFUNCTION()
+	void CheckScrapLevel();
 	
 protected:
 	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
@@ -175,6 +187,14 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess=true))
 	bool bFlatDamage = false;
+
+	float ScrapAmount = 0;
+	float ScrapToDrop = 10;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MaxScrap = 100;
+
+	int KillpointWorth = 1;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AMinigun> MinigunClass;
