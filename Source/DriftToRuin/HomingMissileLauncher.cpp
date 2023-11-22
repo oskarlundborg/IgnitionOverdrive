@@ -140,7 +140,9 @@ void AHomingMissileLauncher::Fire()
 	FRotator ProjectileRotation = GetProjectileSpawnPoint()->GetComponentRotation();
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
 	Projectile->SetOwner(GetOwner());
-	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CurrentTarget->GetRootComponent();
+	const ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
+	if(CarTarget == nullptr) return;
+	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CarTarget->GetHomingTargetPoint();
 	
 	if(--ChargeAmount <= 0)
 	{

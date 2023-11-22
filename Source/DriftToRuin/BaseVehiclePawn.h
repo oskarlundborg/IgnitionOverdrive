@@ -70,6 +70,12 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 public:
 	ABaseVehiclePawn();
 
+	UPROPERTY(BlueprintReadWrite)
+	int HeldPowerup = 0;
+
+	UPROPERTY(Category=Powerup, EditAnywhere, BlueprintReadOnly)
+	class UPowerupComponent* PowerupComponent;
+
 	UFUNCTION()
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -92,9 +98,10 @@ public:
 	bool GetIsBoostEnabled() const;
 
 	UFUNCTION()
-	bool IsGrounded();
+	bool IsGrounded() const;
 
 	float GetMinigunDamage();
+	float GetMinigunDefaultDamage();
 	float GetHomingDamage();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -105,6 +112,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetDamage(float NewDamage);
+
+	UFUNCTION()
+	void SetMinigunDamage(int NewDamage);
+
 
 	UFUNCTION(BlueprintCallable)
 	void ApplyDamageBoost(float NewDamage, float TimerDuration);
@@ -123,6 +134,29 @@ public:
 	AMinigun* GetMinigun() const;
 	UFUNCTION(BlueprintCallable)
 	AHomingMissileLauncher* GetHomingLauncher() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetScrapPercentage();
+	UFUNCTION(BlueprintCallable)
+	void AddScrapAmount(float Scrap, float HealAmount);
+	UFUNCTION(BlueprintCallable)
+	void RemoveScrapAmount(float Scrap);
+	UFUNCTION(BlueprintCallable)
+	float GetScrapToDrop();
+	UFUNCTION(BlueprintCallable)
+	int GetKillpointWorth();
+	UFUNCTION(BlueprintCallable)
+	void ResetScrapLevel();
+
+	UFUNCTION(BlueprintCallable)
+	void ActivatePowerup();
+	UFUNCTION(BlueprintCallable)
+	void SetHeldPowerup (int PowerIndex);
+
+	UFUNCTION()
+	void CheckScrapLevel();
+
+	USceneComponent* GetHomingTargetPoint() const;
 	
 protected:
 	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
@@ -146,6 +180,12 @@ protected:
 
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
 	float HomingDamage = 20.f;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
+	float DefaultMinigunDamage = 5;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
+	float DefaultHomingDamage = 20.f;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
@@ -175,12 +215,33 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess=true))
 	bool bFlatDamage = false;
+
+	float ScrapAmount = 0;
+	float ScrapToDrop = 10;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MaxScrap = 100;
+
+	int KillpointWorth = 1;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	bool bHitLevelOne = false;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	bool bHitLevelTwo = false;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	bool bHitLevelThree = false;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AMinigun> MinigunClass;
 	
 	UPROPERTY()
 	AMinigun* Minigun;
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* HomingTargetPoint;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")

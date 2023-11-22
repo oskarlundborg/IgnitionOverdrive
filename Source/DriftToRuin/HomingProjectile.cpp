@@ -5,18 +5,26 @@
 
 #include "BaseVehiclePawn.h"
 #include "HomingMissileLauncher.h"
+#include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 AHomingProjectile::AHomingProjectile()
 {
 	ProjectileMovementComponent->bIsHomingProjectile = true;
+	DestructionTime = 0.8f;
+
+	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>(TEXT("Radial force"));
+	RadialForceComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Radial Foce Component"));
 }
 
 void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	RadialForceComponent->FireImpulse();
+	ProjectileVfxNiagaraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
 	auto OwnerBaseVehiclePawn = Cast<ABaseVehiclePawn>(ProjectileOwner);
@@ -24,9 +32,14 @@ void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	if(!OwnerInstigator) return;
 	auto DamageTypeClass = UDamageType::StaticClass();
 	Damage = OwnerBaseVehiclePawn->GetHomingDamage();
-
+	
 	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
-	Destroy();
+	DestructionDelegate.BindLambda([this] {if(this->IsValidLowLevel()) Destroy();});
+	SetActorEnableCollision(false);
+	GetWorldTimerManager().SetTimer(DestroyTimer, DestructionDelegate, DestructionTime, false);
+	//FTimerHandle DestroyTimer;
+	//GetWorldTimerManager().SetTimer(DestroyTimer, this, &AHomingProjectile::OnDestroy, 2.f, false, 2.f);
+	//Destroy();
 }
 
 void AHomingProjectile::CheckIfTargetDied()
@@ -47,7 +60,7 @@ void AHomingProjectile::CheckIfTargetDied()
 }
 
 void AHomingProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpusle, const FHitResult& Hit)
+                              FVector NormalImpusle, const FHitResult& Hit)
 {
 	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpusle, Hit);
 	Destroy();

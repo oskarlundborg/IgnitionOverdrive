@@ -10,6 +10,7 @@
 #include "HomingMissileLauncher.h"
 #include "PlayerVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PowerupComponent.h"
 
 AMinigun::AMinigun()
 {
@@ -63,6 +64,20 @@ bool AMinigun::GetIsOverheated()
 void AMinigun::Fire()
 {
 	bIsFiring = true;
+
+	if (PoweredUp)
+	{
+		PowerAmmo = FMath::Clamp(PowerAmmo - 2, 0.f, 100.f);
+
+		if (PowerAmmo == 0)
+		{
+			ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+			CarOwner->PowerupComponent->ClearPowerup();
+		}
+		
+	}
+	
+
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation;
 	AdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
@@ -109,11 +124,11 @@ void AMinigun::OverheatCooldown()
 /*Updates overheat every tick if the gun is firing or not firing and is not at 0*/
 void AMinigun::UpdateOverheat()
 {
-	if(bIsFiring)
+	if(bIsFiring && !PoweredUp)
 	{
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::BuildUpOverheat, 0.1f, false);
-	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated) 
+	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated && !PoweredUp) 
 	{
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::CoolDownWeapon, 0.15f, false);
@@ -148,7 +163,7 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	
 	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
-	
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Green, true);
 	FVector HitEndLocation; 
 	if(bHit)
 	{
@@ -186,4 +201,9 @@ float AMinigun::GetOverheatValue() const
 float AMinigun::GetOverheatMaxValue() const
 {
 	return OverheatMax;
+}
+
+float AMinigun::GetPowerAmmoPercent()
+{
+    return PowerAmmo / 100;
 }
