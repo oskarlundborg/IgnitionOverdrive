@@ -85,6 +85,24 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* FireHomingMissilesAction;
 
+	//How fast air rolls can be done
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AirRoll, meta=(AllowPrivateAccess = "true"))
+	float AirRollSensitivity = 0.7f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Drift, meta=(AllowPrivateAccess = "true"))
+	float DriftRearFrictionForceMultiplier = 3.0f;
+
+	float DefaultRearFrictionForceMultiplier;
+	
+	bool bCanAirRoll = false;
+
+	void SetCanAirRollTrue()
+	{
+		bCanAirRoll = true;
+	}
+
+	FTimerHandle AirRollTimer;
+	
 	void ApplyThrottle(const struct FInputActionValue& Value);
 	void ApplyBraking(const  FInputActionValue& Value);
 	void ApplySteering(const FInputActionValue& Value);

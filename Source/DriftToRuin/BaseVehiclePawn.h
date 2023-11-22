@@ -92,7 +92,7 @@ public:
 	bool GetIsBoostEnabled() const;
 
 	UFUNCTION()
-	bool IsGrounded();
+	bool IsGrounded() const;
 
 	float GetMinigunDamage();
 	float GetHomingDamage();
