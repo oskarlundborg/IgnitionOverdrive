@@ -33,7 +33,6 @@ void APlayerVehiclePawn::BeginPlay()
 	VehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
 
 	DefaultRearFrictionForceMultiplier = VehicleMovementComp->Wheels[3]->FrictionForceMultiplier;
-	DefaultFrontFrictionForceMultiplier = VehicleMovementComp->Wheels[0]->FrictionForceMultiplier;
 	
 	if(PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
