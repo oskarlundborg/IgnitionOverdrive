@@ -132,6 +132,10 @@ public:
 	void RemoveScrapAmount(float Scrap);
 	UFUNCTION(BlueprintCallable)
 	float GetScrapToDrop();
+	UFUNCTION(BlueprintCallable)
+	int GetKillpointWorth();
+	UFUNCTION(BlueprintCallable)
+	void ResetScrapLevel(); 
 
 	UFUNCTION()
 	void CheckScrapLevel();
@@ -158,6 +162,12 @@ protected:
 
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
 	float HomingDamage = 20.f;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
+	float DefaultMinigunDamage = 5;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
+	float DefaultHomingDamage = 20.f;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
@@ -195,6 +205,17 @@ protected:
 	float MaxScrap = 100;
 
 	int KillpointWorth = 1;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	bool bHitLevelOne = false;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	bool bHitLevelTwo = false;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	bool bHitLevelThree = false;
+
+
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AMinigun> MinigunClass;
