@@ -70,6 +70,12 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 public:
 	ABaseVehiclePawn();
 
+	UPROPERTY(BlueprintReadWrite)
+	int HeldPowerup = 0;
+
+	UPROPERTY(Category=Powerup, EditAnywhere, BlueprintReadOnly)
+	class UPowerupComponent* PowerupComponent;
+
 	UFUNCTION()
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -95,6 +101,7 @@ public:
 	bool IsGrounded() const;
 
 	float GetMinigunDamage();
+	float GetMinigunDefaultDamage();
 	float GetHomingDamage();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -105,6 +112,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetDamage(float NewDamage);
+
+	UFUNCTION()
+	void SetMinigunDamage(int NewDamage);
+
 
 	UFUNCTION(BlueprintCallable)
 	void ApplyDamageBoost(float NewDamage, float TimerDuration);
@@ -135,7 +146,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int GetKillpointWorth();
 	UFUNCTION(BlueprintCallable)
-	void ResetScrapLevel(); 
+	void ResetScrapLevel();
+
+	UFUNCTION(BlueprintCallable)
+	void ActivatePowerup();
+	UFUNCTION(BlueprintCallable)
+	void SetHeldPowerup (int PowerIndex);
 
 	UFUNCTION()
 	void CheckScrapLevel();
@@ -216,8 +232,6 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
 	bool bHitLevelThree = false;
-
-
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AMinigun> MinigunClass;

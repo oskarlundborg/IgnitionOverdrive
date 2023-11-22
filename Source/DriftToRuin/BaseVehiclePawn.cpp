@@ -2,6 +2,7 @@
 
 #include "BaseVehiclePawn.h"
 #include "HealthComponent.h"
+#include "PowerupComponent.h"
 #include "Components/AudioComponent.h"
 #include "NiagaraComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
@@ -42,6 +43,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Creates Health Component and sets it max health value
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->SetMaxHealth(MaxHealth);
+
+	PowerupComponent = CreateDefaultSubobject<UPowerupComponent>(TEXT("PowerupComponent"));
+	PowerupComponent->Owner = this;
 
 	//Creates Audio Component for Engine or something...
 	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
@@ -208,12 +212,22 @@ float ABaseVehiclePawn::GetMinigunDamage()
 	return MinigunDamage;
 }
 
+float ABaseVehiclePawn::GetMinigunDefaultDamage()
+{
+    return DefaultMinigunDamage;
+}
+
 float ABaseVehiclePawn::GetHomingDamage()
 {
 	return HomingDamage;
 }
 
 void ABaseVehiclePawn::SetDamage(float NewDamage)
+{
+	MinigunDamage = NewDamage;
+}
+
+void ABaseVehiclePawn::SetMinigunDamage(int NewDamage)
 {
 	MinigunDamage = NewDamage;
 }
@@ -293,6 +307,33 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	bHitLevelTwo = false;
 	bHitLevelThree = false;
 	ScrapAmount = 0;
+}
+
+void ABaseVehiclePawn::ActivatePowerup()
+{
+	
+	//Pickup.Vehicle = this;
+
+	switch (HeldPowerup)
+	{
+	case 1:
+		PowerupComponent->HealthPowerup(); //Pickup.HealthPowerup(); //Regenerate Health
+		break;
+	case 2:
+		PowerupComponent->BoostPowerup(); //Pickup.BoostPowerup(); //Infinite boost
+		break;
+	case 3:
+		PowerupComponent->OverheatPowerup(); //Pickup.OverheatPowerup(); //No overheat
+		break;
+	
+	default:
+		break;
+	}
+}
+
+void ABaseVehiclePawn::SetHeldPowerup(int PowerIndex)
+{
+	HeldPowerup = PowerIndex;
 }
 
 void ABaseVehiclePawn::CheckScrapLevel()

@@ -22,6 +22,11 @@ public:
 	virtual void ReleaseTrigger() override;
 	bool GetIsOverheated();
 
+	//Ammo för Miniguns powerup
+	float PowerAmmo = 0;
+	UPROPERTY(BlueprintReadWrite)
+	float MaxPowerAmmo = 100;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,6 +35,7 @@ private:
 	void CoolDownWeapon();
 	void OverheatCooldown();
 	void UpdateOverheat();
+
 	
 	void AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation);
 
@@ -64,6 +70,12 @@ private:
 public:
 	float GetOverheatValue() const;
 	float GetOverheatMaxValue() const;
+	
+	UFUNCTION(BlueprintCallable)
+	float GetPowerAmmoPercent();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Overheat")
+	bool PoweredUp = false;
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Overheat", meta = (AllowPrivateAccess = "true"))
