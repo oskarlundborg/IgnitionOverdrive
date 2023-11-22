@@ -6,6 +6,7 @@
 #include "BaseProjectile.h"
 #include "HomingProjectile.generated.h"
 
+class URadialForceComponent;
 /**
  * 
  */
@@ -17,11 +18,20 @@ class DRIFTTORUIN_API AHomingProjectile : public ABaseProjectile
 public:	
 	// Sets default values for this actor's properties
 	AHomingProjectile();
-	
+
 private:
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpusle, const FHitResult& Hit) override;
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
+	FTimerDelegate DestructionDelegate;
+	FTimerHandle DestroyTimer;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Radial Force")
+	URadialForceComponent* RadialForceComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX Destruction", meta = (AllowPrivateAccess = "true"))
+	float DestructionTime;
+	
 	void CheckIfTargetDied();
 protected:
 	// Called when the game starts or when spawned

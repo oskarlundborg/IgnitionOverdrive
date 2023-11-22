@@ -171,7 +171,7 @@ void ABaseVehiclePawn::RechargeBoost()
 	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
 }
 
-bool ABaseVehiclePawn::IsGrounded()
+bool ABaseVehiclePawn::IsGrounded() const
 {
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
@@ -248,6 +248,95 @@ AMinigun* ABaseVehiclePawn::GetMinigun() const
 AHomingMissileLauncher* ABaseVehiclePawn::GetHomingLauncher() const
 {
 	return HomingLauncher;
+}
+
+float ABaseVehiclePawn::GetScrapPercentage()
+{
+    return ScrapAmount / MaxScrap;
+}
+
+void ABaseVehiclePawn::AddScrapAmount(float Scrap, float HealAmount)
+{
+	ScrapAmount += Scrap;
+	HealthComponent->SetHealth(HealthComponent->GetHealth() + HealAmount);
+	CheckScrapLevel();
+
+}
+
+void ABaseVehiclePawn::RemoveScrapAmount(float Scrap)
+{
+	ScrapAmount = FMath::Clamp(ScrapAmount - Scrap, 0, 100);
+}
+
+float ABaseVehiclePawn::GetScrapToDrop()
+{
+    return ScrapToDrop;
+}
+
+int ABaseVehiclePawn::GetKillpointWorth()
+{
+    return KillpointWorth;
+}
+
+void ABaseVehiclePawn::ResetScrapLevel()
+{
+	MinigunDamage = DefaultMinigunDamage;
+	HomingDamage = DefaultHomingDamage;
+	HealthComponent->ResetMaxHealth();
+	HealthComponent->SetHealth(HealthComponent->GetDefaultMaxHealth());
+	KillpointWorth = 1;
+	ScrapToDrop = 10;
+	bHitLevelOne = false;
+	bHitLevelTwo = false;
+	bHitLevelThree = false;
+	ScrapAmount = 0;
+}
+
+void ABaseVehiclePawn::CheckScrapLevel()
+{
+	if (ScrapAmount < 20)
+	{
+		KillpointWorth = 1;
+		ScrapToDrop = 10;
+	}
+	
+	if (ScrapAmount >= 20 && ScrapAmount < 50 && !bHitLevelOne)
+	{
+		KillpointWorth = 2;
+		ScrapToDrop = 15;
+		MinigunDamage = MinigunDamage * 1.1;
+		HomingDamage = HomingDamage * 1.1;
+		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.1);
+		HealthComponent->SetHealth(HealthComponent->GetHealth() + 10);
+		bHitLevelOne = true;
+	}
+
+	if (ScrapAmount >= 50 && ScrapAmount < 100 && !bHitLevelTwo)
+	{	
+		KillpointWorth = 3;
+		ScrapToDrop = 25;
+		MinigunDamage = MinigunDamage * 1.25;
+		HomingDamage = HomingDamage * 1.25;
+		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.25);
+		HealthComponent->SetHealth(HealthComponent->GetHealth() + 15);
+		bHitLevelTwo = true;
+	}
+
+	if (ScrapAmount == 100 && !bHitLevelThree)
+	{
+		//Aktivera en marker som visar vart spelaren är (light pillar)
+
+		KillpointWorth = 5;
+		ScrapToDrop = 40;
+		MinigunDamage = MinigunDamage * 1.5;
+		HomingDamage = HomingDamage * 1.5;
+		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.5);
+		HealthComponent->SetHealth(HealthComponent->GetHealth() + 25);
+		bHitLevelThree = true;
+	}
+	
+	
+	
 }
 
 void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
