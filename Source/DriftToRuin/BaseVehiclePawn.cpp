@@ -77,6 +77,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	BumperCollisionBox->SetRelativeScale3D({1,3.25,0.75});
 	BumperCollisionBox->SetNotifyRigidBodyCollision(true);
 	BumperCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBumperBeginOverlap);
+
+	HomingTargetPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Homing Targeting Point"));
+	HomingTargetPoint->SetupAttachment(RootComponent);
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -378,6 +381,11 @@ void ABaseVehiclePawn::CheckScrapLevel()
 	
 	
 	
+}
+
+USceneComponent* ABaseVehiclePawn::GetHomingTargetPoint() const
+{
+	return HomingTargetPoint;
 }
 
 void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

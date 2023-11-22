@@ -155,6 +155,8 @@ public:
 
 	UFUNCTION()
 	void CheckScrapLevel();
+
+	USceneComponent* GetHomingTargetPoint() const;
 	
 protected:
 	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
@@ -236,6 +238,10 @@ protected:
 	
 	UPROPERTY()
 	AMinigun* Minigun;
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* HomingTargetPoint;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
