@@ -2,7 +2,6 @@
 
 
 #include "BaseWeapon.h"
-#include "NiagaraComponent.h"
 
 ABaseWeapon::ABaseWeapon()
 {
@@ -16,8 +15,6 @@ ABaseWeapon::ABaseWeapon()
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile Spawn Point"));
 	ProjectileSpawnPoint->SetupAttachment(WeaponMesh);
-
-	MuzzleFlashNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Muzzle Flash Component"));
 }
 
 USkeletalMeshComponent* ABaseWeapon::GetWeaponMesh() const
@@ -33,13 +30,6 @@ USceneComponent* ABaseWeapon::GetProjectileSpawnPoint() const
 void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if(MuzzleFlashNiagaraComponent)
-	{
-		//MuzzleFlashNiagaraComponent->AttachToComponent(WeaponMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("MuzzleFlashSocket"));
-		MuzzleFlashNiagaraComponent->SetAsset(MuzzleFlashNiagaraSystem);
-		MuzzleFlashNiagaraComponent->Deactivate();
-	}
 }
 
 // Called every frame

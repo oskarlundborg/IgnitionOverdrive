@@ -36,13 +36,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* ProjectileSpawnPoint;
-
-protected:
-	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
-	class UNiagaraComponent* MuzzleFlashNiagaraComponent;
-	
-	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
-	class UNiagaraSystem* MuzzleFlashNiagaraSystem;
 public:	
 	virtual void Tick(float DeltaTime) override;
 

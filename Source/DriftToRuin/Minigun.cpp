@@ -8,8 +8,6 @@
 #include "DrawDebugHelpers.h"
 #include "PlayerTurret.h"
 #include "HomingMissileLauncher.h"
-#include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
 #include "PlayerVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PowerupComponent.h"
@@ -65,7 +63,6 @@ bool AMinigun::GetIsOverheated()
 /*Handles firing logic, meaning spawning projectiles*/
 void AMinigun::Fire()
 {
-	//MuzzleFlashNiagaraComponent->Activate();
 	bIsFiring = true;
 
 	if (PoweredUp)
@@ -85,8 +82,6 @@ void AMinigun::Fire()
 	FRotator ProjectileRotation;
 	AdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFlashNiagaraSystem, GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlashSocket")),
-		GetWeaponMesh()->GetSocketRotation(FName("MuzzleFlashSocket")));
 	Projectile->SetOwner(GetOwner());
 }
 
