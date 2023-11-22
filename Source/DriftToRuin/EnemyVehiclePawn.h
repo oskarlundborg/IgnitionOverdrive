@@ -16,17 +16,16 @@ UCLASS()
 class DRIFTTORUIN_API AEnemyVehiclePawn : public ABaseVehiclePawn
 {
 	GENERATED_BODY()
-	
-public:
 
+public:
 	AEnemyVehiclePawn();
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-	void SetSwitchString(const std::string& NewSwitchString);
-	
+	void SetSwitchString(const FString& NewSwitchString);
+
 	//pathfinding
-	
+
 	UPROPERTY(EditAnywhere)
 	float DistanceThreshold = 1000;
 
@@ -34,15 +33,15 @@ public:
 	float MaxTraceDistance = 10000;
 	UPROPERTY(EditAnywhere)
 	float SplinePointThreshold = 200;
-	
+
 private:
 	float ThrottleInput;
 	float BrakeInput;
 	float SteeringInput;
 
-	
 
-	std::string SwitchString = "Drive";
+	UPROPERTY(EditAnywhere)
+	FString SwitchString = "Drive";
 
 
 	//pathfinding
@@ -60,17 +59,37 @@ private:
 	FVector SplineLocationPoint;
 	FVector SplineTangent;
 
+	//rotator for turret
+	FRotator StartingRotation;
+	FRotator RotationIncrement;
+	FRotator TargetRotation;
+	FRotator NewRotation;
+	float InterpSpeed = 1;
+
+	bool TimerIsActive = false;
+	bool TimerFirstTime = true;
+
 	//difference in lenght between the two sensor towards the spline point  
 	float SensorGapDifference;
 
 	//sensor point
 	USceneComponent* LeftSensor;
 	USceneComponent* RightSensor;
-	
+
 
 	//helper function
 	bool InitializeSplineAndSensors();
-	
+
 	void DrivePath();
-	
+	void DriveAndShoot();
+	void SetStartingRotation();
+
+	void RotateTurret();
+
+	//timers
+	int TimeElapsed;
+	int TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
+
+	FTimerHandle TimerHandle_SetStartingRotation;
+	FTimerHandle TimerHandle_ResetRotationFlag;
 };

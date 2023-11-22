@@ -19,19 +19,24 @@ AEnemyVehiclePawn::AEnemyVehiclePawn()
 void AEnemyVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
+	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_SetStartingRotation, this,
+	                                       &AEnemyVehiclePawn::SetStartingRotation, 0.5f, false);
+
+	if (PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
-	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretSocket"));
+	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
-	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-	                           TEXT("MinigunSocket"));
+	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform,
+	                           TEXT("Root_Turret"));
 	Minigun->SetOwner(this);
 
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
 	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-	                                  TEXT("HomingSocket"));
+	                                  TEXT("Root_MissileLauncher"));
 	HomingLauncher->SetOwner(this);
 
 
@@ -61,6 +66,7 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 	}
 	else if (SwitchString == "DriveAndShoot")
 	{
+		DriveAndShoot();
 		// Code for Case2
 	}
 	else if (SwitchString == "Rush")
@@ -74,15 +80,34 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 }
 
 
-void AEnemyVehiclePawn::SetSwitchString(const std::string& NewSwitchString)
+void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)
 {
 	SwitchString = NewSwitchString;
 }
 
 void AEnemyVehiclePawn::DrivePath()
 {
+	UE_LOG(LogTemp, Warning, TEXT("timerisactive, %hhd"), TimerIsActive);
+	TimeElapsed = GetWorld()->GetTimeSeconds();
+	if (!TimerIsActive)
+	{
+		TimerIsActive = true;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_ResetRotationFlag, this, &AEnemyVehiclePawn::RotateTurret,
+		                                       TimerFirstTime ? 0.6f : TurretDelayTime, false);
+		if (TimerFirstTime) TimerFirstTime = false;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("New Rotation before interp %s"), *NewRotation.ToString());
+	NewRotation = FMath::RInterpTo(GetTurret()->GetActorRotation(), TargetRotation,
+	                               GetWorld()->GetDeltaSeconds(), InterpSpeed);
+
+	UE_LOG(LogTemp, Warning, TEXT("New Rotation after interp %s"), *NewRotation.ToString());
+
+
+	//GetTurret()->AddActorWorldRotation(NewRotation);
+	GetTurret()->SetActorRotation(NewRotation);
+
 	const float Speed = VehicleMovementComponent->GetForwardSpeed();
-	//	UE_LOG(LogTemp, Warning, TEXT("speed: %f"), Speed);
 	if (Speed > 800)
 	{
 		VehicleMovementComponent->SetThrottleInput(VehicleMovementComponent->GetThrottleInput() - 0.2);
@@ -125,7 +150,6 @@ void AEnemyVehiclePawn::DrivePath()
 	else
 	{
 		SteeringInput = -0.6;
-		
 	}
 	// find out waht delta time * 40 does
 	const float LerpValue = FMath::Lerp(TempSteeringInput, SteeringInput, GetWorld()->DeltaTimeSeconds * 40);
@@ -134,7 +158,7 @@ void AEnemyVehiclePawn::DrivePath()
 	VehicleMovementComponent->SetSteeringInput(LerpValue);
 	//	UE_LOG(LogTemp, Warning, TEXT("Destination, %f, %f, %f"), Destination.X, Destination.Y, Destination.Z);
 	//	UE_LOG(LogTemp, Warning, TEXT("actor location, %s"), *GetActorLocation().ToString());
-	
+
 	if (BlackboardComp != nullptr)
 	{
 		Destination = BlackboardComp->GetValueAsVector("PointLocation");
@@ -147,6 +171,24 @@ void AEnemyVehiclePawn::DrivePath()
 		//UE_LOG(LogTemp, Warning, TEXT("setting throttle to zero and task has been succeeded"));
 		BlackboardComp->SetValueAsBool("AtRoadEnd", true);
 	}
+}
+
+void AEnemyVehiclePawn::DriveAndShoot()
+{
+	UE_LOG(LogTemp, Warning, TEXT("enemy detected"));
+}
+
+void AEnemyVehiclePawn::RotateTurret()
+{
+	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
+	RotationIncrement = FMath::RandBool() ? FRotator(0, 50, 0) : FRotator(0, -50, 0);
+	UE_LOG(LogTemp, Warning, TEXT("rotation increment %s"), *RotationIncrement.ToString());
+	StartingRotation = GetTurret()->GetActorRotation();
+	UE_LOG(LogTemp, Warning, TEXT("starting rotaion  %s"), *StartingRotation.ToString());
+	TargetRotation.Yaw = StartingRotation.Yaw + RotationIncrement.Yaw;
+	UE_LOG(LogTemp, Warning, TEXT("target rotation  %s"), *TargetRotation.ToString());
+	TimerIsActive = false;
+	UE_LOG(LogTemp, Warning, TEXT("timer is active , %hhd"), TimerIsActive);
 }
 
 
@@ -176,4 +218,9 @@ bool AEnemyVehiclePawn::InitializeSplineAndSensors()
 	}
 
 	return true;
+}
+
+void AEnemyVehiclePawn::SetStartingRotation()
+{
+	StartingRotation = GetTurret()->GetActorRotation();
 }
