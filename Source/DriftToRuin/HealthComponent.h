@@ -32,12 +32,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealth() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetDefaultMaxHealth() const;
 	
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(float NewHealth);
+
+	UFUNCTION(BlueprintCallable)
+	void ResetMaxHealth();
 
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const;
@@ -57,5 +63,8 @@ private:
 
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float MaxHealth = 100;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	float DefaultMaxHealth = 100;
 		
 };

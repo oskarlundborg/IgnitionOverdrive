@@ -51,6 +51,11 @@ float UHealthComponent::GetHealth() const
 	return CurrentHealth;
 }
 
+float UHealthComponent::GetDefaultMaxHealth() const
+{
+    return DefaultMaxHealth;
+}
+
 float UHealthComponent::GetHealthPercent() const
 {
 	return CurrentHealth / MaxHealth;
@@ -59,6 +64,11 @@ float UHealthComponent::GetHealthPercent() const
 void UHealthComponent::SetHealth(float NewHealth)
 {
 	CurrentHealth = FMath::Min(MaxHealth, FMath::Max(0, NewHealth));
+}
+
+void UHealthComponent::ResetMaxHealth()
+{
+	MaxHealth = DefaultMaxHealth;
 }
 
 void UHealthComponent::SetMaxHealth(float NewMaxHealth)

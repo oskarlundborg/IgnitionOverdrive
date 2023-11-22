@@ -250,6 +250,70 @@ AHomingMissileLauncher* ABaseVehiclePawn::GetHomingLauncher() const
 	return HomingLauncher;
 }
 
+float ABaseVehiclePawn::GetScrapPercentage()
+{
+    return ScrapAmount / MaxScrap;
+}
+
+void ABaseVehiclePawn::AddScrapAmount(float Scrap, float HealAmount)
+{
+	ScrapAmount += Scrap;
+	HealthComponent->SetHealth(HealthComponent->GetHealth() + HealAmount);
+	CheckScrapLevel();
+
+}
+
+void ABaseVehiclePawn::RemoveScrapAmount(float Scrap)
+{
+	ScrapAmount = FMath::Clamp(ScrapAmount - Scrap, 0, 100);
+}
+
+float ABaseVehiclePawn::GetScrapToDrop()
+{
+    return ScrapToDrop;
+}
+
+void ABaseVehiclePawn::CheckScrapLevel()
+{
+	if (ScrapAmount < 20)
+	{
+		KillpointWorth = 1;
+		ScrapToDrop = 10;
+	}
+	
+	if (ScrapAmount >= 20 && ScrapAmount < 50)
+	{
+		KillpointWorth = 2;
+		ScrapToDrop = 15;
+		MinigunDamage = MinigunDamage * 1.1;
+		HomingDamage = HomingDamage * 1.1;
+		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.1);
+	}
+
+	if (ScrapAmount >= 50 && ScrapAmount < 100)
+	{
+		KillpointWorth = 3;
+		ScrapToDrop = 25;
+		MinigunDamage = MinigunDamage * 1.25;
+		HomingDamage = HomingDamage * 1.25;
+		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.25);
+	}
+
+	if (ScrapAmount == 100)
+	{
+		//Aktivera en marker som visar vart spelaren är (light pillar)
+
+		KillpointWorth = 5;
+		ScrapToDrop = 40;
+		MinigunDamage = MinigunDamage * 1.5;
+		HomingDamage = HomingDamage * 1.5;
+		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.5);
+	}
+	
+	
+	
+}
+
 void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if( OtherActor == this ) { return; }
