@@ -7,6 +7,8 @@
 #include "EnemyVehiclePawn.h"
 #include "Minigun.h"
 #include "PlayerTurret.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 UBTT_ShootPlayer::UBTT_ShootPlayer()
 {
@@ -69,6 +71,9 @@ EBTNodeResult::Type UBTT_ShootPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 	}
 
+	EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
+	
+	Minigun->PullTrigger();
 	TickTask(OwnerComp, NodeMemory, GetWorld()->DeltaTimeSeconds);
 
 	if (HasKilled)
@@ -81,9 +86,13 @@ EBTNodeResult::Type UBTT_ShootPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerC
 void UBTT_ShootPlayer::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-	UE_LOG(LogTemp, Warning, TEXT("Trying to shooting AI player"));
+	UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
+	TargetRotation = UKismetMathLibrary::FindLookAtRotation(AIPawn->GetActorLocation(), EnemyLocation);
 
-	Minigun->PullTrigger();
+	NewRotation = FMath::RInterpTo(PlayerTurret->GetActorRotation(), TargetRotation,
+								   GetWorld()->GetDeltaSeconds(), InterpSpeed);
+
+	//Minigun->PullTrigger();
 }
 
 bool UBTT_ShootPlayer::InitializeAIComponents(UBehaviorTreeComponent& OwnerComp)

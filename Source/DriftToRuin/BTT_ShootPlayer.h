@@ -28,4 +28,12 @@ private:
 	UBlackboardComponent* BlackboardComp;
 	AMinigun* Minigun = nullptr;
 	APlayerTurret* PlayerTurret = nullptr;
+
+	//enemy
+	FVector EnemyLocation;
+
+	//rotations
+	FRotator NewRotation;
+	FRotator TargetRotation;
+	float InterpSpeed = 1;
 };
