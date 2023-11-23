@@ -99,7 +99,7 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	float BoostCameraInterpSpeed = 2.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	float BoostEndCameraInterpSpeed = 0.5f;
+	float BoostEndCameraInterpSpeed = 1.0f;
 
 public:
 	ABaseVehiclePawn();
@@ -204,6 +204,9 @@ protected:
 
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
+
+	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> BoostCameraShake;
 	
 	//May be irrelevant, will be tested later.
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)

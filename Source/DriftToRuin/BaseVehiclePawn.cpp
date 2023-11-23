@@ -119,6 +119,10 @@ void ABaseVehiclePawn::OnBoostPressed()
 	if(Booster.BoostAmount <= 0) return;
 	BoostVfxNiagaraComponent->Activate(true);
 	Booster.SetEnabled(true);
+	if(bUseCrazyCamera)
+	{
+		if(BoostCameraShake != nullptr) GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
+	}
 	OnBoosting();
 }
 
