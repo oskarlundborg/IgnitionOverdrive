@@ -76,6 +76,17 @@ void AHomingMissileLauncher::ResetCooldown()
 	GetWorldTimerManager().ClearTimer(CooldownTimer);
 }
 
+float AHomingMissileLauncher::GetCooldownTime()
+{
+	if(GetWorldTimerManager().IsTimerActive(CooldownTimer)) return FMath::Floor(GetWorldTimerManager().GetTimerRemaining(CooldownTimer));
+	return FMath::Floor(CooldownDuration);
+}
+
+bool AHomingMissileLauncher::GetIsOnCooldown()
+{
+	return bIsOnCooldown;
+}
+
 float AHomingMissileLauncher::GetChargeValue()
 {
 	return ChargeValue;
@@ -139,10 +150,11 @@ void AHomingMissileLauncher::Fire()
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation = GetProjectileSpawnPoint()->GetComponentRotation();
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	MissileFired(ChargeAmount);
 	Projectile->SetOwner(GetOwner());
 	const ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(CarTarget == nullptr) return;
-	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CurrentTarget->GetRootComponent();
+	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CarTarget->GetHomingTargetPoint();
 	
 	if(--ChargeAmount <= 0)
 	{
@@ -241,7 +253,6 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	CheckTargetVisibility();
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
-	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue);
 }
 
 

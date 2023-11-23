@@ -8,8 +8,11 @@
 #include "DrawDebugHelpers.h"
 #include "PlayerTurret.h"
 #include "HomingMissileLauncher.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "PlayerVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PowerupComponent.h"
 
 AMinigun::AMinigun()
 {
@@ -62,11 +65,29 @@ bool AMinigun::GetIsOverheated()
 /*Handles firing logic, meaning spawning projectiles*/
 void AMinigun::Fire()
 {
+	//MuzzleFlashNiagaraComponent->Activate();
 	bIsFiring = true;
+
+	if (PoweredUp)
+	{
+		PowerAmmo = FMath::Clamp(PowerAmmo - 2, 0.f, 100.f);
+
+		if (PowerAmmo == 0)
+		{
+			ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+			CarOwner->PowerupComponent->ClearPowerup();
+		}
+		
+	}
+	
+
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation;
 	AdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	ProjectileSpawned(Projectile);
+	UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashNiagaraSystem, GetWeaponMesh(), FName("MuzzleFlashSocket"), GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlashSocket")),
+		GetWeaponMesh()->GetSocketRotation(FName("MuzzleFlashSocket")), EAttachLocation::KeepWorldPosition, false);
 	Projectile->SetOwner(GetOwner());
 }
 
@@ -109,11 +130,11 @@ void AMinigun::OverheatCooldown()
 /*Updates overheat every tick if the gun is firing or not firing and is not at 0*/
 void AMinigun::UpdateOverheat()
 {
-	if(bIsFiring)
+	if(bIsFiring && !PoweredUp)
 	{
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::BuildUpOverheat, 0.1f, false);
-	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated) 
+	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated && !PoweredUp) 
 	{
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::CoolDownWeapon, 0.15f, false);
@@ -186,4 +207,9 @@ float AMinigun::GetOverheatValue() const
 float AMinigun::GetOverheatMaxValue() const
 {
 	return OverheatMax;
+}
+
+float AMinigun::GetPowerAmmoPercent()
+{
+    return PowerAmmo / 100;
 }

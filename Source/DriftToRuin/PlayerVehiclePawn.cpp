@@ -11,7 +11,6 @@
 #include "PlayerTurret.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
-#include "Kismet/GameplayStatics.h"
 
 APlayerVehiclePawn::APlayerVehiclePawn()
 {
@@ -96,7 +95,7 @@ void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Torque Control Enabled?: %d"), VehicleMovementComp->TorqueControl.Enabled));
+	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Torque Control Enabled?: %d"), VehicleMovementComp->TorqueControl.Enabled));
 
 	/*
 	 *Air rolling stuff, tar sönder annan nödvändig fysik på bilen
@@ -154,11 +153,16 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 		}
 	}
 
+	//Det här inställningarna ska försöka ge spelaren mer kontroll av drifts.
 	VehicleMovementComp->TorqueControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.Enabled = true;
-	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 100.0f;
+	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = true;
+	VehicleMovementComp->TargetRotationControl.RotationDamping = 1000.0f;
+	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 1000.0f;
+	VehicleMovementComp->TargetRotationControl.RotationStiffness = 10.0f;
+	VehicleMovementComp->TorqueControl.YawFromRollTorqueScaling = 100.0f;
 	VehicleMovementComp->TorqueControl.YawFromSteering = 100.0f;
-	VehicleMovementComp->TorqueControl.YawTorqueScaling = 10.0f;
+	VehicleMovementComp->TorqueControl.YawTorqueScaling = 100.0f;
 	
 }
 
