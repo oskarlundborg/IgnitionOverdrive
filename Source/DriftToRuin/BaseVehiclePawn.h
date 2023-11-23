@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraComponent.h"
 #include "WheeledVehiclePawn.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -37,6 +38,14 @@ UCLASS()
 class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 {
 	GENERATED_BODY()
+
+	void InitVFX();
+
+	void InitAudio();
+	
+	void UpdateGravelVFX() const;
+	void UpdateAirbornePhysics() const;
+	void UpdateEngineSFX() const;
 	
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
@@ -196,6 +205,21 @@ protected:
 
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraSystem* BoostVfxNiagaraSystem;
+	
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* DirtVfxNiagaraComponentBLWheel;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* DirtVfxNiagaraComponentBRWheel;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* DirtVfxNiagaraComponentFLWheel;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* DirtVfxNiagaraComponentFRWheel;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* DirtVfxNiagaraSystem;
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
