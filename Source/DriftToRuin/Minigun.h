@@ -22,6 +22,9 @@ public:
 	virtual void ReleaseTrigger() override;
 	bool GetIsOverheated();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ProjectileSpawned(ABaseProjectile* Projectile);
+
 	//Ammo för Miniguns powerup
 	float PowerAmmo = 0;
 	UPROPERTY(BlueprintReadWrite)
