@@ -84,7 +84,7 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	float DefaultCameraLagMaxDistance = 25.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	float BoostCameraLagMaxDistance = 200.0f;
+	float BoostCameraLagMaxDistance = 150.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float DefaultCameraFOV = 90.0f;
