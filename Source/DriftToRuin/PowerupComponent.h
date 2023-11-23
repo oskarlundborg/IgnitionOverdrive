@@ -37,6 +37,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool BoostPowerupActive = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float HealthPowerDuration = 10;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BoostPowerDuration = 10;
+
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -150,6 +150,7 @@ void AHomingMissileLauncher::Fire()
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation = GetProjectileSpawnPoint()->GetComponentRotation();
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	MissileFired(ChargeAmount);
 	Projectile->SetOwner(GetOwner());
 	const ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(CarTarget == nullptr) return;

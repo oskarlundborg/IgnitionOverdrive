@@ -47,7 +47,7 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	if (IsPoweredUp)
 	{
-		AddHealth(20.f * DeltaTime);
+		AddHealth(RegenPerSecond * DeltaTime);
 	}
 	
 	// ...
@@ -105,8 +105,9 @@ bool UHealthComponent::IsDead() const
 
 void UHealthComponent::RegenerateHealth()
 {
+	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	FTimerHandle StopHandle;
-	GetWorld()->GetTimerManager().SetTimer(StopHandle, this, &UHealthComponent::StopRegenerating, 10.f,false);
+	GetWorld()->GetTimerManager().SetTimer(StopHandle, this, &UHealthComponent::StopRegenerating, CarOwner->PowerupComponent->HealthPowerDuration, false);
 }
 
 void UHealthComponent::StopRegenerating()
