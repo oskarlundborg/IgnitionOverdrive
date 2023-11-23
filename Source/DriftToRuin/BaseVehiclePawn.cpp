@@ -243,9 +243,9 @@ void ABaseVehiclePawn::UpdateEngineSFX() const
 {
 	//Magic numbers are minimum and maximum frequency for given sound.
 	const float MappedEngineRotationSpeed = FMath::GetMappedRangeValueClamped(FVector2d(VehicleMovementComp->EngineSetup.EngineIdleRPM, VehicleMovementComp->GetEngineMaxRotationSpeed()),
-		FVector2d(74.0f, 375.0f),
+		FVector2d(0.0f, 1.0f),
 		VehicleMovementComp->GetEngineRotationSpeed());
-	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
+	EngineAudioComponent->SetFloatParameter(TEXT("EngineRPM"), MappedEngineRotationSpeed);
 }
 
 void ABaseVehiclePawn::InitVFX()
