@@ -28,6 +28,9 @@ public:
 
 	float GetChargeValue();
 	float GetChargeCapValue();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void MissileFired(int32 ChargeNumber);
 	
 	UFUNCTION(BlueprintCallable)
 	float GetCooldownTime();
