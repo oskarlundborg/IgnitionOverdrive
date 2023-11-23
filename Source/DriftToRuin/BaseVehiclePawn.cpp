@@ -115,14 +115,16 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 	{
 		if(!Booster.bEnabled)
 		{
-			VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
 			GetMesh()->SetLinearDamping(0.2f);
 			GetMesh()->SetAngularDamping(0.3f);
+			VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE NOT BOOSTING")));
 		}
 		else
 		{
 			GetMesh()->SetLinearDamping(0.05f);
 			GetMesh()->SetAngularDamping(0.3f);
+			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE BOOSTING")));
 		}
 		
 	}
