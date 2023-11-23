@@ -13,6 +13,8 @@ ABaseTurret::ABaseTurret()
 
 	TurretMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Turret Mesh"));
 	TurretMesh->SetupAttachment(TurretRoot);
+
+	
 }
 
 
