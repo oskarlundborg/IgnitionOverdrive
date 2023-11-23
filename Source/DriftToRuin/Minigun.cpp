@@ -85,6 +85,7 @@ void AMinigun::Fire()
 	FRotator ProjectileRotation;
 	AdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	ProjectileSpawned(Projectile);
 	UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashNiagaraSystem, GetWeaponMesh(), FName("MuzzleFlashSocket"), GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlashSocket")),
 		GetWeaponMesh()->GetSocketRotation(FName("MuzzleFlashSocket")), EAttachLocation::KeepWorldPosition, false);
 	Projectile->SetOwner(GetOwner());
