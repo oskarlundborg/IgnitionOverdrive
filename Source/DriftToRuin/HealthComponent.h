@@ -43,16 +43,24 @@ public:
 	void SetHealth(float NewHealth);
 
 	UFUNCTION(BlueprintCallable)
+	void AddHealth(float HealthAmount);
+
+	UFUNCTION(BlueprintCallable)
 	void ResetMaxHealth();
 
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const;
+
+	void RegenerateHealth();
+	void StopRegenerating();
 
 	//Is preferably called upon in the constructor of any object using the HealthComponent.
 	void SetMaxHealth(float NewHealth);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnVehicleDeathSignature OnVehicleDeathDelegate;
+
+	bool IsPoweredUp = false;
 
 	UFUNCTION()
 	void OnVehicleDeath(AActor* DamageCauser);

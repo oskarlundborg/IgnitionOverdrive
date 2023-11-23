@@ -4,6 +4,7 @@
 #include "PowerupComponent.h"
 #include "BaseVehiclePawn.h"
 #include "Minigun.h"
+#include "HealthComponent.h"
 
 
 // Sets default values for this component's properties
@@ -22,6 +23,10 @@ void UPowerupComponent::HealthPowerup()
 	{
 		return;
 	}
+
+	HealthPowerupActive = true;
+	Owner->HealthComponent->IsPoweredUp = true;
+	Owner->HealthComponent->RegenerateHealth();
 }
 
 void UPowerupComponent::BoostPowerup()
@@ -58,6 +63,12 @@ void UPowerupComponent::ClearPowerup()
 
 	switch (Owner->HeldPowerup)
 	{
+
+	case 1:
+		Owner->HealthComponent->IsPoweredUp = false;
+		HealthPowerupActive = false;
+		break;
+
 	case 3:
 		Minigun->PoweredUp = false;
 		Owner->SetMinigunDamage(Owner->GetMinigunDefaultDamage());
