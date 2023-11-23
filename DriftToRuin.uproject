@@ -9,7 +9,9 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"ChaosVehicles", "Engine", "AIModule"
+				"ChaosVehicles",
+				"Engine",
+				"AIModule"
 			]
 		}
 	],
@@ -35,6 +37,10 @@
 		},
 		{
 			"Name": "NiagaraFluids",
+			"Enabled": true
+		},
+		{
+			"Name": "HDRIBackdrop",
 			"Enabled": true
 		}
 	],
