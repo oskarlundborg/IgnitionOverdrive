@@ -11,6 +11,7 @@
 #include "PlayerTurret.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SplineComponent.h"
+#include "Perception/AIPerceptionComponent.h"
 
 AEnemyVehiclePawn::AEnemyVehiclePawn()
 {
@@ -39,18 +40,17 @@ void AEnemyVehiclePawn::BeginPlay()
 	                                  TEXT("Root_MissileLauncher"));
 	HomingLauncher->SetOwner(this);
 
-
-	//get blackboard comp 
 	AIController = Cast<AAIController>(GetController());
 	if (AIController != nullptr)
 	{
 		BlackboardComp = AIController->GetBlackboardComponent();
 		ensureMsgf(BlackboardComp != nullptr, TEXT("BlackboardComp was nullptr"));
 	}
+	
 	VehicleMovementComponent = Cast<UChaosVehicleMovementComponent>(GetMovementComponent());
 	if (VehicleMovementComponent == nullptr)
 	{
-		//		UE_LOG(LogTemp, Warning, TEXT("movement cojmponent null"));
+		UE_LOG(LogTemp, Warning, TEXT("movement cojmponent null"));
 	}
 }
 
