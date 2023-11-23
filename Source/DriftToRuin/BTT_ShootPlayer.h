@@ -7,6 +7,7 @@
 #include "BTT_ShootPlayer.generated.h"
 
 class AMinigun;
+class APlayerTurret;
 /**
  * 
  */
@@ -25,5 +26,6 @@ private:
 	APawn* AIPawn;
 	AAIController* AIController;
 	UBlackboardComponent* BlackboardComp;
-	AMinigun* Minigun;
+	AMinigun* Minigun = nullptr;
+	APlayerTurret* PlayerTurret = nullptr;
 };
