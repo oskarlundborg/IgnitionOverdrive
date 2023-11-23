@@ -71,12 +71,13 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	CameraComponent->FieldOfView = 90.0f;
 
 	//Create Bumper Collision Component
-	BumperCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Bumper"));
-	BumperCollisionBox->SetupAttachment(RootComponent);
-	BumperCollisionBox->SetRelativeLocation({285,0,0});
-	BumperCollisionBox->SetRelativeScale3D({1,3.25,0.75});
-	BumperCollisionBox->SetNotifyRigidBodyCollision(true);
-	BumperCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBumperBeginOverlap);
+	BumperCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Bumper"));
+	BumperCollision->SetupAttachment(RootComponent);
+	BumperCollision->SetRelativeLocation({275,0,110});
+	BumperCollision->SetRelativeRotation({90,90,0});
+	BumperCollision->SetRelativeScale3D({1.5,3.25,2.5});
+	BumperCollision->SetNotifyRigidBodyCollision(true);
+	BumperCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBeginOverlap);
 
 	HomingTargetPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Homing Targeting Point"));
 	HomingTargetPoint->SetupAttachment(RootComponent);
@@ -388,20 +389,21 @@ USceneComponent* ABaseVehiclePawn::GetHomingTargetPoint() const
 	return HomingTargetPoint;
 }
 
-void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if( OtherActor == this ) { return; }
+	if( OtherActor == this || OverlappedComp != BumperCollision ) { return; }
 	if( ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor) )
 	{
-		if( bFlatDamage && VehicleMovementComp->GetForwardSpeed() > 0.01f )
-		{
-			OtherVehicle->TakeDamage(BumperDamage, FDamageEvent(), nullptr, this);
-			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), BumperDamage));
-		}
-		else
-		{
-			OtherVehicle->TakeDamage(VehicleMovementComp->GetForwardSpeed() * DamageMultiplier, FDamageEvent(), nullptr, this);
-			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), VehicleMovementComp->GetForwardSpeed() * DamageMultiplier));
-		}
+		const auto Speed = GetVehicleMovement()->GetForwardSpeed();
+		if( Speed < 100.f ) { return; }
+		GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("%f"),
+			UGameplayStatics::ApplyDamage(
+				OtherActor,
+				FMath::Clamp(FMath::Clamp(Speed, 1.f, Speed) / BumperDamageDividedBy, 0.f, MaxBumperDamage),
+				GetController(),
+				this,
+				nullptr
+			))
+		);
 	}
 }
