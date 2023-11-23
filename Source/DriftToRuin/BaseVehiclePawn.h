@@ -80,6 +80,24 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostMaxTorque = 10000.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float DefaultCameraLagMaxDistance = 25.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float BoostCameraLagMaxDistance = 200.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float DefaultCameraFOV = 90.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float BoostCameraFOV = 115.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float BoostCameraInterpSpeed = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float BoostEndCameraInterpSpeed = 0.5f;
+
 public:
 	ABaseVehiclePawn();
 
@@ -125,12 +143,6 @@ public:
 	float GetMinigunDamage();
 	float GetMinigunDefaultDamage();
 	float GetHomingDamage();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BoostStartEvent();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BoostStopEvent();
 	
 	UFUNCTION(BlueprintCallable)
 	void SetDamage(float NewDamage);
