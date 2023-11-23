@@ -73,12 +73,13 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->bInheritPitch = true;
 	SpringArmComponent->bInheritYaw = true;
+	SpringArmComponent->CameraLagMaxDistance = DefaultCameraLagMaxDistance;
 
 	//Create Camera Component
 	//(Camera panning constraints will be determined using Camera Manager)
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	CameraComponent->FieldOfView = 90.0f;
+	CameraComponent->FieldOfView = DefaultCameraFOV;
 
 	//Create Bumper Collision Component
 	BumperCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Bumper"));
@@ -116,10 +117,12 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 void ABaseVehiclePawn::OnBoostPressed()
 {
 	if(Booster.BoostAmount <= 0) return;
-	BoostStartEvent();
 	BoostVfxNiagaraComponent->Activate(true);
-	//DELAY??
 	Booster.SetEnabled(true);
+	if(bUseCrazyCamera)
+	{
+		if(BoostCameraShake != nullptr) GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
+	}
 	OnBoosting();
 }
 
@@ -136,8 +139,17 @@ void ABaseVehiclePawn::OnBoosting()
 		VehicleMovementComp->SetThrottleInput(0);
 		RechargeBoost();
 		BoostVfxNiagaraComponent->Deactivate();
-		BoostStopEvent();
+		if(bUseCrazyCamera)
+		{
+			SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, DefaultCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed);
+			CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, DefaultCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed));
+		}
 		return;
+	}
+	if(bUseCrazyCamera)
+	{
+		SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, BoostCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed);
+		CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, BoostCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed));
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
 	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
@@ -231,9 +243,9 @@ void ABaseVehiclePawn::UpdateEngineSFX() const
 {
 	//Magic numbers are minimum and maximum frequency for given sound.
 	const float MappedEngineRotationSpeed = FMath::GetMappedRangeValueClamped(FVector2d(VehicleMovementComp->EngineSetup.EngineIdleRPM, VehicleMovementComp->GetEngineMaxRotationSpeed()),
-		FVector2d(74.0f, 375.0f),
+		FVector2d(0.0f, 1.0f),
 		VehicleMovementComp->GetEngineRotationSpeed());
-	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
+	EngineAudioComponent->SetFloatParameter(TEXT("EngineRPM"), MappedEngineRotationSpeed);
 }
 
 void ABaseVehiclePawn::InitVFX()
