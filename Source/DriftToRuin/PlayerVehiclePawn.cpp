@@ -11,7 +11,6 @@
 #include "PlayerTurret.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
-#include "Kismet/GameplayStatics.h"
 
 APlayerVehiclePawn::APlayerVehiclePawn()
 {
@@ -96,7 +95,7 @@ void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Torque Control Enabled?: %d"), VehicleMovementComp->TorqueControl.Enabled));
+	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Torque Control Enabled?: %d"), VehicleMovementComp->TorqueControl.Enabled));
 
 	/*
 	 *Air rolling stuff, tar sönder annan nödvändig fysik på bilen

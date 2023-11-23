@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraComponent.h"
 #include "WheeledVehiclePawn.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "BaseVehiclePawn.generated.h"
 /*Maybe should be moved to player and AI classes, should work for first playable for now*/
 class APlayerTurret;
@@ -36,6 +38,14 @@ UCLASS()
 class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 {
 	GENERATED_BODY()
+
+	void InitVFX();
+
+	void InitAudio();
+	
+	void UpdateGravelVFX() const;
+	void UpdateAirbornePhysics() const;
+	void UpdateEngineSFX() const;
 	
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
@@ -126,7 +136,7 @@ public:
 	bool GetIsDead();
 
 	UFUNCTION()
-	void OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintCallable)
 	APlayerTurret* GetTurret() const;
@@ -195,6 +205,21 @@ protected:
 
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraSystem* BoostVfxNiagaraSystem;
+	
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* DirtVfxNiagaraComponentBLWheel;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* DirtVfxNiagaraComponentBRWheel;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* DirtVfxNiagaraComponentFLWheel;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* DirtVfxNiagaraComponentFRWheel;
+
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* DirtVfxNiagaraSystem;
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
@@ -203,18 +228,6 @@ protected:
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
 	UPROPERTY()
 	APlayerTurret* Turret;
-
-	UPROPERTY(EditDefaultsOnly)
-	UBoxComponent* BumperCollisionBox;
-
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess=true))
-	float DamageMultiplier = .004f;
-
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess=true))
-	float BumperDamage = 10.f;
-	
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess=true))
-	bool bFlatDamage = false;
 
 	float ScrapAmount = 0;
 	float ScrapToDrop = 10;
@@ -252,4 +265,15 @@ protected:
 
 	//timer för att ta bort damage-effekten
 	FTimerHandle DamageBoostTimerHandle;
+
+	// ___
+	// Front Bumper
+	UPROPERTY(EditDefaultsOnly, Category="Bumper")
+	UCapsuleComponent* BumperCollision;
+
+	UPROPERTY(EditDefaultsOnly, Category="Bumper", meta=(AllowPrivateAccess=true))
+	float BumperDamageDividedBy = 1000.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Bumper", meta=(AllowPrivateAccess=true))
+	float MaxBumperDamage = 50.f;
 };

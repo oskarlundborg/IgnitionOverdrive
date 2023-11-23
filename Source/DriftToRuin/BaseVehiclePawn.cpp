@@ -53,6 +53,16 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
 	BoostVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
+
+	//Create Niagara system for dirt vfx
+	DirtVfxNiagaraComponentFLWheel = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DirtNiagaraComponentFL"));
+	DirtVfxNiagaraComponentFLWheel->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("FL_DirtSocket"));
+	DirtVfxNiagaraComponentFRWheel = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DirtNiagaraComponentFR"));
+	DirtVfxNiagaraComponentFRWheel->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("FR_DirtSocket"));
+	DirtVfxNiagaraComponentBLWheel = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DirtNiagaraComponentBL"));
+	DirtVfxNiagaraComponentBLWheel->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BL_DirtSocket"));
+	DirtVfxNiagaraComponentBRWheel = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DirtNiagaraComponentBR"));
+	DirtVfxNiagaraComponentBRWheel->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BR_DirtSocket"));
 	
 	//Camera & SpringArm may not be necessary in AI, move to player subclass if decided.
 	
@@ -71,12 +81,13 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	CameraComponent->FieldOfView = 90.0f;
 
 	//Create Bumper Collision Component
-	BumperCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Bumper"));
-	BumperCollisionBox->SetupAttachment(RootComponent);
-	BumperCollisionBox->SetRelativeLocation({285,0,0});
-	BumperCollisionBox->SetRelativeScale3D({1,3.25,0.75});
-	BumperCollisionBox->SetNotifyRigidBodyCollision(true);
-	BumperCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBumperBeginOverlap);
+	BumperCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Bumper"));
+	BumperCollision->SetupAttachment(RootComponent);
+	BumperCollision->SetRelativeLocation({275,0,110});
+	BumperCollision->SetRelativeRotation({90,90,0});
+	BumperCollision->SetRelativeScale3D({1.5,3.25,2.5});
+	BumperCollision->SetNotifyRigidBodyCollision(true);
+	BumperCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseVehiclePawn::OnBeginOverlap);
 
 	HomingTargetPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Homing Targeting Point"));
 	HomingTargetPoint->SetupAttachment(RootComponent);
@@ -86,52 +97,17 @@ void ABaseVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(EngineAudioComponent)
-	{
-		EngineAudioComponent->SetSound(EngineAudioSound);
-		EngineAudioComponent->SetVolumeMultiplier(1);
-		EngineAudioComponent->SetActive(bPlayEngineSound);
-	}
-
-	if(BoostVfxNiagaraComponent)
-	{
-		BoostVfxNiagaraComponent->SetAsset(BoostVfxNiagaraSystem);
-		BoostVfxNiagaraComponent->Deactivate();
-	}
-	
+	InitAudio();
+	InitVFX();
 }
 
 void ABaseVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	//Magic numbers are minimum and maximum frequency for given sound.
-	const float MappedEngineRotationSpeed = FMath::GetMappedRangeValueClamped(FVector2d(VehicleMovementComp->EngineSetup.EngineIdleRPM, VehicleMovementComp->GetEngineMaxRotationSpeed()),
-		FVector2d(74.0f, 375.0f),
-		VehicleMovementComp->GetEngineRotationSpeed());
-	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
-
-	if(!IsGrounded())
-	{
-		if(!Booster.bEnabled)
-		{
-			VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
-			GetMesh()->SetLinearDamping(0.2f);
-			GetMesh()->SetAngularDamping(0.3f);
-		}
-		else
-		{
-			GetMesh()->SetLinearDamping(0.05f);
-			GetMesh()->SetAngularDamping(0.3f);
-		}
-		
-	}
-	else if(IsGrounded())
-	{
-		GetMesh()->SetLinearDamping(0.01f);
-		GetMesh()->SetAngularDamping(0.0f);
-		VehicleMovementComp->SetDownforceCoefficient(VehicleMovementComp->DownforceCoefficient);
-	}
+	
+	UpdateEngineSFX();
+	UpdateGravelVFX();
+	UpdateAirbornePhysics();
 	
 	//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("IS GROUNDED: %d"), IsGrounded()));
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, FString::Printf(TEXT("BOOST AMOUNT: %f"), Booster.BoostAmount)); //DEBUG FÖR BOOST AMOUNT
@@ -187,8 +163,107 @@ bool ABaseVehiclePawn::IsGrounded() const
 			return true;
 		}
 	}
-	
 	return false;
+}
+
+void ABaseVehiclePawn::UpdateGravelVFX() const
+{
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		switch(Wheel->WheelIndex)
+		{
+		case 0: 
+			DirtVfxNiagaraComponentFLWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
+			break;
+		case 1: 
+			DirtVfxNiagaraComponentFRWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
+			break;
+		case 2: 
+			DirtVfxNiagaraComponentBLWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
+			break;
+		case 3: 
+			DirtVfxNiagaraComponentBRWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void ABaseVehiclePawn::UpdateAirbornePhysics() const
+{
+	if(!IsGrounded())
+	{
+		if(!Booster.bEnabled)
+		{
+			GetMesh()->SetLinearDamping(0.2f);
+			GetMesh()->SetAngularDamping(0.3f);
+			VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE NOT BOOSTING")));
+		}
+		else
+		{
+			GetMesh()->SetLinearDamping(0.05f);
+			GetMesh()->SetAngularDamping(0.3f);
+			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE BOOSTING")));
+		}
+		
+	}
+	else if(IsGrounded())
+	{
+		GetMesh()->SetLinearDamping(0.01f);
+		GetMesh()->SetAngularDamping(0.0f);
+		VehicleMovementComp->SetDownforceCoefficient(VehicleMovementComp->DownforceCoefficient);
+	}
+}
+
+void ABaseVehiclePawn::UpdateEngineSFX() const
+{
+	//Magic numbers are minimum and maximum frequency for given sound.
+	const float MappedEngineRotationSpeed = FMath::GetMappedRangeValueClamped(FVector2d(VehicleMovementComp->EngineSetup.EngineIdleRPM, VehicleMovementComp->GetEngineMaxRotationSpeed()),
+		FVector2d(74.0f, 375.0f),
+		VehicleMovementComp->GetEngineRotationSpeed());
+	EngineAudioComponent->SetFloatParameter(TEXT("Frequency"), MappedEngineRotationSpeed);
+}
+
+void ABaseVehiclePawn::InitVFX()
+{
+	if(BoostVfxNiagaraComponent)
+	{
+		BoostVfxNiagaraComponent->SetAsset(BoostVfxNiagaraSystem);
+		BoostVfxNiagaraComponent->Deactivate();
+	}
+
+	if(DirtVfxNiagaraComponentFLWheel)
+	{
+		DirtVfxNiagaraComponentFLWheel->SetAsset(DirtVfxNiagaraSystem);
+		DirtVfxNiagaraComponentFLWheel->Deactivate();
+	}
+	if(DirtVfxNiagaraComponentFRWheel)
+	{
+		DirtVfxNiagaraComponentFRWheel->SetAsset(DirtVfxNiagaraSystem);
+		DirtVfxNiagaraComponentFRWheel->Deactivate();
+	}
+	if(DirtVfxNiagaraComponentBLWheel)
+	{
+		DirtVfxNiagaraComponentBLWheel->SetAsset(DirtVfxNiagaraSystem);
+		DirtVfxNiagaraComponentBLWheel->Deactivate();
+	}
+	if(DirtVfxNiagaraComponentBRWheel)
+	{
+		DirtVfxNiagaraComponentBRWheel->SetAsset(DirtVfxNiagaraSystem);
+		DirtVfxNiagaraComponentBRWheel->Deactivate();
+	}
+}
+
+void ABaseVehiclePawn::InitAudio()
+{
+	if(EngineAudioComponent)
+	{
+		EngineAudioComponent->SetSound(EngineAudioSound);
+		EngineAudioComponent->SetVolumeMultiplier(1);
+		EngineAudioComponent->SetActive(bPlayEngineSound);
+	}
 }
 
 
@@ -388,20 +463,21 @@ USceneComponent* ABaseVehiclePawn::GetHomingTargetPoint() const
 	return HomingTargetPoint;
 }
 
-void ABaseVehiclePawn::OnBumperBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if( OtherActor == this ) { return; }
+	if( OtherActor == this || OverlappedComp != BumperCollision ) { return; }
 	if( ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor) )
 	{
-		if( bFlatDamage && VehicleMovementComp->GetForwardSpeed() > 0.01f )
-		{
-			OtherVehicle->TakeDamage(BumperDamage, FDamageEvent(), nullptr, this);
-			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), BumperDamage));
-		}
-		else
-		{
-			OtherVehicle->TakeDamage(VehicleMovementComp->GetForwardSpeed() * DamageMultiplier, FDamageEvent(), nullptr, this);
-			//GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("Damage: %f"), VehicleMovementComp->GetForwardSpeed() * DamageMultiplier));
-		}
+		const auto Speed = GetVehicleMovement()->GetForwardSpeed();
+		if( Speed < 100.f ) { return; }
+		GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("%f"),
+			UGameplayStatics::ApplyDamage(
+				OtherActor,
+				FMath::Clamp(FMath::Clamp(Speed, 1.f, Speed) / BumperDamageDividedBy, 0.f, MaxBumperDamage),
+				GetController(),
+				this,
+				nullptr
+			))
+		);
 	}
 }
