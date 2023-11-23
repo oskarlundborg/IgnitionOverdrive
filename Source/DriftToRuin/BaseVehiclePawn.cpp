@@ -146,6 +146,16 @@ void ABaseVehiclePawn::OnBoosting()
 	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
 }
 
+void ABaseVehiclePawn::SetBoostCost(float NewBoostCost)
+{
+	BoostCost = NewBoostCost;
+}
+
+void ABaseVehiclePawn::ResetBoostCost()
+{
+	BoostCost = DefaultBoostCost;
+}
+
 void ABaseVehiclePawn::RechargeBoost()
 {
 	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
@@ -270,6 +280,11 @@ void ABaseVehiclePawn::InitAudio()
 void ABaseVehiclePawn::SetBoostAmount(float NewAmount)
 {
 	Booster.BoostAmount=NewAmount;
+}
+
+float ABaseVehiclePawn::GetMaxBoostAmount()
+{
+	return Booster.MaxBoostAmount;
 }
 
 float ABaseVehiclePawn::GetBoostPercentage() const

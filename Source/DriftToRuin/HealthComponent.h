@@ -74,5 +74,8 @@ private:
 
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float DefaultMaxHealth = 100;
+
+	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	float RegenPerSecond = 20;
 		
 };
