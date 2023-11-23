@@ -35,6 +35,13 @@ void UPowerupComponent::BoostPowerup()
 	{
 		return;
 	}
+
+	BoostPowerupActive = true;
+	Owner->SetBoostCost(0);
+	Owner->SetBoostAmount(Owner->GetMaxBoostAmount());
+
+	FTimerHandle tempHandle;
+	GetWorld()->GetTimerManager().SetTimer(tempHandle, this, &UPowerupComponent::ClearPowerup, BoostPowerDuration, false);
 }
 
 void UPowerupComponent::OverheatPowerup()
@@ -69,6 +76,10 @@ void UPowerupComponent::ClearPowerup()
 		HealthPowerupActive = false;
 		break;
 
+	case 2:
+		Owner->ResetBoostCost();
+		BoostPowerupActive = false;
+		break;
 	case 3:
 		Minigun->PoweredUp = false;
 		Owner->SetMinigunDamage(Owner->GetMinigunDefaultDamage());

@@ -65,6 +65,9 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostCost = 0.5f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	float DefaultBoostCost = 0.5f;
+
 	//How often boost recharges.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostRechargeRate = 0.1f;
@@ -98,11 +101,17 @@ public:
 	void OnBoostPressed();
 	void OnBoostReleased();
 	void OnBoosting();
+
+	void SetBoostCost(float NewBoostCost);
+	void ResetBoostCost();
 	
 	void RechargeBoost();
 
 	UFUNCTION(BlueprintCallable)
 	void SetBoostAmount(float NewAmount);
+
+	UFUNCTION(BlueprintCallable)
+	float GetMaxBoostAmount();
 
 	UFUNCTION(BlueprintPure)
 	float GetBoostPercentage() const;
