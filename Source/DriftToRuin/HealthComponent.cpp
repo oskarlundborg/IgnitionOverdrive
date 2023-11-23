@@ -2,6 +2,8 @@
 
 
 #include "HealthComponent.h"
+#include "BaseVehiclePawn.h"
+#include "PowerupComponent.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -43,6 +45,11 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (IsPoweredUp)
+	{
+		AddHealth(20.f * DeltaTime);
+	}
+	
 	// ...
 }
 
@@ -64,6 +71,12 @@ float UHealthComponent::GetHealthPercent() const
 void UHealthComponent::SetHealth(float NewHealth)
 {
 	CurrentHealth = FMath::Min(MaxHealth, FMath::Max(0, NewHealth));
+}
+
+void UHealthComponent::AddHealth(float HealthAmount)
+{
+	SetHealth(GetHealth() + HealthAmount);
+	UE_LOG(LogTemp, Display, TEXT("HEALING: %f" ), HealthAmount);
 }
 
 void UHealthComponent::ResetMaxHealth()
@@ -90,6 +103,14 @@ bool UHealthComponent::IsDead() const
 	return CurrentHealth <= 0;
 }
 
+void UHealthComponent::RegenerateHealth()
+{
+	FTimerHandle StopHandle;
+	GetWorld()->GetTimerManager().SetTimer(StopHandle, this, &UHealthComponent::StopRegenerating, 10.f,false);
+}
 
-
-
+void UHealthComponent::StopRegenerating()
+{
+	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	CarOwner->PowerupComponent->ClearPowerup();
+}
