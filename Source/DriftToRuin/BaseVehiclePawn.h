@@ -86,6 +86,9 @@ public:
 	UPROPERTY(Category=Powerup, EditAnywhere, BlueprintReadOnly)
 	class UPowerupComponent* PowerupComponent;
 
+	UPROPERTY(Category=Health, EditAnywhere, BlueprintReadOnly)
+	class UHealthComponent* HealthComponent;
+
 	UFUNCTION()
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -177,9 +180,6 @@ protected:
 
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
-	
-	UPROPERTY(Category=Health, EditAnywhere, BlueprintReadOnly)
-	class UHealthComponent* HealthComponent;
 	
 	//May be irrelevant, will be tested later.
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
