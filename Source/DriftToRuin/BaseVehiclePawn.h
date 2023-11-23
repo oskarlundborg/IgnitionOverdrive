@@ -50,6 +50,9 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
 
+	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool bUseCrazyCamera = false;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Physics", meta = (AllowPrivateAccess = "true"))
 	float AirborneDownforceCoefficient = 2.5f;
 	
@@ -79,6 +82,24 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	//Max Torque when boosting.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostMaxTorque = 10000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float DefaultCameraLagMaxDistance = 25.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float BoostCameraLagMaxDistance = 150.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float DefaultCameraFOV = 90.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float BoostCameraFOV = 115.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float BoostCameraInterpSpeed = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	float BoostEndCameraInterpSpeed = 1.0f;
 
 public:
 	ABaseVehiclePawn();
@@ -125,12 +146,6 @@ public:
 	float GetMinigunDamage();
 	float GetMinigunDefaultDamage();
 	float GetHomingDamage();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BoostStartEvent();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BoostStopEvent();
 	
 	UFUNCTION(BlueprintCallable)
 	void SetDamage(float NewDamage);
@@ -189,6 +204,9 @@ protected:
 
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
+
+	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> BoostCameraShake;
 	
 	//May be irrelevant, will be tested later.
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
