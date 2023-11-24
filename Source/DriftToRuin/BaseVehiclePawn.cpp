@@ -121,7 +121,8 @@ void ABaseVehiclePawn::OnBoostPressed()
 	Booster.SetEnabled(true);
 	if(bUseCrazyCamera)
 	{
-		if(BoostCameraShake != nullptr) GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
+		APlayerController* PController = Cast<APlayerController>(GetController());
+		if(BoostCameraShake != nullptr) PController->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
 	}
 	OnBoosting();
 }
