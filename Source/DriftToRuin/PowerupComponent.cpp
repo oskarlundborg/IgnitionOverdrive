@@ -17,6 +17,12 @@ UPowerupComponent::UPowerupComponent()
 	// ...
 }
 
+// 
+//
+//	ändra kanske owner nullcheck till ensure / egen macro
+//
+//
+
 void UPowerupComponent::HealthPowerup()
 {
 	if (Owner == nullptr)
@@ -25,12 +31,13 @@ void UPowerupComponent::HealthPowerup()
 	}
 
 	HealthPowerupActive = true;
-	Owner->HealthComponent->IsPoweredUp = true;
-	Owner->HealthComponent->RegenerateHealth();
+	Owner->GetHealthComponent()->IsPoweredUp = true;
+	Owner->GetHealthComponent()->RegenerateHealth();
 }
 
 void UPowerupComponent::BoostPowerup()
 {
+
 	if (Owner == nullptr)
 	{
 		return;
@@ -61,18 +68,27 @@ void UPowerupComponent::OverheatPowerup()
 
 void UPowerupComponent::ClearPowerup()
 {
-	AMinigun* Minigun = Owner->GetMinigun();
+
+	/*
+	
+	
+		Ändra från switch till
+	
+	
+	*/
 
 	if (Owner == nullptr)
 	{
 		return;
 	}
 
+	AMinigun* Minigun = Owner->GetMinigun();
+
 	switch (Owner->HeldPowerup)
 	{
 
 	case 1:
-		Owner->HealthComponent->IsPoweredUp = false;
+		Owner->GetHealthComponent()->IsPoweredUp = false;
 		HealthPowerupActive = false;
 		break;
 
