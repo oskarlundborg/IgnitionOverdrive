@@ -350,6 +350,11 @@ void ABaseVehiclePawn::RemoveDamageBoost(float OriginalDamage)
 	MinigunDamage = OriginalDamage;
 }
 
+UHealthComponent *ABaseVehiclePawn::GetHealthComponent()
+{
+    return HealthComponent;
+}
+
 bool ABaseVehiclePawn::GetIsDead()
 {
 	return HealthComponent->IsDead();
@@ -410,6 +415,11 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	bHitLevelTwo = false;
 	bHitLevelThree = false;
 	ScrapAmount = 0;
+}
+
+UPowerupComponent *ABaseVehiclePawn::GetPowerupComponent()
+{
+    return PowerupComponent;
 }
 
 void ABaseVehiclePawn::ActivatePowerup()

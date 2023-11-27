@@ -75,7 +75,7 @@ void AMinigun::Fire()
 		if (PowerAmmo == 0)
 		{
 			ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-			CarOwner->PowerupComponent->ClearPowerup();
+			CarOwner->GetPowerupComponent()->ClearPowerup();
 		}
 		
 	}
