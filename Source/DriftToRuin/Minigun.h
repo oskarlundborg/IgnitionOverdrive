@@ -41,6 +41,7 @@ private:
 
 	
 	void AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation);
+	void AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation);
 
 	void Fire();
 	void OnPullTrigger();

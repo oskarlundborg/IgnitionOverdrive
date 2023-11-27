@@ -11,6 +11,7 @@
 #include "PlayerTurret.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SplineComponent.h"
+#include "Perception/AIPerceptionComponent.h"
 
 AEnemyVehiclePawn::AEnemyVehiclePawn()
 {
@@ -39,18 +40,17 @@ void AEnemyVehiclePawn::BeginPlay()
 	                                  TEXT("Root_MissileLauncher"));
 	HomingLauncher->SetOwner(this);
 
-
-	//get blackboard comp 
 	AIController = Cast<AAIController>(GetController());
 	if (AIController != nullptr)
 	{
 		BlackboardComp = AIController->GetBlackboardComponent();
 		ensureMsgf(BlackboardComp != nullptr, TEXT("BlackboardComp was nullptr"));
 	}
+	
 	VehicleMovementComponent = Cast<UChaosVehicleMovementComponent>(GetMovementComponent());
 	if (VehicleMovementComponent == nullptr)
 	{
-		//		UE_LOG(LogTemp, Warning, TEXT("movement cojmponent null"));
+		UE_LOG(LogTemp, Warning, TEXT("movement cojmponent null"));
 	}
 }
 
@@ -87,7 +87,7 @@ void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)
 
 void AEnemyVehiclePawn::DrivePath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("timerisactive, %hhd"), TimerIsActive);
+//	UE_LOG(LogTemp, Warning, TEXT("timerisactive, %hhd"), TimerIsActive);
 	TimeElapsed = GetWorld()->GetTimeSeconds();
 	if (!TimerIsActive)
 	{
@@ -97,11 +97,11 @@ void AEnemyVehiclePawn::DrivePath()
 		if (TimerFirstTime) TimerFirstTime = false;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("New Rotation before interp %s"), *NewRotation.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("New Rotation before interp %s"), *NewRotation.ToString());
 	NewRotation = FMath::RInterpTo(GetTurret()->GetActorRotation(), TargetRotation,
 	                               GetWorld()->GetDeltaSeconds(), InterpSpeed);
 
-	UE_LOG(LogTemp, Warning, TEXT("New Rotation after interp %s"), *NewRotation.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("New Rotation after interp %s"), *NewRotation.ToString());
 
 
 	//GetTurret()->AddActorWorldRotation(NewRotation);
@@ -182,13 +182,13 @@ void AEnemyVehiclePawn::RotateTurret()
 {
 	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 	RotationIncrement = FMath::RandBool() ? FRotator(0, 50, 0) : FRotator(0, -50, 0);
-	UE_LOG(LogTemp, Warning, TEXT("rotation increment %s"), *RotationIncrement.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("rotation increment %s"), *RotationIncrement.ToString());
 	StartingRotation = GetTurret()->GetActorRotation();
-	UE_LOG(LogTemp, Warning, TEXT("starting rotaion  %s"), *StartingRotation.ToString());
+//	UE_LOG(LogTemp, Warning, TEXT("starting rotaion  %s"), *StartingRotation.ToString());
 	TargetRotation.Yaw = StartingRotation.Yaw + RotationIncrement.Yaw;
-	UE_LOG(LogTemp, Warning, TEXT("target rotation  %s"), *TargetRotation.ToString());
+//	UE_LOG(LogTemp, Warning, TEXT("target rotation  %s"), *TargetRotation.ToString());
 	TimerIsActive = false;
-	UE_LOG(LogTemp, Warning, TEXT("timer is active , %hhd"), TimerIsActive);
+	//UE_LOG(LogTemp, Warning, TEXT("timer is active , %hhd"), TimerIsActive);
 }
 
 

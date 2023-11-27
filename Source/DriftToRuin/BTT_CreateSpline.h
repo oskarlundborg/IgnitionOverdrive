@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
+
 #include "BTT_CreateSpline.generated.h"
 
 /**
@@ -30,6 +31,7 @@ private:
 	APawn* AIPawn;
 	AAIController* AIController;
 	UBlackboardComponent* BlackboardComp;
+	
 	FVector Destination;
 	class UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
 

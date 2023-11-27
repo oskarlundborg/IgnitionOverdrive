@@ -3,9 +3,11 @@
 
 #include "Minigun.h"
 
+#include "AIController.h"
 #include "BaseProjectile.h"
 #include "BaseVehiclePawn.h"
 #include "DrawDebugHelpers.h"
+#include "EnemyVehiclePawn.h"
 #include "PlayerTurret.h"
 #include "HomingMissileLauncher.h"
 #include "NiagaraComponent.h"
@@ -13,6 +15,7 @@
 #include "PlayerVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PowerupComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 AMinigun::AMinigun()
 {
@@ -36,13 +39,12 @@ AMinigun::AMinigun()
 void AMinigun::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 /*Called when input action is started*/
 void AMinigun::PullTrigger()
 {
-	if(bIsOverheated) return;
+	if (bIsOverheated) return;
 	Super::PullTrigger();
 	//bIsFiring = true;
 	//OverheatValue += 4.5f;
@@ -77,17 +79,30 @@ void AMinigun::Fire()
 			ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 			CarOwner->GetPowerupComponent()->ClearPowerup();
 		}
-		
 	}
-	
+
 
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation;
-	AdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
+
+	//if sats, välj mellan AI adjust eller vanlig adjust. 
+
+	if (Cast<AEnemyVehiclePawn>(GetOwner()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AI adjust projectile true"));
+		AIAdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
+	}
+	else
+	{
+		AdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
+	}
+
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
 	ProjectileSpawned(Projectile);
-	UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashNiagaraSystem, GetWeaponMesh(), FName("MuzzleFlashSocket"), GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlashSocket")),
-		GetWeaponMesh()->GetSocketRotation(FName("MuzzleFlashSocket")), EAttachLocation::KeepWorldPosition, false);
+	UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashNiagaraSystem, GetWeaponMesh(), FName("MuzzleFlashSocket"),
+	                                             GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlashSocket")),
+	                                             GetWeaponMesh()->GetSocketRotation(FName("MuzzleFlashSocket")),
+	                                             EAttachLocation::KeepWorldPosition, false);
 	Projectile->SetOwner(GetOwner());
 }
 
@@ -104,19 +119,20 @@ void AMinigun::BuildUpOverheat()
 {
 	float OverheatAccumulation = OverheatValue + OverheatBuildUpRate;
 	OverheatValue = FMath::Clamp(OverheatAccumulation, 0.f, OverheatMax);
-	if(OverheatValue == OverheatMax)
+	if (OverheatValue == OverheatMax)
 	{
 		bIsOverheated = true;
 		ReleaseTrigger();
 		FTimerHandle THandle;
-		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::OverheatCooldown, OverheatCooldownDuration, false);
+		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::OverheatCooldown, OverheatCooldownDuration,
+		                                       false);
 	}
 }
 
 /*Cools down the weapon when it is not firing*/
 void AMinigun::CoolDownWeapon()
 {
-	if(bIsFiring || bIsOverheated) return;
+	if (bIsFiring || bIsOverheated) return;
 	float OverheatCoolDown = OverheatValue - OverheatCoolDownRate;
 	OverheatValue = FMath::Clamp(OverheatCoolDown, 0.f, OverheatMax);
 }
@@ -130,11 +146,12 @@ void AMinigun::OverheatCooldown()
 /*Updates overheat every tick if the gun is firing or not firing and is not at 0*/
 void AMinigun::UpdateOverheat()
 {
-	if(bIsFiring && !PoweredUp)
+	if (bIsFiring && !PoweredUp)
 	{
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::BuildUpOverheat, 0.1f, false);
-	} else if(!bIsFiring && OverheatValue != 0.f && !bIsOverheated && !PoweredUp) 
+	}
+	else if (!bIsFiring && OverheatValue != 0.f && !bIsOverheated && !PoweredUp)
 	{
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::CoolDownWeapon, 0.15f, false);
@@ -146,32 +163,32 @@ void AMinigun::UpdateOverheat()
 void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
 {
 	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-	if(CarOwner == nullptr) return;
+	if (CarOwner == nullptr) return;
 	AController* OwnerController = CarOwner->GetController();
-	if(OwnerController == nullptr) return;
-	
+	if (OwnerController == nullptr) return;
+
 	FVector CameraLocation;
 	FRotator CameraRotation;
-	
+
 	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
 	FVector OffsetVector = CarOwner->GetTurret()->GetActorLocation() - CameraLocation;
 	float OffsetLenght = OffsetVector.Length();
 	FVector TraceStart = CameraLocation + (CameraRotation.Vector() * OffsetLenght);
 	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * TraceDistance);
-	
+
 	ToIgnore.AddUnique(GetOwner());
 	ToIgnore.AddUnique(CarOwner->GetTurret());
 	ToIgnore.AddUnique(CarOwner->GetHomingLauncher());
 	ToIgnore.AddUnique(this);
-	
+
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	
+
 	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
 	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Green, true);
-	FVector HitEndLocation; 
-	if(bHit)
+	FVector HitEndLocation;
+	if (bHit)
 	{
 		HitEndLocation = HitResult.ImpactPoint;
 		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("HIT %s"), *HitResult.GetActor()->GetName()));
@@ -180,17 +197,46 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	{
 		HitEndLocation = HitResult.TraceEnd;
 	}
-	
+
 	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
 	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
 	//float RandomSpawnSpreadY = FMath::RandRange(-50.f, 50.f);
 	//float RandomSpawnSpreadZ = FMath::RandRange(-50.f, 50.f);
-	
+
 	HitEndLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
 	//FVector SpawnSpread = SpawnLocation + FVector(0.f, RandomSpawnSpreadY, RandomSpawnSpreadZ);
-	
+
 	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, HitEndLocation);
 	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
+}
+
+//projectile transform adjust for AI firing
+void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
+{
+	const AEnemyVehiclePawn* CarOwner = Cast<AEnemyVehiclePawn>(GetOwner());
+	if (CarOwner == nullptr) return;
+	FVector EnemyLocation;
+	AAIController* AIController = CarOwner->GetController<AAIController>();
+	if (AIController != nullptr)
+	{
+		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
+		if (BlackboardComp != nullptr)
+		{
+			// Now you can use BlackboardComp as needed
+			EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
+		}
+		else
+		{
+			// BlackboardComponent is nullptr
+		}
+	}
+
+	//göras om till AI spread ifall vi ska ha nivåer 
+	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
+	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
+
+	EnemyLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
+	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, EnemyLocation);
 }
 
 void AMinigun::Tick(float DeltaSeconds)
@@ -211,5 +257,5 @@ float AMinigun::GetOverheatMaxValue() const
 
 float AMinigun::GetPowerAmmoPercent()
 {
-    return PowerAmmo / 100;
+	return PowerAmmo / 100;
 }

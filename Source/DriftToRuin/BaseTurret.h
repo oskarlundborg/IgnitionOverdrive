@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
 #include "BaseTurret.generated.h"
 
 UCLASS()
-class DRIFTTORUIN_API ABaseTurret : public AActor
+class DRIFTTORUIN_API ABaseTurret : public APawn
 {
 	GENERATED_BODY()
 	
