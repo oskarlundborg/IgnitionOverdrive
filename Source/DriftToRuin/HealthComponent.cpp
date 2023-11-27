@@ -107,11 +107,11 @@ void UHealthComponent::RegenerateHealth()
 {
 	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	FTimerHandle StopHandle;
-	GetWorld()->GetTimerManager().SetTimer(StopHandle, this, &UHealthComponent::StopRegenerating, CarOwner->PowerupComponent->HealthPowerDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(StopHandle, this, &UHealthComponent::StopRegenerating, CarOwner->GetPowerupComponent()->HealthPowerDuration, false);
 }
 
 void UHealthComponent::StopRegenerating()
 {
 	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-	CarOwner->PowerupComponent->ClearPowerup();
+	CarOwner->GetPowerupComponent()->ClearPowerup();
 }

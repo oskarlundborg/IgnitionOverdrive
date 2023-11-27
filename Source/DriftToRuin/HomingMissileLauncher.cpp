@@ -136,7 +136,7 @@ void AHomingMissileLauncher::ChargeFire()
 void AHomingMissileLauncher::OnChargeFire()
 {
 	bIsCharging = true;
-	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, ChargeTime*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
+	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, ChargeTime / 100, true);
 }
 
 void AHomingMissileLauncher::Fire()

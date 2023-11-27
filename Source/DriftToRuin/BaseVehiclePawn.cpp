@@ -121,7 +121,8 @@ void ABaseVehiclePawn::OnBoostPressed()
 	Booster.SetEnabled(true);
 	if(bUseCrazyCamera)
 	{
-		if(BoostCameraShake != nullptr) GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
+		APlayerController* PController = Cast<APlayerController>(GetController());
+		if(BoostCameraShake != nullptr) PController->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
 	}
 	OnBoosting();
 }
@@ -349,6 +350,11 @@ void ABaseVehiclePawn::RemoveDamageBoost(float OriginalDamage)
 	MinigunDamage = OriginalDamage;
 }
 
+UHealthComponent *ABaseVehiclePawn::GetHealthComponent()
+{
+    return HealthComponent;
+}
+
 bool ABaseVehiclePawn::GetIsDead()
 {
 	return HealthComponent->IsDead();
@@ -409,6 +415,11 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	bHitLevelTwo = false;
 	bHitLevelThree = false;
 	ScrapAmount = 0;
+}
+
+UPowerupComponent *ABaseVehiclePawn::GetPowerupComponent()
+{
+    return PowerupComponent;
 }
 
 void ABaseVehiclePawn::ActivatePowerup()

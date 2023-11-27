@@ -12,6 +12,8 @@
 class APlayerTurret;
 class AHomingMissileLauncher;
 class AMinigun;
+class UHealthComponent;
+class UPowerupComponent;
 
 USTRUCT()
 struct FBooster
@@ -107,12 +109,6 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	int HeldPowerup = 0;
 
-	UPROPERTY(Category=Powerup, EditAnywhere, BlueprintReadOnly)
-	class UPowerupComponent* PowerupComponent;
-
-	UPROPERTY(Category=Health, EditAnywhere, BlueprintReadOnly)
-	class UHealthComponent* HealthComponent;
-
 	UFUNCTION()
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -153,7 +149,6 @@ public:
 	UFUNCTION()
 	void SetMinigunDamage(int NewDamage);
 
-
 	UFUNCTION(BlueprintCallable)
 	void ApplyDamageBoost(float NewDamage, float TimerDuration);
 
@@ -191,6 +186,11 @@ public:
 	void SetHeldPowerup (int PowerIndex);
 
 	UFUNCTION()
+	UPowerupComponent* GetPowerupComponent();
+	UFUNCTION()
+	UHealthComponent* GetHealthComponent();
+
+	UFUNCTION()
 	void CheckScrapLevel();
 
 	USceneComponent* GetHomingTargetPoint() const;
@@ -207,6 +207,12 @@ protected:
 
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCameraShakeBase> BoostCameraShake;
+
+	UPROPERTY(Category=Powerup, EditAnywhere, BlueprintReadOnly)
+	class UPowerupComponent* PowerupComponent;
+
+	UPROPERTY(Category=Health, EditAnywhere, BlueprintReadOnly)
+	class UHealthComponent* HealthComponent;
 	
 	//May be irrelevant, will be tested later.
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly)
