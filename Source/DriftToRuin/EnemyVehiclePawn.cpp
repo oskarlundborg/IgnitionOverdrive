@@ -22,8 +22,8 @@ void AEnemyVehiclePawn::BeginPlay()
 	Super::BeginPlay();
 	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_SetStartingRotation, this,
-	                                       &AEnemyVehiclePawn::SetStartingRotation, 0.5f, false);
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_SetStartingRotation, this,
+	//                                      &AEnemyVehiclePawn::SetStartingRotation, 0.5f, false);
 
 	if (PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
@@ -40,14 +40,19 @@ void AEnemyVehiclePawn::BeginPlay()
 	                                  TEXT("Root_MissileLauncher"));
 	HomingLauncher->SetOwner(this);
 
+	// set turret starting location check if this works or i need the timer 
+	SetStartingRotation();
+
+	//get common components
 	AIController = Cast<AAIController>(GetController());
 	if (AIController != nullptr)
 	{
 		BlackboardComp = AIController->GetBlackboardComponent();
 		ensureMsgf(BlackboardComp != nullptr, TEXT("BlackboardComp was nullptr"));
 	}
-	
+
 	VehicleMovementComponent = Cast<UChaosVehicleMovementComponent>(GetMovementComponent());
+	ensureMsgf(VehicleMovementComponent != nullptr, TEXT("Vehicle movement comp was null"));
 	if (VehicleMovementComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("movement cojmponent null"));
@@ -58,16 +63,16 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-
-	if (SwitchString == "Drive")
-	{
-		InitializeSplineAndSensors();
-		DrivePath();
-	}
-	else if (SwitchString == "DriveAndShoot")
+	//välj körnings beteende
+	if (SwitchString == "DriveAndShoot")
 	{
 		DriveAndShoot();
 		// Code for Case2
+	}
+	else if (SwitchString == "Drive")
+	{
+		InitializeSplineAndSensors();
+		DrivePath();
 	}
 	else if (SwitchString == "Rush")
 	{
@@ -80,33 +85,42 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 }
 
 
-void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)
-{
-	SwitchString = NewSwitchString;
-}
-
 void AEnemyVehiclePawn::DrivePath()
 {
-//	UE_LOG(LogTemp, Warning, TEXT("timerisactive, %hhd"), TimerIsActive);
+	RandomlyRotateTurret();
+
+	ManageSpeed();
+
+	DriveAlongSpline();
+
+	CheckIfAtEndOfSpline();
+}
+
+void AEnemyVehiclePawn::DriveAndShoot()
+{
+	UE_LOG(LogTemp, Warning, TEXT("enemy detected"));
+}
+
+void AEnemyVehiclePawn::RandomlyRotateTurret()
+{
+	//rotera x antal vinklar efter en viss delay
 	TimeElapsed = GetWorld()->GetTimeSeconds();
 	if (!TimerIsActive)
 	{
 		TimerIsActive = true;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_ResetRotationFlag, this, &AEnemyVehiclePawn::RotateTurret,
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_ResetRotationFlag, this,
+		                                       &AEnemyVehiclePawn::AddNewTurretRotation,
 		                                       TimerFirstTime ? 0.6f : TurretDelayTime, false);
 		if (TimerFirstTime) TimerFirstTime = false;
 	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("New Rotation before interp %s"), *NewRotation.ToString());
+	//smooth rotation
 	NewRotation = FMath::RInterpTo(GetTurret()->GetActorRotation(), TargetRotation,
 	                               GetWorld()->GetDeltaSeconds(), InterpSpeed);
-
-	//UE_LOG(LogTemp, Warning, TEXT("New Rotation after interp %s"), *NewRotation.ToString());
-
-
-	//GetTurret()->AddActorWorldRotation(NewRotation);
 	GetTurret()->SetActorRotation(NewRotation);
+}
 
+void AEnemyVehiclePawn::ManageSpeed()
+{
 	const float Speed = VehicleMovementComponent->GetForwardSpeed();
 	if (Speed > 800)
 	{
@@ -117,30 +131,41 @@ void AEnemyVehiclePawn::DrivePath()
 	{
 		VehicleMovementComponent->SetThrottleInput(0.4);
 	}
+}
 
+void AEnemyVehiclePawn::AddNewTurretRotation()
+{
+	//add a new rotation to the target rotation
+	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
+	RotationIncrement = FMath::RandBool() ? FRotator(0, 50, 0) : FRotator(0, -50, 0);
+	StartingRotation = GetTurret()->GetActorRotation();
+	TargetRotation.Yaw = StartingRotation.Yaw + RotationIncrement.Yaw;
+	TimerIsActive = false;
+}
+
+void AEnemyVehiclePawn::DriveAlongSpline()
+{
+	if (LeftSensor == nullptr || RightSensor == nullptr || VehicleMovementComponent == nullptr || MySpline == nullptr)
+		return;
+	//get a spline point along the spline
 	SplineLocationPoint = MySpline->GetLocationAtDistanceAlongSpline(
 		TargetSplineDistance, ESplineCoordinateSpace::World);
 
-	//make 500 into a check variable later
-
+	//check if car has reached point, then get a new point
 	float DistanceCheck = FVector::Dist(SplineLocationPoint, GetActorLocation());
-	if (DistanceCheck < 1000)
+	if (DistanceCheck < NextPointOnSplineThreshold)
 	{
-		//	UE_LOG(LogTemp, Warning, TEXT("TargetSplineDistane before: %f"), TargetSplineDistance);
 		TargetSplineDistance += 500;
-		//UE_LOG(LogTemp, Warning, TEXT("TargetSplineDistane after: %f"), TargetSplineDistance);
-		//	UE_LOG(LogTemp, Warning, TEXT("distance CHEck: %f"), DistanceCheck);
 	}
+	//check which sensor is closer to point
 	SensorGapDifference = FVector::Dist(LeftSensor->GetComponentLocation(), SplineLocationPoint) - FVector::Dist(
 		RightSensor->GetComponentLocation(), SplineLocationPoint);
-
 	SensorGapDifference = FMath::Abs(SensorGapDifference);
+
 	float TempSteeringInput = SteeringInput;
-	//UE_LOG(LogTemp, Warning, TEXT("sensor gap diiff : %f"), SensorGapDifference);
 	if (SensorGapDifference < 10)
 	{
 		SteeringInput = 0;
-		//UE_LOG(LogTemp, Warning, TEXT("sensor gap diiff : %f"), SensorGapDifference);
 	}
 	else if (FVector::Dist(LeftSensor->GetComponentLocation(), SplineLocationPoint) > FVector::Dist(
 		RightSensor->GetComponentLocation(), SplineLocationPoint))
@@ -151,46 +176,27 @@ void AEnemyVehiclePawn::DrivePath()
 	{
 		SteeringInput = -0.6;
 	}
+	//lerp the steering input for smoother turn
 	// find out waht delta time * 40 does
 	const float LerpValue = FMath::Lerp(TempSteeringInput, SteeringInput, GetWorld()->DeltaTimeSeconds * 40);
 	//lerp for smoother turning curve
 	TempSteeringInput = LerpValue;
 	VehicleMovementComponent->SetSteeringInput(LerpValue);
-	//	UE_LOG(LogTemp, Warning, TEXT("Destination, %f, %f, %f"), Destination.X, Destination.Y, Destination.Z);
-	//	UE_LOG(LogTemp, Warning, TEXT("actor location, %s"), *GetActorLocation().ToString());
+}
 
+void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
+{
 	if (BlackboardComp != nullptr)
 	{
 		Destination = BlackboardComp->GetValueAsVector("PointLocation");
 	}
-
-	if (FVector::Dist(GetActorLocation(), Destination) < DistanceThreshold)
+	if (FVector::Dist(GetActorLocation(), Destination) < SplineEndPointDistanceThreshold)
 	{
 		VehicleMovementComponent->SetThrottleInput(0);
 		VehicleMovementComponent->SetSteeringInput(0);
-		//UE_LOG(LogTemp, Warning, TEXT("setting throttle to zero and task has been succeeded"));
 		BlackboardComp->SetValueAsBool("AtRoadEnd", true);
 	}
 }
-
-void AEnemyVehiclePawn::DriveAndShoot()
-{
-	UE_LOG(LogTemp, Warning, TEXT("enemy detected"));
-}
-
-void AEnemyVehiclePawn::RotateTurret()
-{
-	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
-	RotationIncrement = FMath::RandBool() ? FRotator(0, 50, 0) : FRotator(0, -50, 0);
-	//UE_LOG(LogTemp, Warning, TEXT("rotation increment %s"), *RotationIncrement.ToString());
-	StartingRotation = GetTurret()->GetActorRotation();
-//	UE_LOG(LogTemp, Warning, TEXT("starting rotaion  %s"), *StartingRotation.ToString());
-	TargetRotation.Yaw = StartingRotation.Yaw + RotationIncrement.Yaw;
-//	UE_LOG(LogTemp, Warning, TEXT("target rotation  %s"), *TargetRotation.ToString());
-	TimerIsActive = false;
-	//UE_LOG(LogTemp, Warning, TEXT("timer is active , %hhd"), TimerIsActive);
-}
-
 
 bool AEnemyVehiclePawn::InitializeSplineAndSensors()
 {
@@ -205,6 +211,7 @@ bool AEnemyVehiclePawn::InitializeSplineAndSensors()
 	}
 
 	MySpline = ActorRoadSpline->GetComponentByClass<USplineComponent>();
+	if (MySpline == nullptr) return false;
 
 	TArray<UActorComponent*> LeftSensors = CarActor->GetComponentsByTag(USceneComponent::StaticClass(), "LeftSensor");
 	TArray<UActorComponent*> RightSensors = CarActor->GetComponentsByTag(USceneComponent::StaticClass(), "RightSensor");
@@ -213,14 +220,18 @@ bool AEnemyVehiclePawn::InitializeSplineAndSensors()
 
 	if (LeftSensor == nullptr || RightSensor == nullptr)
 	{
-		//	UE_LOG(LogTemp, Warning, TEXT("Sensors were nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("Sensors were nullptr"));
 		return false;
 	}
-
 	return true;
 }
 
 void AEnemyVehiclePawn::SetStartingRotation()
 {
 	StartingRotation = GetTurret()->GetActorRotation();
+}
+
+void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)
+{
+	SwitchString = NewSwitchString;
 }
