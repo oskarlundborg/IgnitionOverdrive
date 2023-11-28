@@ -22,37 +22,43 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
+	void RandomlyRotateTurret();
+	void ManageSpeed();
+	void DriveAlongSpline();
+	void CheckIfAtEndOfSpline();
+
+	//set functions
 	void SetSwitchString(const FString& NewSwitchString);
 
+	
 	//pathfinding
-
 	UPROPERTY(EditAnywhere)
-	float DistanceThreshold = 1000;
-
+	float SplineEndPointDistanceThreshold = 1000;
 	UPROPERTY(EditAnywhere)
-	float MaxTraceDistance = 10000;
-	UPROPERTY(EditAnywhere)
-	float SplinePointThreshold = 200;
+	float NextPointOnSplineThreshold = 1000;
 
-private:
+	// car driving
+	UPROPERTY(EditAnywhere)
 	float ThrottleInput;
+	UPROPERTY(EditAnywhere)
 	float BrakeInput;
+	UPROPERTY(EditAnywhere)
 	float SteeringInput;
 
-
-	UPROPERTY(EditAnywhere)
+private:
+	
 	FString SwitchString = "Drive";
 
 
-	//pathfinding
+	//Common Components
 	AAIController* AIController;
 	UBlackboardComponent* BlackboardComp;
-	FVector Destination = FVector::ZeroVector;
+	class USplineComponent* MySpline;
 	class UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
 
-	class USplineComponent* MySpline;
-
-	//spline
+	
+	//spline values
+	FVector Destination = FVector::ZeroVector;
 	float TargetSplineDistance = 0.0f;
 	float CurrentSplineDistance = 0.0f;
 	int DistanceBetweenSplinePoint;
@@ -66,30 +72,32 @@ private:
 	FRotator NewRotation;
 	float InterpSpeed = 1;
 
+	//timer
 	bool TimerIsActive = false;
 	bool TimerFirstTime = true;
 
-	//difference in lenght between the two sensor towards the spline point  
+	//Sensors
 	float SensorGapDifference;
-
-	//sensor point
 	USceneComponent* LeftSensor;
 	USceneComponent* RightSensor;
-
-
-	//helper function
-	bool InitializeSplineAndSensors();
-
-	void DrivePath();
-	void DriveAndShoot();
-	void SetStartingRotation();
-
-	void RotateTurret();
-
-	//timers
+	
+	//timers - borde kollas igenom om dessa ska användas
 	int TimeElapsed;
 	int TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 
 	FTimerHandle TimerHandle_SetStartingRotation;
 	FTimerHandle TimerHandle_ResetRotationFlag;
+
+	//Functions
+	//driving behavior functions
+	void DrivePath();
+	void DriveAndShoot();
+
+	//turret rotation
+	void SetStartingRotation();
+	void AddNewTurretRotation();
+
+	//helper function
+	bool InitializeSplineAndSensors();
+	
 };
