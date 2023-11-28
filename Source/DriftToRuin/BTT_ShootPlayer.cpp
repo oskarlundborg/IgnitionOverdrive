@@ -86,7 +86,7 @@ EBTNodeResult::Type UBTT_ShootPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerC
 void UBTT_ShootPlayer::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-	UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
+	//UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(AIPawn->GetActorLocation(), EnemyLocation);
 
 	NewRotation = FMath::RInterpTo(PlayerTurret->GetActorRotation(), TargetRotation,
