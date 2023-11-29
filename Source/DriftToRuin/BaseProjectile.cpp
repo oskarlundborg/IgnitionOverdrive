@@ -26,8 +26,14 @@ UProjectileMovementComponent* ABaseProjectile::GetProjectileMovementComponent()
 	return ProjectileMovementComponent;
 }
 
+void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpusle, const FHitResult& Hit)
+{
+	ProjectileImpactHitResult(Hit);
+}
+
 void ABaseProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ProjectileImpactSweepResult(SweepResult);
 }

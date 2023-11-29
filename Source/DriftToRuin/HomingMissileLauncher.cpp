@@ -20,6 +20,9 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	ChargeValue = 0.f;
 	ChargeValueCap = 100.f;
 	CooldownDuration = 10.f;
+	MagnitudeChangeRange = 2500.f;
+	CloseRangeMagnitude = 35000.f;
+	FarRangeMagnitude = 26000.f;
 	bIsCharging = false;
 	bIsOnCooldown = false;
 	CurrentTarget = nullptr;
@@ -39,7 +42,8 @@ void AHomingMissileLauncher::PullTrigger()
 	LastTarget = nullptr;
 	Super::PullTrigger();
 	FindTarget();
-	if(CurrentTarget) OnChargeFire();
+	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
+	if(TargetVenchi && !CheckTargetIsDead(TargetVenchi)) OnChargeFire();
 }
 			
 void AHomingMissileLauncher::ReleaseTrigger()
@@ -155,6 +159,13 @@ void AHomingMissileLauncher::Fire()
 	const ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(CarTarget == nullptr) return;
 	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CarTarget->GetHomingTargetPoint();
+
+	float HoAccMa = FarRangeMagnitude;
+	if(GetOwner()->GetDistanceTo(CurrentTarget) < MagnitudeChangeRange)
+	{
+		HoAccMa = CloseRangeMagnitude;
+	}
+	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = HoAccMa;
 	
 	if(--ChargeAmount <= 0)
 	{
@@ -168,9 +179,10 @@ void AHomingMissileLauncher::OnFire()
 	GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
 }
 	
-void AHomingMissileLauncher::CheckTargetVisibility()
+void AHomingMissileLauncher::CheckTargetStatus()
 {
 	if(!CurrentTarget) return;
+	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
 	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
 	const AController* OwnerController = CarOwner->GetController();
@@ -178,7 +190,7 @@ void AHomingMissileLauncher::CheckTargetVisibility()
 	const APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
 	if(OwnerPlayerController == nullptr) return;
 	
-	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner))
+	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
 	{
 		CurrentTarget = nullptr;
 		ChargeAmount = 0;
@@ -213,6 +225,11 @@ bool AHomingMissileLauncher::CheckTargetInRange(const ABaseVehiclePawn* VehicleO
 	float CurrentDistance = Owner->GetDistanceTo(CurrentTarget);
 	if(CurrentDistance <= TargetingRange) return true;
 	return false;
+}
+
+bool AHomingMissileLauncher::CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const
+{
+	return TargetVenchi->GetIsDead();
 }
 
 void AHomingMissileLauncher::FindTarget()
@@ -251,7 +268,9 @@ void AHomingMissileLauncher::FindTarget()
 void AHomingMissileLauncher::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	CheckTargetVisibility();
+	CheckTargetStatus();
+	if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
+
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }
 

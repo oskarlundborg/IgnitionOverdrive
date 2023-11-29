@@ -77,6 +77,13 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
 	float TargetingRange;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	float CloseRangeMagnitude;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	float FarRangeMagnitude;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	float MagnitudeChangeRange;
 	
 	UPROPERTY()
 	AActor* CurrentTarget;
@@ -94,10 +101,11 @@ private:
 	void Fire();
 	void OnFire();
 
-	void CheckTargetVisibility();
+	void CheckTargetStatus();
 	bool CheckTargetLineOfSight(const AController* Controller) const;
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
 	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
+	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
 
 	void ResetCooldown();
 public:
