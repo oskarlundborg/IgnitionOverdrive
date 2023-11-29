@@ -29,6 +29,8 @@ public:
 	float GetChargeValue();
 	float GetChargeCapValue();
 
+	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void MissileFired(int32 ChargeNumber);
 	
@@ -60,8 +62,14 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
     float ChargeTime;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	
 	float CooldownDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownOneCharge;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownTwoCharges;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownThreeCharges;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	float ChargeBuildUpRate;
@@ -74,9 +82,17 @@ private:
 	
 	bool bIsCharging;
 	bool bIsOnCooldown;
+	bool bCanLockOn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
 	float TargetingRange;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	float CloseRangeMagnitude;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	float FarRangeMagnitude;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
+	float MagnitudeChangeRange;
 	
 	UPROPERTY()
 	AActor* CurrentTarget;
@@ -89,17 +105,22 @@ protected:
 
 private:
 	void FindTarget();
+	void CheckCanLockOn();
+	bool PerformTargetLockSweep(FHitResult& HitResult);
+	
 	void ChargeFire();
 	void OnChargeFire();
 	void Fire();
 	void OnFire();
 
-	void CheckTargetVisibility();
+	void CheckTargetStatus();
 	bool CheckTargetLineOfSight(const AController* Controller) const;
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
-	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
+	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
 
 	void ResetCooldown();
+	void SetCooldownDuration();
+
 public:
 	virtual void Tick(float DeltaSeconds) override;
 };

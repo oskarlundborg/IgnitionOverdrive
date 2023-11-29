@@ -14,9 +14,6 @@ AHomingProjectile::AHomingProjectile()
 {
 	ProjectileMovementComponent->bIsHomingProjectile = true;
 	DestructionTime = 0.8f;
-
-	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>(TEXT("Radial force"));
-	RadialForceComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Radial Foce Component"));
 }
 
 void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -25,6 +22,7 @@ void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	Super::OnOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 	RadialForceComponent->FireImpulse();
 	ProjectileVfxNiagaraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
 	auto OwnerBaseVehiclePawn = Cast<ABaseVehiclePawn>(ProjectileOwner);
@@ -32,8 +30,10 @@ void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	if(!OwnerInstigator) return;
 	auto DamageTypeClass = UDamageType::StaticClass();
 	Damage = OwnerBaseVehiclePawn->GetHomingDamage();
+	ABaseVehiclePawn* HitActor = Cast<ABaseVehiclePawn>(OtherActor);
+	if(!HitActor) return;
 	
-	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
+	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
 	DestructionDelegate.BindLambda([this] {if(this->IsValidLowLevel()) Destroy();});
 	SetActorEnableCollision(false);
 	GetWorldTimerManager().SetTimer(DestroyTimer, DestructionDelegate, DestructionTime, false);
@@ -52,10 +52,10 @@ void AHomingProjectile::CheckIfTargetDied()
 	//UE_LOG(LogTemp, Warning, TEXT("Dead"));
 	if(Target->GetIsDead())
 	{
-		//GetProjectileMovementComponent()->HomingTargetComponent = nullptr;
+		GetProjectileMovementComponent()->HomingTargetComponent = nullptr;
 		//GetProjectileMovementComponent()->ProjectileGravityScale(1.0);
-		Destroy();
-		UE_LOG(LogTemp, Warning, TEXT("Dead"));
+		//Destroy();
+		//UE_LOG(LogTemp, Warning, TEXT("Dead"));
 	}
 }
 

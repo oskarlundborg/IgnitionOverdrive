@@ -4,6 +4,7 @@
 #include "MinigunProjectile.h"
 #include "BaseVehiclePawn.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 AMinigunProjectile::AMinigunProjectile()
 {
@@ -14,6 +15,8 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	RadialForceComponent->FireImpulse();
+	
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
 	auto OwnerBaseVehiclePawn = Cast<ABaseVehiclePawn>(ProjectileOwner);
@@ -21,8 +24,10 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	if(!OwnerInstigator) return;
 	auto DamageTypeClass = UDamageType::StaticClass();
 	Damage = OwnerBaseVehiclePawn->GetMinigunDamage();
+	ABaseVehiclePawn* HitActor = Cast<ABaseVehiclePawn>(OtherActor);
+	if(!HitActor) return;
 
-	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
+	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
 	Destroy();
 }
 
