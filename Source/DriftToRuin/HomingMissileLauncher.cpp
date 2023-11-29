@@ -20,6 +20,9 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	ChargeValue = 0.f;
 	ChargeValueCap = 100.f;
 	CooldownDuration = 10.f;
+	MagnitudeChangeRange = 2500.f;
+	CloseRangeMagnitude = 35000.f;
+	FarRangeMagnitude = 26000.f;
 	bIsCharging = false;
 	bIsOnCooldown = false;
 	CurrentTarget = nullptr;
@@ -156,6 +159,13 @@ void AHomingMissileLauncher::Fire()
 	const ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(CarTarget == nullptr) return;
 	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CarTarget->GetHomingTargetPoint();
+
+	float HoAccMa = FarRangeMagnitude;
+	if(GetOwner()->GetDistanceTo(CurrentTarget) < MagnitudeChangeRange)
+	{
+		HoAccMa = CloseRangeMagnitude;
+	}
+	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = HoAccMa;
 	
 	if(--ChargeAmount <= 0)
 	{
@@ -259,6 +269,8 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
+	if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
+
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }
 
