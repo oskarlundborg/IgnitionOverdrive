@@ -4,6 +4,7 @@
 #include "MinigunProjectile.h"
 #include "BaseVehiclePawn.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 AMinigunProjectile::AMinigunProjectile()
 {
@@ -14,6 +15,8 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	RadialForceComponent->FireImpulse();
+	
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
 	auto OwnerBaseVehiclePawn = Cast<ABaseVehiclePawn>(ProjectileOwner);

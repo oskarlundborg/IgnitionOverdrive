@@ -5,6 +5,7 @@
 
 #include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 ABaseProjectile::ABaseProjectile()
 {
@@ -15,6 +16,9 @@ ABaseProjectile::ABaseProjectile()
 
 	ProjectileVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ProjectileNiagaraComponent"));
 	ProjectileVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("VFX"));
+
+	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>(TEXT("Radial force"));
+	RadialForceComponent->SetupAttachment(RootComponent);
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 	ProjectileMovementComponent->MaxSpeed = 8000.f;
