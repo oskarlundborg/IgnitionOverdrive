@@ -14,9 +14,6 @@ AHomingProjectile::AHomingProjectile()
 {
 	ProjectileMovementComponent->bIsHomingProjectile = true;
 	DestructionTime = 0.8f;
-
-	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>(TEXT("Radial force"));
-	RadialForceComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Radial Foce Component"));
 }
 
 void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

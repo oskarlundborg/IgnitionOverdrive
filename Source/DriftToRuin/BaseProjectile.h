@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "BaseProjectile.generated.h"
 
+class URadialForceComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -43,6 +44,9 @@ private:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Radial Force")
+	URadialForceComponent* RadialForceComponent;
 
 	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraComponent* ProjectileVfxNiagaraComponent;

@@ -6,7 +6,6 @@
 #include "BaseProjectile.h"
 #include "HomingProjectile.generated.h"
 
-class URadialForceComponent;
 /**
  * 
  */
@@ -25,9 +24,6 @@ private:
 
 	FTimerDelegate DestructionDelegate;
 	FTimerHandle DestroyTimer;
-	
-	UPROPERTY(VisibleAnywhere, Category = "Radial Force")
-	URadialForceComponent* RadialForceComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX Destruction", meta = (AllowPrivateAccess = "true"))
 	float DestructionTime;
