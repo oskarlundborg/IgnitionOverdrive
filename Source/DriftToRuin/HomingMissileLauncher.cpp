@@ -39,7 +39,8 @@ void AHomingMissileLauncher::PullTrigger()
 	LastTarget = nullptr;
 	Super::PullTrigger();
 	FindTarget();
-	if(CurrentTarget) OnChargeFire();
+	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
+	if(TargetVenchi && !CheckTargetIsDead(TargetVenchi)) OnChargeFire();
 }
 			
 void AHomingMissileLauncher::ReleaseTrigger()
@@ -168,9 +169,10 @@ void AHomingMissileLauncher::OnFire()
 	GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
 }
 	
-void AHomingMissileLauncher::CheckTargetVisibility()
+void AHomingMissileLauncher::CheckTargetStatus()
 {
 	if(!CurrentTarget) return;
+	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
 	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
 	const AController* OwnerController = CarOwner->GetController();
@@ -178,7 +180,7 @@ void AHomingMissileLauncher::CheckTargetVisibility()
 	const APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
 	if(OwnerPlayerController == nullptr) return;
 	
-	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner))
+	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
 	{
 		CurrentTarget = nullptr;
 		ChargeAmount = 0;
@@ -213,6 +215,11 @@ bool AHomingMissileLauncher::CheckTargetInRange(const ABaseVehiclePawn* VehicleO
 	float CurrentDistance = Owner->GetDistanceTo(CurrentTarget);
 	if(CurrentDistance <= TargetingRange) return true;
 	return false;
+}
+
+bool AHomingMissileLauncher::CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const
+{
+	return TargetVenchi->GetIsDead();
 }
 
 void AHomingMissileLauncher::FindTarget()
@@ -251,7 +258,7 @@ void AHomingMissileLauncher::FindTarget()
 void AHomingMissileLauncher::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	CheckTargetVisibility();
+	CheckTargetStatus();
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }
 

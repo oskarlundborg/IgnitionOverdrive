@@ -94,10 +94,11 @@ private:
 	void Fire();
 	void OnFire();
 
-	void CheckTargetVisibility();
+	void CheckTargetStatus();
 	bool CheckTargetLineOfSight(const AController* Controller) const;
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
 	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
+	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
 
 	void ResetCooldown();
 public:
