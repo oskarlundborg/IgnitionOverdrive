@@ -28,6 +28,7 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	FarRangeMagnitude = 26000.f;
 	bIsCharging = false;
 	bIsOnCooldown = false;
+	bCanLockOn = false;
 	CurrentTarget = nullptr;
 }
 
@@ -255,6 +256,45 @@ void AHomingMissileLauncher::FindTarget()
 	AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
 	
+	FHitResult HitResult;
+	bool bHit = PerformTargetLockSweep(HitResult);
+	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
+	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
+	{
+		CurrentTarget = HitResult.GetActor();
+		LastTarget = CurrentTarget;
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitResult.GetActor()->GetName())
+}
+
+void AHomingMissileLauncher::CheckCanLockOn()
+{
+	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	if(CarOwner == nullptr) return;
+	AController* OwnerController = CarOwner->GetController();
+	if(OwnerController == nullptr) return;
+	
+	FHitResult HitResult;
+    bool bHit = PerformTargetLockSweep(HitResult);
+	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
+	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
+	{
+		bCanLockOn = true;
+		UE_LOG(LogTemp, Warning, TEXT("Can LOCK"));
+	} else
+	{
+		bCanLockOn = false;
+		UE_LOG(LogTemp, Warning, TEXT("No"));
+	}
+}
+
+bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
+{
+	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	if(CarOwner == nullptr) return false;
+	AController* OwnerController = CarOwner->GetController();
+	if(OwnerController == nullptr) return false;
+	
 	FVector CameraLocation;
 	FRotator CameraRotation;
 	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
@@ -267,24 +307,18 @@ void AHomingMissileLauncher::FindTarget()
 	ToIgnore.Add(CarOwner->GetTurret());
 	ToIgnore.Add(CarOwner->GetMinigun());
 	
-	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(60.f);
+	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
 	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepSphere, TraceParams);
-	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
-	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
-	{
-		CurrentTarget = HitResult.GetActor();
-		LastTarget = CurrentTarget;
-	}
-	//UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitResult.GetActor()->GetName())
+	return bHit;
 }
 
 void AHomingMissileLauncher::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
+	CheckCanLockOn();
 	//if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCooldownTime());
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);

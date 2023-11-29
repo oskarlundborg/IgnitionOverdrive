@@ -29,6 +29,8 @@ public:
 	float GetChargeValue();
 	float GetChargeCapValue();
 
+	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void MissileFired(int32 ChargeNumber);
 	
@@ -80,6 +82,7 @@ private:
 	
 	bool bIsCharging;
 	bool bIsOnCooldown;
+	bool bCanLockOn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
 	float TargetingRange;
@@ -102,6 +105,9 @@ protected:
 
 private:
 	void FindTarget();
+	void CheckCanLockOn();
+	bool PerformTargetLockSweep(FHitResult& HitResult);
+	
 	void ChargeFire();
 	void OnChargeFire();
 	void Fire();
@@ -110,11 +116,11 @@ private:
 	void CheckTargetStatus();
 	bool CheckTargetLineOfSight(const AController* Controller) const;
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
-	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
 	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
 
 	void ResetCooldown();
 	void SetCooldownDuration();
+
 public:
 	virtual void Tick(float DeltaSeconds) override;
 };
