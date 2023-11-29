@@ -224,6 +224,7 @@ void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator&
 		{
 			// Now you can use BlackboardComp as needed
 			EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
+			EnemyLocation += FVector(0, 0, 200);
 		}
 		else
 		{

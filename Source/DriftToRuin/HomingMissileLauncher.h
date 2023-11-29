@@ -29,6 +29,9 @@ public:
 	float GetChargeValue();
 	float GetChargeCapValue();
 
+	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
+	bool CheckTargetLineOfSight(const AController* Controller) const;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void MissileFired(int32 ChargeNumber);
 	
@@ -46,6 +49,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	int32 GetAmmo();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetCanLockOnTarget();
 	
 private:
 	FTimerHandle ChargeHandle;
@@ -60,8 +66,14 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
     float ChargeTime;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	
 	float CooldownDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownOneCharge;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownTwoCharges;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownThreeCharges;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	float ChargeBuildUpRate;
@@ -74,6 +86,7 @@ private:
 	
 	bool bIsCharging;
 	bool bIsOnCooldown;
+	bool bCanLockOn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
 	float TargetingRange;
@@ -96,18 +109,21 @@ protected:
 
 private:
 	void FindTarget();
+	void CheckCanLockOn();
+	bool PerformTargetLockSweep(FHitResult& HitResult);
+	
 	void ChargeFire();
 	void OnChargeFire();
 	void Fire();
 	void OnFire();
 
 	void CheckTargetStatus();
-	bool CheckTargetLineOfSight(const AController* Controller) const;
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
-	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
 	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
 
 	void ResetCooldown();
+	void SetCooldownDuration();
+
 public:
 	virtual void Tick(float DeltaSeconds) override;
 };

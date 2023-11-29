@@ -504,7 +504,8 @@ USceneComponent* ABaseVehiclePawn::GetHomingTargetPoint() const
 void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if( OtherActor == this || OverlappedComp != BumperCollision ) { return; }
-	if( ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor) )
+	ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor);
+	if(OtherVehicle && !OtherVehicle->GetIsDead())
 	{
 		const auto Speed = GetVehicleMovement()->GetForwardSpeed();
 		if( Speed < 100.f ) { return; }
