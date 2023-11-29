@@ -30,6 +30,7 @@ public:
 	float GetChargeCapValue();
 
 	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
+	bool CheckTargetLineOfSight(const AController* Controller) const;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void MissileFired(int32 ChargeNumber);
@@ -48,6 +49,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	int32 GetAmmo();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetCanLockOnTarget();
 	
 private:
 	FTimerHandle ChargeHandle;
@@ -114,7 +118,6 @@ private:
 	void OnFire();
 
 	void CheckTargetStatus();
-	bool CheckTargetLineOfSight(const AController* Controller) const;
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
 	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
 
