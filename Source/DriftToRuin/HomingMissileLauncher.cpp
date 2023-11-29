@@ -134,7 +134,12 @@ int32 AHomingMissileLauncher::GetAmmo()
 	//return AmmoAmount; // here
 	return 0;
 }
-	
+
+bool AHomingMissileLauncher::GetCanLockOnTarget()
+{
+	return bCanLockOn;
+}
+
 void AHomingMissileLauncher::ChargeFire()
 {
 	if(!CurrentTarget || ChargeAmount == ChargeCap)
@@ -276,8 +281,9 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	
 	FHitResult HitResult;
     bool bHit = PerformTargetLockSweep(HitResult);
-	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
-	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
+	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
+	
+	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead())
 	{
 		bCanLockOn = true;
 		UE_LOG(LogTemp, Warning, TEXT("Can LOCK"));
