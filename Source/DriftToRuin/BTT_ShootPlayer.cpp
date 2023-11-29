@@ -93,17 +93,24 @@ void UBTT_ShootPlayer::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 		Minigun->PullTrigger();
 	}
 
+	AController* EnemyController = Cast<AController>(AIController);
+	ensureMsgf(EnemyController != nullptr, TEXT("Enemy controller was null"));
 	/*if(HomingMissileLauncher && !HomingMissileLauncher->GetIsOnCooldown() && HomingMissileLauncher->CheckTargetInRange(Enemy))
 	{
 		HomingMissileLauncher->PullTrigger();
-		MissilePulledTrigger = true;
+		//MissilePulledTrigger = true;
 	}
-	else if(HomingMissileLauncher->GetChargeAmount() == MissileChargeAmount)
+	else if(HomingMissileLauncher && HomingMissileLauncher->GetChargeAmount() == MissileChargeAmount)
 	{
 		HomingMissileLauncher->ReleaseTrigger();
-	}*/
+	}
+	else if(HomingMissileLauncher && (!HomingMissileLauncher->CheckTargetInRange(Enemy) || !HomingMissileLauncher.CheckTargetLineOfSight(EnemyController)))
+	{
+		HomingMissileLauncher->ReleaseTrigger();
+	}
+	*/
 	
-
+	UE_LOG(LogTemp, Warning, TEXT("charge amount missile: %d "), HomingMissileLauncher->GetChargeAmount());
 	
 	//Minigun->PullTrigger();
 }

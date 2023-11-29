@@ -44,7 +44,7 @@ private:
 
 	bool Overheating = false;
 	bool MinigunPulledTrigger = false;
-	bool MissilePulledTrigger = false;
+	//bool MissilePulledTrigger = false;
 	bool MissileIsAvailable = false;
 
 	bool InitializedComponents = false;
