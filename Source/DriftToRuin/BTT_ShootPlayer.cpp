@@ -41,7 +41,8 @@ EBTNodeResult::Type UBTT_ShootPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerC
 void UBTT_ShootPlayer::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-
+	
+	
 
 	/*if (InitializeEverything(OwnerComp, TaskResult) && !InitializedComponents)
 	{
@@ -95,7 +96,7 @@ void UBTT_ShootPlayer::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 	AController* EnemyController = Cast<AController>(AIController);
 	ensureMsgf(EnemyController != nullptr, TEXT("Enemy controller was null"));
-	/*if(HomingMissileLauncher && !HomingMissileLauncher->GetIsOnCooldown() && HomingMissileLauncher->CheckTargetInRange(Enemy))
+	if(HomingMissileLauncher && !HomingMissileLauncher->GetIsOnCooldown() && HomingMissileLauncher->CheckTargetInRange(Enemy))
 	{
 		HomingMissileLauncher->PullTrigger();
 		//MissilePulledTrigger = true;
@@ -104,11 +105,11 @@ void UBTT_ShootPlayer::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	{
 		HomingMissileLauncher->ReleaseTrigger();
 	}
-	else if(HomingMissileLauncher && (!HomingMissileLauncher->CheckTargetInRange(Enemy) || !HomingMissileLauncher.CheckTargetLineOfSight(EnemyController)))
+	else if(HomingMissileLauncher && (!HomingMissileLauncher->CheckTargetInRange(Enemy) || !HomingMissileLauncher->CheckTargetLineOfSight(EnemyController)))
 	{
 		HomingMissileLauncher->ReleaseTrigger();
 	}
-	*/
+	
 	
 	UE_LOG(LogTemp, Warning, TEXT("charge amount missile: %d "), HomingMissileLauncher->GetChargeAmount());
 	
