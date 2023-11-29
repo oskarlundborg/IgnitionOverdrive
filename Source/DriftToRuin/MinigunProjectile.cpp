@@ -21,8 +21,10 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	if(!OwnerInstigator) return;
 	auto DamageTypeClass = UDamageType::StaticClass();
 	Damage = OwnerBaseVehiclePawn->GetMinigunDamage();
+	ABaseVehiclePawn* HitActor = Cast<ABaseVehiclePawn>(OtherActor);
+	if(!HitActor) return;
 
-	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
+	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
 	Destroy();
 }
 

@@ -19,7 +19,10 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	ChargeBuildUpRate = 2.f;
 	ChargeValue = 0.f;
 	ChargeValueCap = 100.f;
-	CooldownDuration = 10.f;
+	CooldownDuration = 0.f;
+	CooldownOneCharge = 5.f;
+	CooldownTwoCharges = 9.f;
+	CooldownThreeCharges = 13.f;
 	MagnitudeChangeRange = 2500.f;
 	CloseRangeMagnitude = 35000.f;
 	FarRangeMagnitude = 26000.f;
@@ -55,6 +58,7 @@ void AHomingMissileLauncher::ReleaseTrigger()
 	
 	if(!CurrentTarget || ChargeAmount == 0 || GetWorldTimerManager().IsTimerActive(FireTimer)) return;
 	bIsOnCooldown = true;
+	SetCooldownDuration();
 	GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, CooldownDuration, false, CooldownDuration);
 	OnFire();
 }
@@ -77,7 +81,19 @@ int32 AHomingMissileLauncher::GetChargeAmount()
 void AHomingMissileLauncher::ResetCooldown()
 {
 	bIsOnCooldown = false;
+	CooldownDuration = 0.f;
 	GetWorldTimerManager().ClearTimer(CooldownTimer);
+}
+
+void AHomingMissileLauncher::SetCooldownDuration()
+{
+	switch (ChargeAmount)
+	{
+	case 1: CooldownDuration = CooldownOneCharge; break;
+	case 2: CooldownDuration = CooldownTwoCharges; break;
+	case 3: CooldownDuration = CooldownThreeCharges; break;
+	default: CooldownDuration = 0.f;
+	}
 }
 
 float AHomingMissileLauncher::GetCooldownTime()
@@ -269,8 +285,8 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
-	if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
-
+	//if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCooldownTime());
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }
 

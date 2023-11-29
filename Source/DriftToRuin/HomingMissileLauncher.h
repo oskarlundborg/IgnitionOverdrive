@@ -60,8 +60,14 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
     float ChargeTime;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	
 	float CooldownDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownOneCharge;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownTwoCharges;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float CooldownThreeCharges;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	float ChargeBuildUpRate;
@@ -108,6 +114,7 @@ private:
 	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
 
 	void ResetCooldown();
+	void SetCooldownDuration();
 public:
 	virtual void Tick(float DeltaSeconds) override;
 };
