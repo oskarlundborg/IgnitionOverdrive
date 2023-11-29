@@ -98,7 +98,12 @@ void AEnemyVehiclePawn::DrivePath()
 
 void AEnemyVehiclePawn::DriveAndShoot()
 {
-	UE_LOG(LogTemp, Warning, TEXT("enemy detected"));
+	UE_LOG(LogTemp, Warning, TEXT("driving and shooting"));
+	ManageSpeed();
+
+	DriveAlongSpline();
+
+	CheckIfAtEndOfSpline();
 }
 
 void AEnemyVehiclePawn::RandomlyRotateTurret()
