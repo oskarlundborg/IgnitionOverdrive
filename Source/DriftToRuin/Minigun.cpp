@@ -162,7 +162,7 @@ void AMinigun::UpdateOverheat()
 /*Adjusts projectile rotation on spawn to aim towards the crosshair*/
 void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
 {
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	const APlayerVehiclePawn* CarOwner = Cast<APlayerVehiclePawn>(GetOwner());
 	if (CarOwner == nullptr) return;
 	AController* OwnerController = CarOwner->GetController();
 	if (OwnerController == nullptr) return;
@@ -200,8 +200,6 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 
 	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
 	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
-	//float RandomSpawnSpreadY = FMath::RandRange(-50.f, 50.f);
-	//float RandomSpawnSpreadZ = FMath::RandRange(-50.f, 50.f);
 
 	HitEndLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
 	//FVector SpawnSpread = SpawnLocation + FVector(0.f, RandomSpawnSpreadY, RandomSpawnSpreadZ);
