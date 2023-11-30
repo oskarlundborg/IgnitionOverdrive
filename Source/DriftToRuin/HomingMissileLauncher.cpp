@@ -325,7 +325,7 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
 	CheckCanLockOn();
-	//if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
+	if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCooldownTime());
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }

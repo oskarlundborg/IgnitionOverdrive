@@ -198,11 +198,8 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 		HitEndLocation = HitResult.TraceEnd;
 	}
 
-	//göras om till AI svårighets grad variabel
-	float RandomSpreadY = FMath::RandRange(50, -50);
-	float RandomSpreadZ = FMath::RandRange(50, -50);
-	//float RandomSpawnSpreadY = FMath::RandRange(-50.f, 50.f);
-	//float RandomSpawnSpreadZ = FMath::RandRange(-50.f, 50.f);
+	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
+	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
 
 	HitEndLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
 	//FVector SpawnSpread = SpawnLocation + FVector(0.f, RandomSpawnSpreadY, RandomSpawnSpreadZ);
