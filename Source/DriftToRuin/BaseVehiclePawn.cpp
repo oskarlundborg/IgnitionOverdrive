@@ -360,10 +360,10 @@ bool ABaseVehiclePawn::GetIsDead()
 	return HealthComponent->IsDead();
 }
 
-APlayerTurret* ABaseVehiclePawn::GetTurret() const
+/*APlayerTurret* ABaseVehiclePawn::GetTurret() const
 {
 	return Turret;
-}
+}*/
 
 AMinigun* ABaseVehiclePawn::GetMinigun() const
 {

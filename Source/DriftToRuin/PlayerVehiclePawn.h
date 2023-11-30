@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetHomingChargeAmount() const;
 
+	UFUNCTION(BlueprintCallable)
+	APlayerTurret* GetTurret() const;
+
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
 
@@ -48,6 +51,10 @@ protected:
 	class UInputMappingContext* VehicleMappingContext;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Turret")
+	TSubclassOf<APlayerTurret> PlayerTurretClass;
+	UPROPERTY()
+	APlayerTurret* Turret;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* ThrottleAction;

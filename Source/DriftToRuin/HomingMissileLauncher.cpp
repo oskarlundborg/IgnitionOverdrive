@@ -321,7 +321,7 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	TArray<AActor*> ToIgnore;
 	ToIgnore.Add(this);
 	ToIgnore.Add(GetOwner());
-	ToIgnore.Add(CarOwner->GetTurret());
+	//ToIgnore.Add(CarOwner->GetTurret()); KOMENTERAT EFTER TURRET FLYTT
 	ToIgnore.Add(CarOwner->GetMinigun());
 	
 	FCollisionQueryParams TraceParams;
