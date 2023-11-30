@@ -23,8 +23,10 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	CooldownOneCharge = 5.f;
 	CooldownTwoCharges = 9.f;
 	CooldownThreeCharges = 13.f;
-	MagnitudeChangeRange = 2500.f;
+	CloseTargetRange = 2500.f;
+	MidTargetRange = 4000.f;
 	CloseRangeMagnitude = 35000.f;
+	MidRangeMagnitude = 30000.f;
 	FarRangeMagnitude = 26000.f;
 	bIsCharging = false;
 	bIsOnCooldown = false;
@@ -93,7 +95,7 @@ void AHomingMissileLauncher::SetCooldownDuration()
 	case 1: CooldownDuration = CooldownOneCharge; break;
 	case 2: CooldownDuration = CooldownTwoCharges; break;
 	case 3: CooldownDuration = CooldownThreeCharges; break;
-	default: CooldownDuration = 0.f;
+	default: CooldownDuration = 0.f; break;
 	}
 }
 
@@ -182,11 +184,20 @@ void AHomingMissileLauncher::Fire()
 	if(CarTarget == nullptr) return;
 	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CarTarget->GetHomingTargetPoint();
 
-	float HoAccMa = FarRangeMagnitude;
-	if(GetOwner()->GetDistanceTo(CurrentTarget) < MagnitudeChangeRange)
+	float HoAccMa;
+	const float TargetDistance = GetOwner()->GetDistanceTo(CurrentTarget);
+	if(TargetDistance < CloseTargetRange)
 	{
 		HoAccMa = CloseRangeMagnitude;
+	} else if (TargetDistance > CloseTargetRange && TargetDistance < MidTargetRange)
+	{
+		HoAccMa = MidRangeMagnitude;
+	} else
+	{
+		HoAccMa = FarRangeMagnitude;
 	}
+	//Projectile->GetProjectileMovementComponent()->InitialSpeed = 3500.f;
+	//Projectile->GetProjectileMovementComponent()->MaxSpeed = 3500.f;
 	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = HoAccMa;
 	
 	if(--ChargeAmount <= 0)
@@ -286,11 +297,11 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead())
 	{
 		bCanLockOn = true;
-		UE_LOG(LogTemp, Warning, TEXT("Can LOCK"));
+		//UE_LOG(LogTemp, Warning, TEXT("Can LOCK"));
 	} else
 	{
 		bCanLockOn = false;
-		UE_LOG(LogTemp, Warning, TEXT("No"));
+		//UE_LOG(LogTemp, Warning, TEXT("No"));
 	}
 }
 
