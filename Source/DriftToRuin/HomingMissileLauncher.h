@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseVehiclePawn.h"
 #include "BaseWeapon.h"
 #include "HomingMissileLauncher.generated.h"
 
@@ -127,6 +128,10 @@ private:
 
 	void ResetCooldown();
 	void SetCooldownDuration();
+
+	float GetValidMagnitude();
+	UFUNCTION()
+	void SetTarget(ABaseProjectile* Projectile, ABaseVehiclePawn* Target);
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
