@@ -180,25 +180,15 @@ void AHomingMissileLauncher::Fire()
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
 	MissileFired(ChargeAmount);
 	Projectile->SetOwner(GetOwner());
-	const ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
+	ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(CarTarget == nullptr) return;
-	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = CarTarget->GetHomingTargetPoint();
+	
+	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = GetValidMagnitude();
 
-	float HoAccMa;
-	const float TargetDistance = GetOwner()->GetDistanceTo(CurrentTarget);
-	if(TargetDistance < CloseTargetRange)
-	{
-		HoAccMa = CloseRangeMagnitude;
-	} else if (TargetDistance > CloseTargetRange && TargetDistance < MidTargetRange)
-	{
-		HoAccMa = MidRangeMagnitude;
-	} else
-	{
-		HoAccMa = FarRangeMagnitude;
-	}
-	//Projectile->GetProjectileMovementComponent()->InitialSpeed = 3500.f;
-	//Projectile->GetProjectileMovementComponent()->MaxSpeed = 3500.f;
-	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = HoAccMa;
+	FTimerHandle TargetHandle;
+	FTimerDelegate TargetDelegate;
+	TargetDelegate.BindUFunction(this, FName("SetTarget"), Projectile, CarTarget);
+	GetWorldTimerManager().SetTimer(TargetHandle, TargetDelegate, 0.35f, false);
 	
 	if(--ChargeAmount <= 0)
 	{
@@ -211,6 +201,29 @@ void AHomingMissileLauncher::OnFire()
 {
 	GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
 }
+
+void AHomingMissileLauncher::SetTarget(ABaseProjectile* Projectile, ABaseVehiclePawn* Target)
+{
+	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = Target->GetHomingTargetPoint();
+}
+
+float AHomingMissileLauncher::GetValidMagnitude()
+{
+	float HomingMagnitude;
+	const float TargetDistance = GetOwner()->GetDistanceTo(CurrentTarget);
+	if(TargetDistance < CloseTargetRange)
+	{
+		HomingMagnitude = CloseRangeMagnitude;
+	} else if (TargetDistance > CloseTargetRange && TargetDistance < MidTargetRange)
+	{
+		HomingMagnitude = MidRangeMagnitude;
+	} else
+	{
+		HomingMagnitude = FarRangeMagnitude;
+	}
+	return HomingMagnitude;
+}
+
 	
 void AHomingMissileLauncher::CheckTargetStatus()
 {
@@ -294,7 +307,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
     bool bHit = PerformTargetLockSweep(HitResult);
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
 	
-	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead())
+	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead() && !bIsOnCooldown)
 	{
 		bCanLockOn = true;
 		//UE_LOG(LogTemp, Warning, TEXT("Can LOCK"));
