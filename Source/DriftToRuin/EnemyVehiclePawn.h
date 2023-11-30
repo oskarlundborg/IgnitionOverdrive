@@ -44,6 +44,8 @@ public:
 	float BrakeInput;
 	UPROPERTY(EditAnywhere)
 	float SteeringInput;
+	UPROPERTY(EditAnywhere)
+	float MaxSpeed = 3000.0f;
 
 private:
 	
@@ -56,6 +58,8 @@ private:
 	class USplineComponent* MySpline;
 	class UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
 
+
+	
 	
 	//spline values
 	FVector Destination = FVector::ZeroVector;
