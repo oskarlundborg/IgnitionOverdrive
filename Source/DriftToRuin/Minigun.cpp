@@ -226,13 +226,13 @@ void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator&
 		}
 		else
 		{
-			// BlackboardComponent is nullptr
+			UE_LOG(LogTemp, Warning, TEXT("BlackboardComponent is nullptr"));
 		}
 	}
 
 	//göras om till AI spread ifall vi ska ha nivåer 
-	float RandomSpreadY = FMath::RandRange(ProjSpreadMinY, ProjSpreadMaxY);
-	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
+	float RandomSpreadY = FMath::RandRange(-50, 50);
+	float RandomSpreadZ = FMath::RandRange(-50, 50);
 
 	EnemyLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
 	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, EnemyLocation);
