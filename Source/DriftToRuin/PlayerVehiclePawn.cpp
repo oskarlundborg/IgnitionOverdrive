@@ -94,8 +94,6 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("ARE WE POSSIBLY ABLE TO ROLL? %d"), IsGrounded()));
 	 
 	bCanAirRoll = !IsGrounded();
 
