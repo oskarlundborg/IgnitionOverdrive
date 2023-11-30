@@ -46,7 +46,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float SteeringInput;
 	UPROPERTY(EditAnywhere)
-	float MaxSpeed = 3000.0f;
+	float MaxSpeed = 2500.0f;
 
 private:
 
@@ -56,16 +56,12 @@ private:
 	AAITurret* Turret;
 	
 	FString SwitchString = "Drive";
-
-
+	
 	//Common Components
 	AAIController* AIController;
 	UBlackboardComponent* BlackboardComp;
 	class USplineComponent* MySpline;
 	class UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
-
-
-	
 	
 	//spline values
 	FVector Destination = FVector::ZeroVector;
@@ -81,6 +77,19 @@ private:
 	FRotator TargetRotation;
 	FRotator NewRotation;
 	float InterpSpeed = 1;
+
+	//enemy
+	FVector EnemyLocation;
+
+	//shoot
+	class AMinigun* Minigun = nullptr;
+	class AHomingMissileLauncher* HomingMissileLauncher = nullptr;
+	
+	bool Overheating = false;
+	bool MinigunPulledTrigger = false;
+	bool MissileIsAvailable = false;
+	bool HasKilled = false;
+	int32 MissileChargeAmount = FMath::RandRange(1, 3);
 
 	//timer
 	bool TimerIsActive = false;
@@ -106,6 +115,9 @@ private:
 	//turret rotation
 	void SetStartingRotation();
 	void AddNewTurretRotation();
+
+	//shoot
+	void Shoot();
 
 	//helper function
 	bool InitializeSplineAndSensors();
