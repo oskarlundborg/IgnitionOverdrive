@@ -98,6 +98,13 @@ void APlayerVehiclePawn::Tick(float DeltaSeconds)
 	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("ARE WE POSSIBLY ABLE TO ROLL? %d"), IsGrounded()));
 	 
 	bCanAirRoll = !IsGrounded();
+
+	if(IsGrounded())
+	{
+		GetVehicleMovementComponent()->SetYawInput(0);
+		GetVehicleMovementComponent()->SetPitchInput(0);
+		GetVehicleMovementComponent()->SetRollInput(0);
+	}
 }
 
 void APlayerVehiclePawn::ApplyThrottle(const FInputActionValue& Value)
@@ -118,7 +125,7 @@ void APlayerVehiclePawn::ApplySteering(const FInputActionValue& Value)
 void APlayerVehiclePawn::LookAround(const FInputActionValue& Value)
 {
 	// möjligtvis fixa olika sensitivity för upp/ner och vänster/höger för mus och kontroller
-
+	
 	if(Value.Get<float>() != 0.f)
 	{
 		AddControllerYawInput(Value.Get<float>()*Sensitivity);
@@ -180,7 +187,6 @@ void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::ApplyAirRollRoll(const FInputActionValue& Value)
 {
-	
 	if(bCanAirRoll)
 	{
 		GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
