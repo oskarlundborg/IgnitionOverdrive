@@ -4,6 +4,7 @@
 #include "EnemyVehiclePawn.h"
 
 #include "AIController.h"
+#include "AITurret.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "FrameTypes.h"
 #include "HomingMissileLauncher.h"
@@ -25,8 +26,8 @@ void AEnemyVehiclePawn::BeginPlay()
 	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_SetStartingRotation, this,
 	//                                      &AEnemyVehiclePawn::SetStartingRotation, 0.5f, false);
 
-	if (PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
-	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
+	if (AITurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
+	Turret = GetWorld()->SpawnActor<AAITurret>(AITurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
 
@@ -106,7 +107,7 @@ void AEnemyVehiclePawn::DriveAndShoot()
 	CheckIfAtEndOfSpline();
 }
 
-void AEnemyVehiclePawn::RandomlyRotateTurret()
+void AEnemyVehiclePawn::RandomlyRotateTurret() //här
 {
 	//rotera x antal vinklar efter en viss delay
 	TimeElapsed = GetWorld()->GetTimeSeconds();
@@ -119,9 +120,9 @@ void AEnemyVehiclePawn::RandomlyRotateTurret()
 		if (TimerFirstTime) TimerFirstTime = false;
 	}
 	//smooth rotation
-	NewRotation = FMath::RInterpTo(GetTurret()->GetActorRotation(), TargetRotation,
+	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
 	                               GetWorld()->GetDeltaSeconds(), InterpSpeed);
-	GetTurret()->SetActorRotation(NewRotation);
+	Turret->SetActorRotation(NewRotation);
 }
 
 void AEnemyVehiclePawn::ManageSpeed()
@@ -138,12 +139,12 @@ void AEnemyVehiclePawn::ManageSpeed()
 	}
 }
 
-void AEnemyVehiclePawn::AddNewTurretRotation()
+void AEnemyVehiclePawn::AddNewTurretRotation() //här
 {
 	//add a new rotation to the target rotation
 	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 	RotationIncrement = FMath::RandBool() ? FRotator(0, 50, 0) : FRotator(0, -50, 0);
-	StartingRotation = GetTurret()->GetActorRotation();
+	StartingRotation = Turret->GetActorRotation();
 	TargetRotation.Yaw = StartingRotation.Yaw + RotationIncrement.Yaw;
 	TimerIsActive = false;
 }
@@ -233,7 +234,7 @@ bool AEnemyVehiclePawn::InitializeSplineAndSensors()
 
 void AEnemyVehiclePawn::SetStartingRotation()
 {
-	StartingRotation = GetTurret()->GetActorRotation();
+	StartingRotation = Turret->GetActorRotation();
 }
 
 void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)

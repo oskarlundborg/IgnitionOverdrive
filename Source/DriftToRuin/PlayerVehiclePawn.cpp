@@ -253,3 +253,8 @@ int32 APlayerVehiclePawn::GetHomingChargeAmount() const
 	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
 	return HomingLauncher->GetChargeAmount();
 }
+
+APlayerTurret* APlayerVehiclePawn::GetTurret() const
+{
+	return Turret;
+}

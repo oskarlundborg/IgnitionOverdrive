@@ -6,6 +6,7 @@
 #include "BaseVehiclePawn.h"
 #include "EnemyVehiclePawn.generated.h"
 
+class AAITurret;
 class UBehaviorTreeComponent;
 class AAIController;
 class UBlackboardComponent;
@@ -46,6 +47,11 @@ public:
 	float SteeringInput;
 
 private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Turret")
+	TSubclassOf<AAITurret> AITurretClass;
+	UPROPERTY()
+	AAITurret* Turret;
 	
 	FString SwitchString = "Drive";
 
