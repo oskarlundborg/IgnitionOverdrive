@@ -6,6 +6,7 @@
 #include "BaseVehiclePawn.h"
 #include "EnemyVehiclePawn.generated.h"
 
+class AAITurret;
 class UBehaviorTreeComponent;
 class AAIController;
 class UBlackboardComponent;
@@ -48,6 +49,11 @@ public:
 	float MaxSpeed = 3000.0f;
 
 private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Turret")
+	TSubclassOf<AAITurret> AITurretClass;
+	UPROPERTY()
+	AAITurret* Turret;
 	
 	FString SwitchString = "Drive";
 

@@ -160,8 +160,8 @@ public:
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION(BlueprintCallable)
-	APlayerTurret* GetTurret() const;
+	/*UFUNCTION(BlueprintCallable)
+	APlayerTurret* GetTurret() const;*/
 	UFUNCTION(BlueprintCallable)
 	AMinigun* GetMinigun() const;
 	UFUNCTION(BlueprintCallable)
@@ -257,10 +257,10 @@ protected:
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Turret")
+	/*UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
 	UPROPERTY()
-	APlayerTurret* Turret;
+	APlayerTurret* Turret;*/
 
 	float ScrapAmount = 0;
 	float ScrapToDrop = 10;
