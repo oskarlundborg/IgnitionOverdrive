@@ -97,15 +97,7 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	 
 	bCanAirRoll = !IsGrounded();
-
-	if(IsGrounded())
-	{
-		GetVehicleMovementComponent()->SetYawInput(0);
-		GetVehicleMovementComponent()->SetPitchInput(0);
-		GetVehicleMovementComponent()->SetRollInput(0);
-	}
 }
 
 void APlayerVehiclePawn::ApplyThrottle(const FInputActionValue& Value)
@@ -207,7 +199,8 @@ void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 {
 	if(bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetYawInput(Value.Get<float>());
+		//GetVehicleMovementComponent()->SetYawInput(Value.Get<float>());
+		GetMesh()->AddAngularImpulseInDegrees((GetMesh()->GetUpVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
 	}
 }
 
@@ -215,7 +208,8 @@ void APlayerVehiclePawn::ApplyAirRollRoll(const FInputActionValue& Value)
 {
 	if(bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
+		//GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
+		GetMesh()->AddAngularImpulseInDegrees((GetMesh()->GetForwardVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
 	}
 }
 
@@ -223,10 +217,9 @@ void APlayerVehiclePawn::ApplyAirRollPitch(const FInputActionValue& Value)
 {
 	if(bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetPitchInput(Value.Get<float>());
+		GetMesh()->AddAngularImpulseInDegrees(-(GetMesh()->GetRightVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
 	}
 }
-
 
 void APlayerVehiclePawn::FireMinigun()
 {
