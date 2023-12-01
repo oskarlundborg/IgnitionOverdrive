@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "NiagaraComponent.h"
 #include "WheeledVehiclePawn.h"
-#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "BaseVehiclePawn.generated.h"
 /*Maybe should be moved to player and AI classes, should work for first playable for now*/
@@ -238,6 +237,9 @@ protected:
 
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraSystem* BoostVfxNiagaraSystem;
+
+	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* SideSwipeVfxNiagaraSystem;
 	
 	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraComponent* DirtVfxNiagaraComponentBLWheel;
@@ -254,8 +256,20 @@ protected:
 	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* DirtVfxNiagaraSystem;
 
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* SideThrusterLNiagaraComponent;
+	
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* SideThrusterRNiagaraComponent;
+
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	USkeletalMeshComponent* SideThrusterL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	USkeletalMeshComponent* SideThrusterR;
 	
 	/*UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;

@@ -78,6 +78,12 @@ private:
 	UInputAction* BoostAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SideSwipeLeftAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SideSwipeRightAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* AirRollYawAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
@@ -96,6 +102,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AirRoll, meta=(AllowPrivateAccess = "true"))
 	float AirRollSensitivity = 0.7f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=SideSwipe, meta=(AllowPrivateAccess = "true"))
+	float SideSwipeCooldown = 1.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=SideSwipe, meta=(AllowPrivateAccess = "true"))
+	float SideSwipeForce = 3000.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Drift, meta=(AllowPrivateAccess = "true"))
 	float DriftRearFrictionForceMultiplier = 3.0f;
 
@@ -108,6 +120,15 @@ private:
 		bCanAirRoll = true;
 	}
 
+	bool bCanSideSwipe = true;
+
+	void SetCanSideSwipeTrue()
+	{
+		bCanSideSwipe = true;
+	}
+
+	FTimerHandle SideSwipeTimer;
+
 	FTimerHandle AirRollTimer;
 	
 	void ApplyThrottle(const struct FInputActionValue& Value);
@@ -119,6 +140,9 @@ private:
 
 	void OnHandbrakePressed();
 	void OnHandbrakeReleased();
+
+	void SideSwipeLeft();
+	void SideSwipeRight();
 
 	void ApplyAirRollYaw(const FInputActionValue& Value);
 	void ApplyAirRollRoll(const FInputActionValue& Value);
