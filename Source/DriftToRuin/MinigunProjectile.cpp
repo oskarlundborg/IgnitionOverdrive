@@ -34,7 +34,6 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 		return;
 	}
 	
-
 	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
 	if(OtherActor != ProjectileOwner && OtherComp != OwnerBaseVehiclePawn->GetShieldMeshComponent())
 	{
