@@ -31,8 +31,20 @@ void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	ABaseVehiclePawn* HitActor = Cast<ABaseVehiclePawn>(OtherActor);
 	if(!HitActor) return;
 	
-	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
-	if(OtherActor != ProjectileOwner)
+	if (OtherComp == HitActor->GetShieldMeshComponent() && OtherComp->GetOwner() != ProjectileOwner)
+	{
+		RadialForceComponent->FireImpulse();
+		ProjectileVfxNiagaraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DestructionDelegate.BindLambda([this] {if(this->IsValidLowLevel()) Destroy();});
+		SetActorEnableCollision(false);
+		ProjectileMesh->SetGenerateOverlapEvents(false);
+		GetWorldTimerManager().SetTimer(DestroyTimer, DestructionDelegate, DestructionTime, false);
+		return;
+	}
+
+
+	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead() && OtherComp != HitActor->GetShieldMeshComponent()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
+	if(OtherActor != ProjectileOwner && OtherComp != OwnerBaseVehiclePawn->GetShieldMeshComponent())
 	{
 		RadialForceComponent->FireImpulse();
 		ProjectileVfxNiagaraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);

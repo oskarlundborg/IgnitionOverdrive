@@ -188,6 +188,8 @@ public:
 	UPowerupComponent* GetPowerupComponent();
 	UFUNCTION()
 	UHealthComponent* GetHealthComponent();
+	UFUNCTION()
+	UStaticMeshComponent* GetShieldMeshComponent();
 
 	UFUNCTION()
 	void CheckScrapLevel();
@@ -197,6 +199,9 @@ public:
 protected:
 	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
 	class UChaosWheeledVehicleMovementComponent* VehicleMovementComp;
+
+	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
+	class UStaticMeshComponent* ShieldMesh;
 	
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;

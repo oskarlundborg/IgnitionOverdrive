@@ -26,8 +26,17 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	ABaseVehiclePawn* HitActor = Cast<ABaseVehiclePawn>(OtherActor);
 	if(!HitActor) return;
 
+	if (OtherComp == HitActor->GetShieldMeshComponent() && OtherComp->GetOwner() != ProjectileOwner)
+	{
+		UE_LOG(LogTemp, Display, TEXT("hit shield"));
+		RadialForceComponent->FireImpulse();
+		Destroy();
+		return;
+	}
+	
+
 	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
-	if(OtherActor != ProjectileOwner)
+	if(OtherActor != ProjectileOwner && OtherComp != OwnerBaseVehiclePawn->GetShieldMeshComponent())
 	{
 		RadialForceComponent->FireImpulse();
 		Destroy();
