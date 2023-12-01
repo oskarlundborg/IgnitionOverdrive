@@ -61,6 +61,9 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(BrakingAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyBraking);
 		EnhancedInputComponent->BindAction(SteeringAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplySteering);
 		EnhancedInputComponent->BindAction(SteeringAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplySteering);
+
+		EnhancedInputComponent->BindAction(SideSwipeLeftAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::SideSwipeLeft);
+		EnhancedInputComponent->BindAction(SideSwipeRightAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::SideSwipeRight);
 		
 		//Camera control axis
 		EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::LookUp);
@@ -173,6 +176,31 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 
 	VehicleMovementComp->TorqueControl.Enabled = false;
 	VehicleMovementComp->TargetRotationControl.Enabled = false;
+}
+
+void APlayerVehiclePawn::SideSwipeLeft()
+{
+	if(bCanSideSwipe)
+	{
+		bCanSideSwipe = false;
+		SideThrusterRNiagaraComponent->Activate();
+		GEngine->AddOnScreenDebugMessage(-1, 1 , FColor::Green, FString::Printf(TEXT("SideSwipeLeft")));
+		GetMesh()->AddImpulse(-GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
+		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
+	}
+	
+}
+
+void APlayerVehiclePawn::SideSwipeRight()
+{
+	if(bCanSideSwipe)
+	{
+		bCanSideSwipe = false;
+		SideThrusterLNiagaraComponent->Activate();
+		GEngine->AddOnScreenDebugMessage(-1, 1 , FColor::Green, FString::Printf(TEXT("SideSwipeRight")));
+		GetMesh()->AddImpulse(GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
+		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
+	}
 }
 
 void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)

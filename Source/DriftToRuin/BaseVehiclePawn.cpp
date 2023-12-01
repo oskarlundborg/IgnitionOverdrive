@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BaseVehiclePawn.h"
+
 #include "HealthComponent.h"
 #include "PowerupComponent.h"
 #include "Components/AudioComponent.h"
 #include "NiagaraComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -63,6 +63,18 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	DirtVfxNiagaraComponentBLWheel->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BL_DirtSocket"));
 	DirtVfxNiagaraComponentBRWheel = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DirtNiagaraComponentBR"));
 	DirtVfxNiagaraComponentBRWheel->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BR_DirtSocket"));
+
+	//Create SideThrusters
+	SideThrusterL = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SideThrusterLeft"));
+	SideThrusterL->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("L_SideThruster"));
+	SideThrusterR = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SideThrusterRight"));
+	SideThrusterR->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("R_SideThruster"));
+
+	//Create Niagara system for sideswipe vfx
+	SideThrusterLNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SideThrusterLNiagaraComponent"));
+	SideThrusterLNiagaraComponent->AttachToComponent(SideThrusterL, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
+	SideThrusterRNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SideThrusterRNiagaraComponent"));
+	SideThrusterRNiagaraComponent->AttachToComponent(SideThrusterR, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
 	
 	//Camera & SpringArm may not be necessary in AI, move to player subclass if decided.
 	
@@ -276,6 +288,16 @@ void ABaseVehiclePawn::InitVFX()
 	{
 		DirtVfxNiagaraComponentBRWheel->SetAsset(DirtVfxNiagaraSystem);
 		DirtVfxNiagaraComponentBRWheel->Deactivate();
+	}
+	if(SideThrusterLNiagaraComponent)
+	{
+		SideThrusterLNiagaraComponent->SetAsset(SideSwipeVfxNiagaraSystem);
+		SideThrusterLNiagaraComponent->Deactivate();
+	}
+	if(SideThrusterRNiagaraComponent)
+	{
+		SideThrusterRNiagaraComponent->SetAsset(SideSwipeVfxNiagaraSystem);
+		SideThrusterRNiagaraComponent->Deactivate();
 	}
 }
 
