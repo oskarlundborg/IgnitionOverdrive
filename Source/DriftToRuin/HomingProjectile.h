@@ -29,6 +29,7 @@ private:
 	float DestructionTime;
 	
 	void CheckIfTargetDied();
+	void OnDestroy();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
