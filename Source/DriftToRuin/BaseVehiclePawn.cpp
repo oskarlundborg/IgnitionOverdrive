@@ -6,8 +6,11 @@
 #include "PowerupComponent.h"
 #include "Components/AudioComponent.h"
 #include "NiagaraComponent.h"
+#include "TimerManager.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/CameraShakeBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 
