@@ -7,6 +7,7 @@
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "HomingMissileLauncher.h"
+#include "TimerManager.h"
 #include "Minigun.h"
 #include "PlayerTurret.h"
 #include "GameFramework/PlayerController.h"
@@ -30,8 +31,6 @@ void APlayerVehiclePawn::BeginPlay()
 	}
 
 	VehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
-
-	DefaultRearFrictionForceMultiplier = VehicleMovementComp->Wheels[3]->FrictionForceMultiplier;
 	
 	if(PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
@@ -61,6 +60,9 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(BrakingAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyBraking);
 		EnhancedInputComponent->BindAction(SteeringAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplySteering);
 		EnhancedInputComponent->BindAction(SteeringAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplySteering);
+
+		EnhancedInputComponent->BindAction(SideSwipeLeftAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::SideSwipeLeft);
+		EnhancedInputComponent->BindAction(SideSwipeRightAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::SideSwipeRight);
 		
 		//Camera control axis
 		EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::LookUp);
@@ -94,15 +96,7 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	 
 	bCanAirRoll = !IsGrounded();
-
-	if(IsGrounded())
-	{
-		GetVehicleMovementComponent()->SetYawInput(0);
-		GetVehicleMovementComponent()->SetPitchInput(0);
-		GetVehicleMovementComponent()->SetRollInput(0);
-	}
 }
 
 void APlayerVehiclePawn::ApplyThrottle(const FInputActionValue& Value)
@@ -144,11 +138,16 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftRearFrictionForceMultiplier);
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.51);
+		}
+		else
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.86);
 		}
 	}
 
 	//Det här inställningarna ska försöka ge spelaren mer kontroll av drifts.
+	
 	VehicleMovementComp->TorqueControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = true;
@@ -159,6 +158,7 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	VehicleMovementComp->TorqueControl.YawFromSteering = 100.0f;
 	VehicleMovementComp->TorqueControl.YawTorqueScaling = 100.0f;
 	
+	
 }
 
 void APlayerVehiclePawn::OnHandbrakeReleased()
@@ -167,7 +167,11 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultRearFrictionForceMultiplier);
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+		}
+		else
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 	}
 
@@ -175,11 +179,35 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 	VehicleMovementComp->TargetRotationControl.Enabled = false;
 }
 
+void APlayerVehiclePawn::SideSwipeLeft()
+{
+	if(bCanSideSwipe)
+	{
+		bCanSideSwipe = false;
+		SideThrusterRNiagaraComponent->Activate();
+		GetMesh()->AddImpulse(-GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
+		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
+	}
+	
+}
+
+void APlayerVehiclePawn::SideSwipeRight()
+{
+	if(bCanSideSwipe)
+	{
+		bCanSideSwipe = false;
+		SideThrusterLNiagaraComponent->Activate();
+		GetMesh()->AddImpulse(GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
+		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
+	}
+}
+
 void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 {
 	if(bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetYawInput(Value.Get<float>());
+		//GetVehicleMovementComponent()->SetYawInput(Value.Get<float>());
+		GetMesh()->AddAngularImpulseInDegrees((GetMesh()->GetUpVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
 	}
 }
 
@@ -187,7 +215,8 @@ void APlayerVehiclePawn::ApplyAirRollRoll(const FInputActionValue& Value)
 {
 	if(bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
+		//GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
+		GetMesh()->AddAngularImpulseInDegrees((GetMesh()->GetForwardVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
 	}
 }
 
@@ -195,10 +224,9 @@ void APlayerVehiclePawn::ApplyAirRollPitch(const FInputActionValue& Value)
 {
 	if(bCanAirRoll)
 	{
-		GetVehicleMovementComponent()->SetPitchInput(Value.Get<float>());
+		GetMesh()->AddAngularImpulseInDegrees(-(GetMesh()->GetRightVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
 	}
 }
-
 
 void APlayerVehiclePawn::FireMinigun()
 {

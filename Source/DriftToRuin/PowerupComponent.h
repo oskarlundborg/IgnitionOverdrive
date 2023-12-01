@@ -23,6 +23,9 @@ public:
 	void BoostPowerup();
 
 	UFUNCTION()
+	void ShieldPowerup();
+
+	UFUNCTION()
 	void OverheatPowerup();
 
 	UFUNCTION()
@@ -36,6 +39,8 @@ public:
 	bool HealthPowerupActive = false;
 	UPROPERTY(BlueprintReadOnly)
 	bool BoostPowerupActive = false;
+	UPROPERTY(BlueprintReadOnly)
+	bool ShieldPowerupActive = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float HealthPowerDuration = 10;

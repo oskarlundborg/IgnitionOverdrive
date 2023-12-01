@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "NiagaraComponent.h"
 #include "WheeledVehiclePawn.h"
-#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "BaseVehiclePawn.generated.h"
 /*Maybe should be moved to player and AI classes, should work for first playable for now*/
@@ -52,6 +51,9 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
 
+	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool bPlayCrashSound = false;
+	
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bUseCrazyCamera = false;
 
@@ -189,6 +191,8 @@ public:
 	UPowerupComponent* GetPowerupComponent();
 	UFUNCTION()
 	UHealthComponent* GetHealthComponent();
+	UFUNCTION()
+	UStaticMeshComponent* GetShieldMeshComponent();
 
 	UFUNCTION()
 	void CheckScrapLevel();
@@ -198,6 +202,9 @@ public:
 protected:
 	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
 	class UChaosWheeledVehicleMovementComponent* VehicleMovementComp;
+
+	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
+	class UStaticMeshComponent* ShieldMesh;
 	
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;
@@ -232,12 +239,18 @@ protected:
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
+	
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* CrashAudioComponent;
 
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraComponent* BoostVfxNiagaraComponent;
 
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraSystem* BoostVfxNiagaraSystem;
+
+	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraSystem* SideSwipeVfxNiagaraSystem;
 	
 	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraComponent* DirtVfxNiagaraComponentBLWheel;
@@ -254,8 +267,23 @@ protected:
 	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraSystem* DirtVfxNiagaraSystem;
 
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* SideThrusterLNiagaraComponent;
+	
+	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* SideThrusterRNiagaraComponent;
+
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
+	
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* CrashAudioSound;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	USkeletalMeshComponent* SideThrusterL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	USkeletalMeshComponent* SideThrusterR;
 	
 	/*UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
@@ -285,6 +313,9 @@ protected:
 	UPROPERTY()
 	AMinigun* Minigun;
 
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	
 private:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* HomingTargetPoint;
