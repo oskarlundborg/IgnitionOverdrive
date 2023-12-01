@@ -104,6 +104,19 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	HomingTargetPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Homing Targeting Point"));
 	HomingTargetPoint->SetupAttachment(RootComponent);
+	
+
+	//Create shield powerup mesh (hidden and ignored unless powerup active)
+	ShieldMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMesh"));
+	ShieldMesh->SetupAttachment(CameraComponent);
+	ShieldMesh->SetRelativeLocation({1600,0,-67});
+	ShieldMesh->SetRelativeRotation({0,180,0});
+	ShieldMesh->SetRelativeScale3D({5,5,5});
+	ShieldMesh->SetVisibility(false);
+	ShieldMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ShieldMesh->SetGenerateOverlapEvents(false);
+
+
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -377,6 +390,11 @@ UHealthComponent *ABaseVehiclePawn::GetHealthComponent()
     return HealthComponent;
 }
 
+UStaticMeshComponent *ABaseVehiclePawn::GetShieldMeshComponent()
+{
+    return ShieldMesh;
+}
+
 bool ABaseVehiclePawn::GetIsDead()
 {
 	return HealthComponent->IsDead();
@@ -460,7 +478,9 @@ void ABaseVehiclePawn::ActivatePowerup()
 	case 3:
 		PowerupComponent->OverheatPowerup(); //Pickup.OverheatPowerup(); //No overheat
 		break;
-	
+	case 4:
+		PowerupComponent->ShieldPowerup(); //Pickup.ShieldPowerup(); //skapar shield
+		break;
 	default:
 		break;
 	}

@@ -38,10 +38,13 @@ protected:
 	float Damage = 0.f;
 	
 private:
+	
+
+protected:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ProjectileMesh;
 
-protected:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
