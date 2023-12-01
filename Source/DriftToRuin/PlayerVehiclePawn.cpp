@@ -30,8 +30,6 @@ void APlayerVehiclePawn::BeginPlay()
 	}
 
 	VehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
-
-	DefaultRearFrictionForceMultiplier = VehicleMovementComp->Wheels[3]->FrictionForceMultiplier;
 	
 	if(PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
@@ -139,11 +137,16 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftRearFrictionForceMultiplier);
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.51);
+		}
+		else
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.86);
 		}
 	}
 
 	//Det här inställningarna ska försöka ge spelaren mer kontroll av drifts.
+	
 	VehicleMovementComp->TorqueControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = true;
@@ -154,6 +157,7 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	VehicleMovementComp->TorqueControl.YawFromSteering = 100.0f;
 	VehicleMovementComp->TorqueControl.YawTorqueScaling = 100.0f;
 	
+	
 }
 
 void APlayerVehiclePawn::OnHandbrakeReleased()
@@ -162,7 +166,11 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultRearFrictionForceMultiplier);
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+		}
+		else
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 	}
 
@@ -176,7 +184,6 @@ void APlayerVehiclePawn::SideSwipeLeft()
 	{
 		bCanSideSwipe = false;
 		SideThrusterRNiagaraComponent->Activate();
-		GEngine->AddOnScreenDebugMessage(-1, 1 , FColor::Green, FString::Printf(TEXT("SideSwipeLeft")));
 		GetMesh()->AddImpulse(-GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
 		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
 	}
@@ -189,7 +196,6 @@ void APlayerVehiclePawn::SideSwipeRight()
 	{
 		bCanSideSwipe = false;
 		SideThrusterLNiagaraComponent->Activate();
-		GEngine->AddOnScreenDebugMessage(-1, 1 , FColor::Green, FString::Printf(TEXT("SideSwipeRight")));
 		GetMesh()->AddImpulse(GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
 		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
 	}
