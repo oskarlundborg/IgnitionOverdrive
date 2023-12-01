@@ -20,8 +20,6 @@ void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-	RadialForceComponent->FireImpulse();
-	ProjectileVfxNiagaraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
@@ -34,12 +32,14 @@ void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	if(!HitActor) return;
 	
 	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
-	DestructionDelegate.BindLambda([this] {if(this->IsValidLowLevel()) Destroy();});
-	SetActorEnableCollision(false);
-	GetWorldTimerManager().SetTimer(DestroyTimer, DestructionDelegate, DestructionTime, false);
-	//FTimerHandle DestroyTimer;
-	//GetWorldTimerManager().SetTimer(DestroyTimer, this, &AHomingProjectile::OnDestroy, 2.f, false, 2.f);
-	//Destroy();
+	if(OtherActor != ProjectileOwner)
+	{
+		RadialForceComponent->FireImpulse();
+		ProjectileVfxNiagaraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DestructionDelegate.BindLambda([this] {if(this->IsValidLowLevel()) Destroy();});
+		SetActorEnableCollision(false);
+		GetWorldTimerManager().SetTimer(DestroyTimer, DestructionDelegate, DestructionTime, false);
+	}
 }
 
 void AHomingProjectile::CheckIfTargetDied()
