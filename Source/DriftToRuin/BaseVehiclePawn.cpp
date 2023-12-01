@@ -52,6 +52,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Creates Audio Component for Engine or something...
 	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
+	
+	//Creates Audio Component for CRASHING or something...
+	CrashAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("CrashAudioSource"));
 
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
@@ -119,7 +122,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	ShieldMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ShieldMesh->SetGenerateOverlapEvents(false);
 
-
+	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -325,6 +328,13 @@ void ABaseVehiclePawn::InitAudio()
 		EngineAudioComponent->SetVolumeMultiplier(1);
 		EngineAudioComponent->SetActive(bPlayEngineSound);
 	}
+	if(CrashAudioComponent)
+	{
+		CrashAudioComponent->SetSound(CrashAudioSound);
+		CrashAudioComponent->SetVolumeMultiplier(1);
+		CrashAudioComponent->SetActive(bPlayCrashSound);
+		CrashAudioComponent->Stop();
+	}
 }
 
 
@@ -428,7 +438,6 @@ void ABaseVehiclePawn::AddScrapAmount(float Scrap, float HealAmount)
 	ScrapAmount += Scrap;
 	HealthComponent->SetHealth(HealthComponent->GetHealth() + HealAmount);
 	CheckScrapLevel();
-
 }
 
 void ABaseVehiclePawn::RemoveScrapAmount(float Scrap)
@@ -564,4 +573,19 @@ void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 			))
 		);
 	}
+}
+
+void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	float Mass = 2500.f;
+	if (OtherComponent->Mobility == EComponentMobility::Movable)
+	{
+		Mass = OtherComponent->GetMass();
+	}
+#ifdef WITH_EDITOR
+	GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Cyan, FString::Printf(TEXT("%f"), (GetVelocity() * Mass).Length()));
+#endif
+	CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * Mass).Length());
+	CrashAudioComponent->Play();
+	CrashAudioComponent->FadeOut(.6f, .2f, EAudioFaderCurve::Sin);
 }
