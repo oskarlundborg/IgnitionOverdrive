@@ -15,7 +15,6 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-	RadialForceComponent->FireImpulse();
 	
 	auto ProjectileOwner = GetOwner();
 	if(!ProjectileOwner) return;
@@ -28,7 +27,11 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	if(!HitActor) return;
 
 	if(OtherActor && OtherActor != this && OtherActor != ProjectileOwner && !HitActor->GetIsDead()) UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInstigator, this, DamageTypeClass);
-	Destroy();
+	if(OtherActor != ProjectileOwner)
+	{
+		RadialForceComponent->FireImpulse();
+		Destroy();
+	}
 }
 
 /*Projectile callback function for collision*/
