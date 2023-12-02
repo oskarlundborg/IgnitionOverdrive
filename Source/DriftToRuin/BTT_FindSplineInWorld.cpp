@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
+#include "EnemyVehiclePawn.h"
 #include "Components/SplineComponent.h"
 
 UBTT_FindSplineInWorld::UBTT_FindSplineInWorld()
@@ -31,30 +32,33 @@ void UBTT_FindSplineInWorld::ScanForSplines() const
 
 	//scan is not that pretty, leave for now and work on AI find opponent instead. 
 
-	
 	// Parameters for the scan
-	float ScanRadius = 2000.0f;
-	float ScanAngle = 90.0f;
+	float ScanRadius = 1000.0f;
 	float TraceDistance = 100;
-	float Offset = 10;
+	float Offset = 1400;
 	// Calculate the start and end points for the scan
 	//FVector ForwardVector = AIPawn->GetActorForwardVector();
 	//FVector ScanStart = AIPawn->GetActorLocation();
 
 	FVector ForwardVector = AIPawn->GetActorForwardVector();
-	FVector ScanStart = AIPawn->GetActorLocation() + ForwardVector * Offset;  // Adjust Offset as needed
-	FVector ScanEnd = ScanStart + ForwardVector * TraceDistance;  // Adjust TraceDistance as needed
-
-	
-	//this might be wierd
-	//FVector ScanEnd = ScanStart + ForwardVector.RotateAngleAxis(ScanAngle * 0.5f, FVector::UpVector) * ScanRadius *
-		2.0f;
-	float ScanHalfHeight  = 100.0f;
+	FVector ScanStart = AIPawn->GetActorLocation() + ForwardVector * Offset; // Adjust Offset as needed
+	FVector ScanEnd = ScanStart + ForwardVector * TraceDistance; // Adjust TraceDistance as needed
 
 	// Perform the scan
 	TArray<FHitResult> HitResults;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(AIPawn);
+
+	DrawDebugSphere(GetWorld(), ScanStart, ScanRadius, 12, FColor::Green, false, 15.f); // Visualize the starting sphere
+	DrawDebugLine(GetWorld(), ScanStart, ScanEnd, FColor::Green, false, 15.0f);
+	//get current spline in blackboard
+	const AActor* ActorRoadSpline = Cast<AActor>(BlackboardComp->GetValueAsObject("RoadSpline"));
+	USplineComponent* BBSpline = nullptr;
+	if (ActorRoadSpline != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ACTOR ROAD SPLINE WAS NOT NULL SETTING BB SPLINE: "));
+		BBSpline = ActorRoadSpline->GetComponentByClass<USplineComponent>();
+	}
 
 	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd, FQuat::Identity, ECC_Visibility,
 	                                            FCollisionShape::MakeSphere(ScanRadius), CollisionParams))
@@ -66,39 +70,31 @@ void UBTT_FindSplineInWorld::ScanForSplines() const
 		// Filter hits to only include spline components with starting points in front of the AI
 		for (const FHitResult& HitResult : HitResults)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("in for loop of the hit results, result: %s"), *HitResult.ToString());
-			if (USplineComponent* SplineComponent = Cast<USplineComponent>(HitResult.GetActor()->GetComponentByClass<USplineComponent>())) //denna är fel
-			{
-				UE_LOG(LogTemp, Warning, TEXT("actor spline hit "));
-				FVector SplineStart = SplineComponent->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
-				FVector ToSplineStart = SplineStart - AIPawn->GetActorLocation();
-				float DotProduct = FVector::DotProduct(ToSplineStart.GetSafeNormal(), ForwardVector);
+		
+			USplineComponent* SplineComponent = Cast<USplineComponent>(
+				HitResult.GetActor()->GetComponentByClass<USplineComponent>());
 
-				// Check if the spline starting point is in front of the AI
-				if (DotProduct > 0.0f)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("aadding spline"));
-					EligibleSplineHits.Add(SplineComponent);
-				}
+			if (SplineComponent && (SplineComponent != BBSpline || HitResult.GetActor() != ActorRoadSpline))
+			{
+				if(BBSpline) UE_LOG(LogTemp, Error, TEXT("BBSPLINE: %s"), *BBSpline->GetName());
+				UE_LOG(LogTemp, Error, TEXT("splineComponent: %s"), *SplineComponent->GetName());
+				UE_LOG(LogTemp, Error, TEXT("actor being added as spline hit result: %s"), *HitResult.GetActor()->GetName());
+				EligibleSplineHits.Add(SplineComponent);
 			}
 		}
-
 		// Choose a random spline from the eligible hits
+		//make sure spline is not the one currently set
 		if (EligibleSplineHits.Num() > 0)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Spline was found"));
 			USplineComponent* ChosenSpline = EligibleSplineHits[FMath::RandRange(0, EligibleSplineHits.Num() - 1)];
 			// Set chosen spline in BB
 			BlackboardComp->SetValueAsObject("RoadSpline", ChosenSpline->GetOwner());
-			
+			AEnemyVehiclePawn* AIEnemy = Cast<AEnemyVehiclePawn>(AIPawn);
+			ensureMsgf(AIEnemy != nullptr, TEXT("AI enemy was nyll, need it to set that new spline should be setup"));
+			AIEnemy->SetHasNewSplineBeenSetup(false);
 		}
 	}
-
-	// Draw debug sphere for visualization (optional)
-	//DrawDebugSphere(AIPawn->GetWorld(), ScanStart, ScanRadius, 32, FColor::Green, false, 20.0f);
-	DrawDebugCapsule(AIPawn->GetWorld(), ScanStart, ScanHalfHeight, ScanRadius, FQuat::Identity, FColor::Green, false, 10.0f);
-
-
 }
 
 
@@ -125,6 +121,5 @@ bool UBTT_FindSplineInWorld::InitializeAIComponents(UBehaviorTreeComponent& Owne
 	{
 		return false;
 	}
-
 	return true;
 }
