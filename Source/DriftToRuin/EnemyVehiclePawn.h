@@ -30,11 +30,12 @@ public:
 
 	//set functions
 	void SetSwitchString(const FString& NewSwitchString);
+	void SetHasNewSplineBeenSetup(bool bValue);
 
-	
+
 	//pathfinding
 	UPROPERTY(EditAnywhere)
-	float SplineEndPointDistanceThreshold = 1000;
+	float SplineEndPointDistanceThreshold = 800;
 	UPROPERTY(EditAnywhere)
 	float NextPointOnSplineThreshold = 1000;
 
@@ -46,23 +47,22 @@ public:
 	UPROPERTY(EditAnywhere)
 	float SteeringInput;
 	UPROPERTY(EditAnywhere)
-	float MaxSpeed = 2500.0f;
+	float MaxSpeed = 1500.0f;
 
 private:
-
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<AAITurret> AITurretClass;
 	UPROPERTY()
 	AAITurret* Turret;
-	
+
 	FString SwitchString = "Drive";
-	
+
 	//Common Components
 	AAIController* AIController;
 	UBlackboardComponent* BlackboardComp;
-	class USplineComponent* MySpline;
+	class USplineComponent* MySpline = nullptr;
 	class UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
-	
+
 	//spline values
 	FVector Destination = FVector::ZeroVector;
 	float TargetSplineDistance = 0.0f;
@@ -70,6 +70,9 @@ private:
 	int DistanceBetweenSplinePoint;
 	FVector SplineLocationPoint;
 	FVector SplineTangent;
+
+	bool GoToEndOfSpline;
+	bool HasNewSplineBeenSetup = false;
 
 	//rotator for turret
 	FRotator StartingRotation;
@@ -84,7 +87,7 @@ private:
 	//shoot
 	class AMinigun* Minigun = nullptr;
 	class AHomingMissileLauncher* HomingMissileLauncher = nullptr;
-	
+
 	bool Overheating = false;
 	bool MinigunPulledTrigger = false;
 	bool MissileIsAvailable = false;
@@ -99,7 +102,7 @@ private:
 	float SensorGapDifference;
 	USceneComponent* LeftSensor;
 	USceneComponent* RightSensor;
-	
+
 	//timers - borde kollas igenom om dessa ska användas
 	int TimeElapsed;
 	int TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
@@ -120,6 +123,7 @@ private:
 	void Shoot();
 
 	//helper function
-	bool InitializeSplineAndSensors();
+	bool InitializeSensors();
+	bool InitializeSpline();
 	
 };
