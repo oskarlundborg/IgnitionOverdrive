@@ -30,12 +30,12 @@ void AEnemyVehiclePawn::BeginPlay()
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
 	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform,
-	                           TEXT("Root_Turret"));
+	                           TEXT("MinigunRef"));
 	Minigun->SetOwner(this);
 
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
 	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-	                                  TEXT("Root_MissileLauncher"));
+	                                  TEXT("MissileLauncerRef"));
 	HomingLauncher->SetOwner(this);
 
 	// set turret starting location check if this works or i need the timer 
