@@ -51,6 +51,25 @@ void UPowerupComponent::BoostPowerup()
 	GetWorld()->GetTimerManager().SetTimer(tempHandle, this, &UPowerupComponent::ClearPowerup, BoostPowerDuration, false);
 }
 
+void UPowerupComponent::ShieldPowerup()
+{
+	if (Owner == nullptr)
+	{
+		return;
+	}
+
+	ShieldPowerupActive = true;
+
+	Owner->GetShieldMeshComponent()->SetVisibility(true);
+	Owner->GetShieldMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Owner->GetShieldMeshComponent()->SetGenerateOverlapEvents(true);
+
+	FTimerHandle tempHandle;
+	GetWorld()->GetTimerManager().SetTimer(tempHandle, this, &UPowerupComponent::ClearPowerup, BoostPowerDuration, false);
+
+
+}
+
 void UPowerupComponent::OverheatPowerup()
 {
 	if (Owner == nullptr)
@@ -72,7 +91,7 @@ void UPowerupComponent::ClearPowerup()
 	/*
 	
 	
-		Ändra från switch till
+		Ändra från switch
 	
 	
 	*/
@@ -100,6 +119,15 @@ void UPowerupComponent::ClearPowerup()
 		Minigun->PoweredUp = false;
 		Owner->SetMinigunDamage(Owner->GetMinigunDefaultDamage());
 		OverHeatPowerupActive = false;
+		break;
+
+	case 4:
+
+		ShieldPowerupActive = false;
+		Owner->GetShieldMeshComponent()->SetVisibility(false);
+		Owner->GetShieldMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Owner->GetShieldMeshComponent()->SetGenerateOverlapEvents(false);
+
 		break;
 	default:
 		break;

@@ -1,13 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BaseVehiclePawn.h"
+
 #include "HealthComponent.h"
 #include "PowerupComponent.h"
 #include "Components/AudioComponent.h"
 #include "NiagaraComponent.h"
+#include "TimerManager.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Engine/DamageEvents.h"
+#include "Camera/CameraShakeBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -49,6 +52,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Creates Audio Component for Engine or something...
 	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
+	
+	//Creates Audio Component for CRASHING or something...
+	CrashAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("CrashAudioSource"));
 
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
@@ -63,6 +69,18 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	DirtVfxNiagaraComponentBLWheel->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BL_DirtSocket"));
 	DirtVfxNiagaraComponentBRWheel = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DirtNiagaraComponentBR"));
 	DirtVfxNiagaraComponentBRWheel->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BR_DirtSocket"));
+
+	//Create SideThrusters
+	SideThrusterL = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SideThrusterLeft"));
+	SideThrusterL->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("L_SideThruster"));
+	SideThrusterR = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SideThrusterRight"));
+	SideThrusterR->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("R_SideThruster"));
+
+	//Create Niagara system for sideswipe vfx
+	SideThrusterLNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SideThrusterLNiagaraComponent"));
+	SideThrusterLNiagaraComponent->AttachToComponent(SideThrusterL, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
+	SideThrusterRNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SideThrusterRNiagaraComponent"));
+	SideThrusterRNiagaraComponent->AttachToComponent(SideThrusterR, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
 	
 	//Camera & SpringArm may not be necessary in AI, move to player subclass if decided.
 	
@@ -92,6 +110,19 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	HomingTargetPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Homing Targeting Point"));
 	HomingTargetPoint->SetupAttachment(RootComponent);
+	
+
+	//Create shield powerup mesh (hidden and ignored unless powerup active)
+	ShieldMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMesh"));
+	ShieldMesh->SetupAttachment(CameraComponent);
+	ShieldMesh->SetRelativeLocation({1600,0,-67});
+	ShieldMesh->SetRelativeRotation({0,180,0});
+	ShieldMesh->SetRelativeScale3D({5,5,5});
+	ShieldMesh->SetVisibility(false);
+	ShieldMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ShieldMesh->SetGenerateOverlapEvents(false);
+
+	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -277,6 +308,16 @@ void ABaseVehiclePawn::InitVFX()
 		DirtVfxNiagaraComponentBRWheel->SetAsset(DirtVfxNiagaraSystem);
 		DirtVfxNiagaraComponentBRWheel->Deactivate();
 	}
+	if(SideThrusterLNiagaraComponent)
+	{
+		SideThrusterLNiagaraComponent->SetAsset(SideSwipeVfxNiagaraSystem);
+		SideThrusterLNiagaraComponent->Deactivate();
+	}
+	if(SideThrusterRNiagaraComponent)
+	{
+		SideThrusterRNiagaraComponent->SetAsset(SideSwipeVfxNiagaraSystem);
+		SideThrusterRNiagaraComponent->Deactivate();
+	}
 }
 
 void ABaseVehiclePawn::InitAudio()
@@ -286,6 +327,13 @@ void ABaseVehiclePawn::InitAudio()
 		EngineAudioComponent->SetSound(EngineAudioSound);
 		EngineAudioComponent->SetVolumeMultiplier(1);
 		EngineAudioComponent->SetActive(bPlayEngineSound);
+	}
+	if(CrashAudioComponent)
+	{
+		CrashAudioComponent->SetSound(CrashAudioSound);
+		CrashAudioComponent->SetVolumeMultiplier(1);
+		CrashAudioComponent->SetActive(bPlayCrashSound);
+		CrashAudioComponent->Stop();
 	}
 }
 
@@ -355,6 +403,11 @@ UHealthComponent *ABaseVehiclePawn::GetHealthComponent()
     return HealthComponent;
 }
 
+UStaticMeshComponent *ABaseVehiclePawn::GetShieldMeshComponent()
+{
+    return ShieldMesh;
+}
+
 bool ABaseVehiclePawn::GetIsDead()
 {
 	return HealthComponent->IsDead();
@@ -385,7 +438,6 @@ void ABaseVehiclePawn::AddScrapAmount(float Scrap, float HealAmount)
 	ScrapAmount += Scrap;
 	HealthComponent->SetHealth(HealthComponent->GetHealth() + HealAmount);
 	CheckScrapLevel();
-
 }
 
 void ABaseVehiclePawn::RemoveScrapAmount(float Scrap)
@@ -438,7 +490,9 @@ void ABaseVehiclePawn::ActivatePowerup()
 	case 3:
 		PowerupComponent->OverheatPowerup(); //Pickup.OverheatPowerup(); //No overheat
 		break;
-	
+	case 4:
+		PowerupComponent->ShieldPowerup(); //Pickup.ShieldPowerup(); //skapar shield
+		break;
 	default:
 		break;
 	}
@@ -519,4 +573,19 @@ void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 			))
 		);
 	}
+}
+
+void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	float Mass = 2500.f;
+	if (OtherComponent->Mobility == EComponentMobility::Movable)
+	{
+		Mass = OtherComponent->GetMass();
+	}
+#ifdef WITH_EDITOR
+	GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Cyan, FString::Printf(TEXT("%f"), (GetVelocity() * Mass).Length()));
+#endif
+	CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * Mass).Length());
+	CrashAudioComponent->Play();
+	CrashAudioComponent->FadeOut(.6f, .2f, EAudioFaderCurve::Sin);
 }

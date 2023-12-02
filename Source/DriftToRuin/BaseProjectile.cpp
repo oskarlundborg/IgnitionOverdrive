@@ -39,6 +39,9 @@ void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 void ABaseProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                 int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	auto ProjectileOwner = GetOwner();
+	if(!ProjectileOwner) return;
+	if(OtherActor == ProjectileOwner) return;
 	ProjectileImpactSweepResult(SweepResult);
 }
 
