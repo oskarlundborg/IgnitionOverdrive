@@ -31,6 +31,21 @@ EBTNodeResult::Type UBTT_CreateSpline::ExecuteTask(UBehaviorTreeComponent& Owner
 
 //göra om detta till A* pathfinding spline creating. ! 
 
+//göra om så att den tar en annan spline, ka nej ta custom defined spline och göra om de
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void UBTT_CreateSpline::CreateSpline()
 {
 	const FVector CurrentLocation = AIPawn->GetActorLocation();
@@ -134,7 +149,7 @@ bool UBTT_CreateSpline::InitializeAIComponents(UBehaviorTreeComponent& OwnerComp
 		return false;
 	}
 
-	const AActor* ActorRoadSpline = Cast<AActor>(BlackboardComp->GetValueAsObject("RoadSpline"));
+	const AActor* ActorRoadSpline = Cast<AActor>(BlackboardComp->GetValueAsObject("AIOwnedRoadSpline"));
 	if (ActorRoadSpline == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spline Component not found on AIPawn., Actor roadspline was null"));
