@@ -70,18 +70,6 @@ void AMinigun::Fire()
 	//MuzzleFlashNiagaraComponent->Activate();
 	bIsFiring = true;
 
-	if (PoweredUp)
-	{
-		PowerAmmo = FMath::Clamp(PowerAmmo - 2, 0.f, 100.f);
-
-		if (PowerAmmo == 0)
-		{
-			ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-			CarOwner->GetPowerupComponent()->ClearPowerup();
-		}
-	}
-
-
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation;
 

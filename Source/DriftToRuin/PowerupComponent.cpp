@@ -30,7 +30,8 @@ void UPowerupComponent::HealthPowerup()
 		return;
 	}
 
-	HealthPowerupActive = true;
+	bHealthPowerupActive = true;
+	HealthPowerTime = HealthPowerDuration;
 	Owner->GetHealthComponent()->IsPoweredUp = true;
 	Owner->GetHealthComponent()->RegenerateHealth();
 }
@@ -43,12 +44,13 @@ void UPowerupComponent::BoostPowerup()
 		return;
 	}
 
-	BoostPowerupActive = true;
+	bBoostPowerupActive = true;
+	BoostPowerTime = BoostPowerDuration;
 	Owner->SetBoostCost(0);
 	Owner->SetBoostAmount(Owner->GetMaxBoostAmount());
 
-	FTimerHandle tempHandle;
-	GetWorld()->GetTimerManager().SetTimer(tempHandle, this, &UPowerupComponent::ClearPowerup, BoostPowerDuration, false);
+	//FTimerHandle TempHandle;
+	//GetWorld()->GetTimerManager().SetTimer(TempHandle, this, &UPowerupComponent::ClearPowerup, BoostPowerDuration, false);
 }
 
 void UPowerupComponent::ShieldPowerup()
@@ -58,14 +60,14 @@ void UPowerupComponent::ShieldPowerup()
 		return;
 	}
 
-	ShieldPowerupActive = true;
-
+	bShieldPowerupActive = true;
+	ShieldPowerTime = ShieldPowerDuration;
 	Owner->GetShieldMeshComponent()->SetVisibility(true);
 	Owner->GetShieldMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Owner->GetShieldMeshComponent()->SetGenerateOverlapEvents(true);
 
-	FTimerHandle tempHandle;
-	GetWorld()->GetTimerManager().SetTimer(tempHandle, this, &UPowerupComponent::ClearPowerup, BoostPowerDuration, false);
+	//FTimerHandle tempHandle;
+	//GetWorld()->GetTimerManager().SetTimer(tempHandle, this, &UPowerupComponent::ClearPowerup, ShieldPowerDuration, false);
 
 
 }
@@ -79,23 +81,15 @@ void UPowerupComponent::OverheatPowerup()
 
 	AMinigun* Minigun = Owner->GetMinigun();
 	Minigun->PoweredUp = true;
-	Minigun->PowerAmmo = 100;
+	// Minigun->OverheatValue = 0; kanske ska sätta overheat till 0
+	OverheatPowerTime = OverheatPowerDuration;
 	Owner->SetMinigunDamage(Owner->GetMinigunDefaultDamage() * 2);
-	OverHeatPowerupActive = true;
+	bOverHeatPowerupActive = true;
 	//Aktivera progressbar för powered ammo ovanpå overheat bar
 }
 
-void UPowerupComponent::ClearPowerup()
+void UPowerupComponent::ClearPowerup(int PowerupId)
 {
-
-	/*
-	
-	
-		Ändra från switch
-	
-	
-	*/
-
 	if (Owner == nullptr)
 	{
 		return;
@@ -103,27 +97,32 @@ void UPowerupComponent::ClearPowerup()
 
 	AMinigun* Minigun = Owner->GetMinigun();
 
-	switch (Owner->HeldPowerup)
+	if (Minigun == nullptr)
+	{
+		return;
+	}
+	
+	switch (PowerupId)
 	{
 
 	case 1:
 		Owner->GetHealthComponent()->IsPoweredUp = false;
-		HealthPowerupActive = false;
+		bHealthPowerupActive = false;
 		break;
 
 	case 2:
 		Owner->ResetBoostCost();
-		BoostPowerupActive = false;
+		bBoostPowerupActive = false;
 		break;
 	case 3:
 		Minigun->PoweredUp = false;
 		Owner->SetMinigunDamage(Owner->GetMinigunDefaultDamage());
-		OverHeatPowerupActive = false;
+		bOverHeatPowerupActive = false;
 		break;
 
 	case 4:
 
-		ShieldPowerupActive = false;
+		bShieldPowerupActive = false;
 		Owner->GetShieldMeshComponent()->SetVisibility(false);
 		Owner->GetShieldMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Owner->GetShieldMeshComponent()->SetGenerateOverlapEvents(false);
@@ -132,8 +131,11 @@ void UPowerupComponent::ClearPowerup()
 	default:
 		break;
 	}
+}
 
-	Owner->SetHeldPowerup(0);
+float UPowerupComponent::GetPowerupPercentage(float PowerupFloat, float PowerupDuration)
+{
+	return FMath::Clamp(PowerupFloat / PowerupDuration, 0.f, 1.f);
 }
 
 // Called when the game starts
@@ -150,6 +152,60 @@ void UPowerupComponent::BeginPlay()
 void UPowerupComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+
+	if (bOverHeatPowerupActive)
+	{
+		FMath::Clamp(OverheatPowerTime -= 1 * DeltaTime, 0, OverheatPowerDuration); 
+
+		if (OverheatPowerTime <= 0)
+		{
+			ClearPowerup(3);
+		}
+		
+	}
+
+	if (bHealthPowerupActive)
+	{
+		FMath::Clamp(HealthPowerTime -= 1 * DeltaTime, 0, HealthPowerDuration); 
+
+		/* if (HealthPowerTime <= 0)
+		{
+			ClearPowerup(1);
+		} */
+		
+	}
+
+	if (bShieldPowerupActive)
+	{
+		FMath::Clamp(ShieldPowerTime -= 1 * DeltaTime, 0, ShieldPowerDuration); 
+
+		if (ShieldPowerTime <= 0)
+		{
+			ClearPowerup(4);
+		}
+		
+	}
+
+	if (bBoostPowerupActive)
+	{
+		FMath::Clamp(BoostPowerTime -= 1 * DeltaTime, 0, BoostPowerDuration); 
+
+		if (BoostPowerTime <= 0)
+		{
+			ClearPowerup(2);
+		}
+		
+	}
+	
+
+	// if (poweredup)
+	// variable * 10 * deltatime
+
+	// if (IsPoweredUp)
+	//{
+	//	RemoveHealth(RegenPerSecond * DeltaTime);
+	//}
 
 	// ...
 }
