@@ -1,4 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+/**
+* @author Joakim Pettersson
+*	Base class for every vehicle in the game,
+*	includes functionality intended for use in both AI & Player vehicles.
+*	Responsible for all Vehicle physics and systems.
+*
+* @author Mihajlo Radotic
+*	Responsible for all weapon systems.
+*
+* @author Hugo Westgren
+*	Responsible for code regarding gamestate systems (pickups & scrap)
+**/
+
 
 #pragma once
 

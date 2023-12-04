@@ -77,9 +77,6 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(AirRollYawAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollYaw);
 		EnhancedInputComponent->BindAction(AirRollYawAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollYaw);
 
-		EnhancedInputComponent->BindAction(AirRollRollAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollRoll);
-		EnhancedInputComponent->BindAction(AirRollRollAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollRoll);
-
 		EnhancedInputComponent->BindAction(AirRollPitchAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollPitch);
 		EnhancedInputComponent->BindAction(AirRollPitchAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollPitch);
 		
@@ -134,6 +131,8 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::OnHandbrakePressed()
 {
+	VehicleMovementComp->SetHandbrakeInput(true);
+	
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
@@ -163,6 +162,8 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 
 void APlayerVehiclePawn::OnHandbrakeReleased()
 {
+	VehicleMovementComp->SetHandbrakeInput(false);
+	
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
@@ -184,7 +185,7 @@ void APlayerVehiclePawn::SideSwipeLeft()
 	if(bCanSideSwipe)
 	{
 		bCanSideSwipe = false;
-		SideThrusterRNiagaraComponent->Activate();
+		SideThrusterRNiagaraComponent->Activate(true);
 		GetMesh()->AddImpulse(-GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
 		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
 	}
@@ -196,7 +197,7 @@ void APlayerVehiclePawn::SideSwipeRight()
 	if(bCanSideSwipe)
 	{
 		bCanSideSwipe = false;
-		SideThrusterLNiagaraComponent->Activate();
+		SideThrusterLNiagaraComponent->Activate(true);
 		GetMesh()->AddImpulse(GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
 		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
 	}
@@ -204,19 +205,13 @@ void APlayerVehiclePawn::SideSwipeRight()
 
 void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 {
-	if(bCanAirRoll)
+	if(bCanAirRoll && !VehicleMovementComp->GetHandbrakeInput())
 	{
-		//GetVehicleMovementComponent()->SetYawInput(Value.Get<float>());
-		GetMesh()->AddAngularImpulseInDegrees((GetMesh()->GetUpVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
+		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetUpVector() * Value.Get<float>() * AirRollSensitivity, NAME_None, true);
 	}
-}
-
-void APlayerVehiclePawn::ApplyAirRollRoll(const FInputActionValue& Value)
-{
-	if(bCanAirRoll)
+	else if(bCanAirRoll && VehicleMovementComp->GetHandbrakeInput())
 	{
-		//GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
-		GetMesh()->AddAngularImpulseInDegrees((GetMesh()->GetForwardVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
+		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetForwardVector() * Value.Get<float>() *-1 * AirRollSensitivity, NAME_None, true);
 	}
 }
 
