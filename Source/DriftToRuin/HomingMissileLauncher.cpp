@@ -195,7 +195,6 @@ void AHomingMissileLauncher::Fire(AActor* Target)
 		GetWorldTimerManager().ClearTimer(FireTimer);
 		Target = nullptr;
 	}
-	if(!Target) UE_LOG(LogTemp, Warning, TEXT("NULL"))
 }
 
 void AHomingMissileLauncher::OnFire()
@@ -255,6 +254,7 @@ void AHomingMissileLauncher::CheckTargetStatus()
 		ChargeAmount = 0;
 		bIsCharging = false;
 		ChargeValue = 0.f;
+		GetWorldTimerManager().ClearTimer(FireTimer);
 		//GetWorldTimerManager().ClearTimer(ChargeHandle);
 		//GetWorldTimerManager().ClearTimer(FireTimer);
 	}
