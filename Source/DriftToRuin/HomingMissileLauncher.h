@@ -32,6 +32,8 @@ public:
 
 	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
 	bool CheckTargetLineOfSight(const AController* Controller) const;
+	
+	void OnFireAI(AActor* Target, int32 Charge);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void MissileFired(int32 ChargeNumber);
@@ -119,7 +121,8 @@ private:
 	
 	void ChargeFire();
 	void OnChargeFire();
-	void Fire();
+	UFUNCTION()
+	void Fire(AActor* Target);
 	void OnFire();
 
 	void CheckTargetStatus();
@@ -129,7 +132,7 @@ private:
 	void ResetCooldown();
 	void SetCooldownDuration();
 
-	float GetValidMagnitude();
+	float GetValidMagnitude(AActor* Target);
 	UFUNCTION()
 	void SetTarget(ABaseProjectile* Projectile, ABaseVehiclePawn* Target);
 

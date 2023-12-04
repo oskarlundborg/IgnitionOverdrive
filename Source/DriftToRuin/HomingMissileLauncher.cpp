@@ -167,10 +167,10 @@ void AHomingMissileLauncher::OnChargeFire()
 	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, ChargeTime / 100, true);
 }
 
-void AHomingMissileLauncher::Fire()
+void AHomingMissileLauncher::Fire(AActor* Target)
 {
 	if(!GetOwner()) return;
-	if(!CurrentTarget)
+	if(!Target)
 	{
 		GetWorldTimerManager().ClearTimer(FireTimer);
 		return;
@@ -180,10 +180,10 @@ void AHomingMissileLauncher::Fire()
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
 	MissileFired(ChargeAmount);
 	Projectile->SetOwner(GetOwner());
-	ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
+	ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(Target);
 	if(CarTarget == nullptr) return;
 	
-	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = GetValidMagnitude();
+	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = GetValidMagnitude(Target);
 
 	FTimerHandle TargetHandle;
 	FTimerDelegate TargetDelegate;
@@ -193,13 +193,26 @@ void AHomingMissileLauncher::Fire()
 	if(--ChargeAmount <= 0)
 	{
 		GetWorldTimerManager().ClearTimer(FireTimer);
-		CurrentTarget = nullptr;
+		Target = nullptr;
 	}
+	if(!Target) UE_LOG(LogTemp, Warning, TEXT("NULL"))
 }
-	
+
 void AHomingMissileLauncher::OnFire()
 {
-	GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
+	FTimerDelegate FireDelegate;
+	FireDelegate.BindUFunction(this, FName("Fire"), CurrentTarget);
+	GetWorldTimerManager().SetTimer(FireTimer, FireDelegate, 0.5f, true, 0.f);
+	//GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
+}
+
+void AHomingMissileLauncher::OnFireAI(AActor* Target, int32 Charge)
+{
+	FTimerDelegate FireDelegate;
+	ChargeAmount = Charge;
+	FireDelegate.BindUFunction(this, FName("Fire"), Target);
+	GetWorldTimerManager().SetTimer(FireTimer, FireDelegate, 0.5f, true, 0.f);
+	//GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::FireAI, 0.5f, true, 0.f);
 }
 
 void AHomingMissileLauncher::SetTarget(ABaseProjectile* Projectile, ABaseVehiclePawn* Target)
@@ -207,10 +220,10 @@ void AHomingMissileLauncher::SetTarget(ABaseProjectile* Projectile, ABaseVehicle
 	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = Target->GetHomingTargetPoint();
 }
 
-float AHomingMissileLauncher::GetValidMagnitude()
+float AHomingMissileLauncher::GetValidMagnitude(AActor* Target)
 {
 	float HomingMagnitude;
-	const float TargetDistance = GetOwner()->GetDistanceTo(CurrentTarget);
+	const float TargetDistance = GetOwner()->GetDistanceTo(Target);
 	if(TargetDistance < CloseTargetRange)
 	{
 		HomingMagnitude = CloseRangeMagnitude;
@@ -349,7 +362,7 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
 	CheckCanLockOn();
-	if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
+	//if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCooldownTime());
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }
