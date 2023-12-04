@@ -7,6 +7,7 @@
 #include "BaseVehiclePawn.h"
 #include "PlayerTurret.h"
 #include "Minigun.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -235,7 +236,6 @@ float AHomingMissileLauncher::GetValidMagnitude(AActor* Target)
 	}
 	return HomingMagnitude;
 }
-
 	
 void AHomingMissileLauncher::CheckTargetStatus()
 {
@@ -259,10 +259,11 @@ void AHomingMissileLauncher::CheckTargetStatus()
 		//GetWorldTimerManager().ClearTimer(FireTimer);
 	}
 }
-		
+
 bool AHomingMissileLauncher::CheckTargetLineOfSight(const AController* Controller) const
 {
-	return Controller->LineOfSightTo(CurrentTarget);
+	FVector OwnerEyes(GetOwner()->GetActorLocation().X, GetOwner()->GetActorLocation().Y, GetOwner()->GetActorLocation().Z + 900.f);
+	return Controller->LineOfSightTo(CurrentTarget, OwnerEyes);
 }
 
 bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* PlayerController) const
@@ -300,7 +301,7 @@ void AHomingMissileLauncher::FindTarget()
 	
 	FHitResult HitResult;
 	bool bHit = PerformTargetLockSweep(HitResult);
-	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
+	
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
 	{
 		CurrentTarget = HitResult.GetActor();
@@ -353,7 +354,9 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
 	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
+	
 	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepSphere, TraceParams);
+	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 20, FColor::Green, true);
 	return bHit;
 }
 
