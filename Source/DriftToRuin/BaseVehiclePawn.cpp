@@ -483,15 +483,19 @@ void ABaseVehiclePawn::ActivatePowerup()
 	{
 	case 1:
 		PowerupComponent->HealthPowerup(); //Pickup.HealthPowerup(); //Regenerate Health
+		SetHeldPowerup(0);
 		break;
 	case 2:
 		PowerupComponent->BoostPowerup(); //Pickup.BoostPowerup(); //Infinite boost
+		SetHeldPowerup(0);
 		break;
 	case 3:
 		PowerupComponent->OverheatPowerup(); //Pickup.OverheatPowerup(); //No overheat
+		SetHeldPowerup(0);
 		break;
 	case 4:
 		PowerupComponent->ShieldPowerup(); //Pickup.ShieldPowerup(); //skapar shield
+		SetHeldPowerup(0);
 		break;
 	default:
 		break;

@@ -29,23 +29,39 @@ public:
 	void OverheatPowerup();
 
 	UFUNCTION()
-	void ClearPowerup();
+	void ClearPowerup(int PowerupId);
+
+	UFUNCTION(BlueprintCallable)
+	float GetPowerupPercentage(float PowerupFloat, float PowerupDuration);
 
 	class ABaseVehiclePawn* Owner;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool OverHeatPowerupActive = false;
+	bool bOverHeatPowerupActive = false;
 	UPROPERTY(BlueprintReadOnly)
-	bool HealthPowerupActive = false;
+	bool bHealthPowerupActive = false;
 	UPROPERTY(BlueprintReadOnly)
-	bool BoostPowerupActive = false;
+	bool bBoostPowerupActive = false;
 	UPROPERTY(BlueprintReadOnly)
-	bool ShieldPowerupActive = false;
+	bool bShieldPowerupActive = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float HealthPowerDuration = 10;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float BoostPowerDuration = 10;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ShieldPowerDuration = 10;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float OverheatPowerDuration = 10;
+
+	UPROPERTY(BlueprintReadOnly)
+	float BoostPowerTime = 0;
+	UPROPERTY(BlueprintReadOnly)
+	float HealthPowerTime = 0;
+	UPROPERTY(BlueprintReadOnly)
+	float OverheatPowerTime = 0;
+	UPROPERTY(BlueprintReadOnly)
+	float ShieldPowerTime = 0;
 
 
 protected:
