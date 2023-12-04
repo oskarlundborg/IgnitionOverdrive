@@ -78,6 +78,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetPowerAmmoPercent();
 
+	UFUNCTION(BlueprintCallable)
+	bool GetIsPoweredUp();
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Overheat")
 	bool PoweredUp = false;
 
