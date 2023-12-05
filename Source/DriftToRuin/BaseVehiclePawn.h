@@ -216,9 +216,6 @@ public:
 protected:
 	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
 	class UChaosWheeledVehicleMovementComponent* VehicleMovementComp;
-
-	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
-	class UStaticMeshComponent* ShieldMesh;
 	
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;
@@ -256,6 +253,9 @@ protected:
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* CrashAudioComponent;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* ScrapLevelAudioComponent;
 
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraComponent* BoostVfxNiagaraComponent;
@@ -298,6 +298,43 @@ protected:
 
 	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* SideThrusterR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class UStaticMeshComponent* ShieldMesh;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* ExhaustL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* ExhaustR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* SpikeL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* SpikeR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* HudCapBR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* HudCapFR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* HudCapBL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* HudCapFL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* FuelTank;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* Plow;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* Windshield;
+
 	
 	/*UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
@@ -329,6 +366,8 @@ protected:
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+	void Hide(UPrimitiveComponent* Component, bool bHide);
 	
 private:
 	UPROPERTY(VisibleAnywhere)
