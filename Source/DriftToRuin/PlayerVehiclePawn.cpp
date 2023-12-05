@@ -160,6 +160,7 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	VehicleMovementComp->TargetRotationControl.RotationDamping = 10.0f;
 	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 100.0f;
 	VehicleMovementComp->TargetRotationControl.RotationStiffness = 10.0f;
+	VehicleMovementComp->TargetRotationControl.MaxAccel = 1000.0f;
 	
 	
 	
