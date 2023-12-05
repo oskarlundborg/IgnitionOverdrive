@@ -12,14 +12,15 @@
 *	Responsible for code regarding gamestate systems (pickups & scrap)
 **/
 
-
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DeformationComponent.h"
 #include "NiagaraComponent.h"
 #include "WheeledVehiclePawn.h"
 #include "Components/CapsuleComponent.h"
 #include "BaseVehiclePawn.generated.h"
+
 /*Maybe should be moved to player and AI classes, should work for first playable for now*/
 class APlayerTurret;
 class AHomingMissileLauncher;
@@ -353,4 +354,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Bumper", meta=(AllowPrivateAccess=true))
 	float MaxBumperDamage = 50.f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Deformer", meta=(AllowPrivateAccess=true))
+	UDeformationComponent* MeshDeformer;
 };
