@@ -56,6 +56,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Creates Audio Component for CRASHING or something...
 	CrashAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("CrashAudioSource"));
 
+	//Audio Component for level up sound
+	ScrapLevelAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ScrapLevelAudioSource"));
+
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
 	BoostVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
@@ -118,9 +121,47 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	ShieldMesh->SetRelativeLocation({2000,0,-67});
 	ShieldMesh->SetRelativeRotation({0,180,0});
 	ShieldMesh->SetRelativeScale3D({10,10,5});
-	ShieldMesh->SetVisibility(false);
-	ShieldMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	ShieldMesh->SetGenerateOverlapEvents(false);
+	Hide(ShieldMesh, true);
+
+	ExhaustL = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ExhaustL"));
+	ExhaustL->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("ExhaustLSocket"));
+	Hide(ExhaustL, true);
+
+	ExhaustR = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ExhaustR"));
+	ExhaustR->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("ExhaustRSocket"));
+	Hide(ExhaustR, true);
+
+	SpikeL = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SpikeL"));
+	SpikeL->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("SpikeLSocket"));
+	Hide(SpikeL, true);
+
+	SpikeR = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SpikeR"));
+	SpikeR->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("SpikeRSocket"));
+	Hide(SpikeR, true);
+
+	FuelTank = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FuelTank"));
+	FuelTank->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("FuelTankSocket"));
+	Hide(FuelTank, true);
+
+	Plow = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Plow"));
+	Plow->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("PlowSocket"));
+	Hide(Plow, true);
+
+	HudCapFL = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HudCapFL"));
+	HudCapFL->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("FL_WheelRotatorSocket"));
+	Hide(HudCapFL, true);
+
+	HudCapBL = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HudCapBL"));
+	HudCapBL->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BL_WheelRotatorSocket"));
+	Hide(HudCapBL, true);
+
+	HudCapFR = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HudCapFR"));
+	HudCapFR->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("FR_WheelRotatorSocket"));
+	Hide(HudCapFR, true);
+
+	HudCapBR = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HudCapBR"));
+	HudCapBR->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BR_WheelRotatorSocket"));
+	Hide(HudCapBR, true);
 
 	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
 }
@@ -467,6 +508,19 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	bHitLevelTwo = false;
 	bHitLevelThree = false;
 	ScrapAmount = 0;
+
+	Hide(SpikeL, true);
+	Hide(SpikeR, true);
+	Hide(HudCapBL,true);
+	Hide(HudCapBR, true);
+	Hide(HudCapFR, true);
+	Hide(HudCapFL, true);
+
+	Hide(ExhaustL, true);
+	Hide(ExhaustR, true);
+	Hide(FuelTank, true);
+
+	Hide(Plow, true);
 }
 
 UPowerupComponent *ABaseVehiclePawn::GetPowerupComponent()
@@ -524,6 +578,15 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.1);
 		HealthComponent->SetHealth(HealthComponent->GetHealth() + 10);
 		bHitLevelOne = true;
+		ScrapLevelAudioComponent->Play();
+
+		Hide(SpikeL, false);
+		Hide(SpikeR, false);
+		Hide(HudCapBL,false);
+		Hide(HudCapBR, false);
+		Hide(HudCapFR, false);
+		Hide(HudCapFL, false);
+		//wheel spikes, spikes
 	}
 
 	if (ScrapAmount >= 50 && ScrapAmount < 100 && !bHitLevelTwo)
@@ -535,9 +598,15 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.25);
 		HealthComponent->SetHealth(HealthComponent->GetHealth() + 15);
 		bHitLevelTwo = true;
+		ScrapLevelAudioComponent->Play();
+
+		Hide(ExhaustL, false);
+		Hide(ExhaustR, false);
+		Hide(FuelTank, false);
+		//fuel tank, exhausts
 	}
 
-	if (ScrapAmount == 100 && !bHitLevelThree)
+	if (ScrapAmount >= 100 && !bHitLevelThree)
 	{
 		//Aktivera en marker som visar vart spelaren är (light pillar)
 
@@ -548,6 +617,10 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		HealthComponent->SetMaxHealth(HealthComponent->GetDefaultMaxHealth() *  1.5);
 		HealthComponent->SetHealth(HealthComponent->GetHealth() + 25);
 		bHitLevelThree = true;
+		ScrapLevelAudioComponent->Play();
+
+		Hide(Plow, false);
+		// plow, wind shield
 	}
 	
 	
@@ -593,3 +666,21 @@ void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 	CrashAudioComponent->Play();
 	CrashAudioComponent->FadeOut(.6f, .2f, EAudioFaderCurve::Sin);
 }
+
+void ABaseVehiclePawn::Hide(UPrimitiveComponent *Component, bool bHide)
+{
+	if (bHide)
+	{
+		Component->SetVisibility(false);
+		Component->SetGenerateOverlapEvents(false);
+		Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	else
+	{
+		Component->SetVisibility(true);
+		Component->SetGenerateOverlapEvents(true);
+		//Component->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+	}
+	
+	
