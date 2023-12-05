@@ -53,7 +53,7 @@ void AMinigunProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 void AMinigunProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	InitializeAudio();
 }
 
 void AMinigunProjectile::Tick(float DeltaTime)
