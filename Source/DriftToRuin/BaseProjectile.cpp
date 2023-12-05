@@ -4,6 +4,7 @@
 #include "BaseProjectile.h"
 
 #include "NiagaraComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
@@ -19,6 +20,9 @@ ABaseProjectile::ABaseProjectile()
 
 	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>(TEXT("Radial force"));
 	RadialForceComponent->SetupAttachment(RootComponent);
+
+	WhizzingAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Whizzing Audio Component"));
+	WhizzingAudioComponent->SetupAttachment(RootComponent);
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 	ProjectileMovementComponent->MaxSpeed = 8000.f;
@@ -56,7 +60,14 @@ void ABaseProjectile::BeginPlay()
 		ProjectileVfxNiagaraComponent->SetAsset(ProjectileVfxNiagaraSystem);
 		//ProjectileVfxNiagaraComponent->Deactivate();
 	}
-	
+}
+
+void ABaseProjectile::InitializeAudio()
+{
+	if(WhizzingAudioComponent)
+	{
+		WhizzingAudioComponent->Play();
+	}
 }
 
 // Called every frame

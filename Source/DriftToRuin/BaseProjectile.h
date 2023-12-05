@@ -43,13 +43,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
+	UPROPERTY(Category = "Sound", EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* WhizzingAudioComponent;
+	
 	UPROPERTY(VisibleAnywhere, Category = "Radial Force")
 	URadialForceComponent* RadialForceComponent;
 
-	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(Category = "VFX", EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraComponent* ProjectileVfxNiagaraComponent;
-	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(Category = "VFX", EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraSystem* ProjectileVfxNiagaraSystem;
+  
+	void InitializeAudio();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
