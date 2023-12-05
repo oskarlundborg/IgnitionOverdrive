@@ -256,3 +256,8 @@ bool AMinigun::GetIsPoweredUp()
 {
 	return PoweredUp;
 }
+
+bool AMinigun::GetIsFiring()
+{
+	return bIsFiring;
+}
