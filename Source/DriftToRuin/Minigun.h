@@ -88,6 +88,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsPoweredUp();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsFiring();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Overheat")
 	bool PoweredUp = false;
