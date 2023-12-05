@@ -112,6 +112,16 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=SideSwipe, meta=(AllowPrivateAccess = "true"))
 	float SideSwipeForce = 3000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Drift, meta=(AllowPrivateAccess = "true"))
+	float DriftRearFriction = 3.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Drift, meta=(AllowPrivateAccess = "true"))
+	float DriftFrontFriction = 4.0f;
+
+	float DefaultRearFriction;
+
+	float DefaultFrontFriction;
 	
 	bool bCanAirRoll = false;
 
