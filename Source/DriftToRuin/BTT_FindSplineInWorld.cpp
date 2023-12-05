@@ -21,12 +21,18 @@ EBTNodeResult::Type UBTT_FindSplineInWorld::ExecuteTask(UBehaviorTreeComponent& 
 	{
 		return EBTNodeResult::Failed;
 	}
-	ScanForSplines();
+	
+	//göras om till en bool för att sen köra om ifall den inte hitta och lägga i progress
+	if(!ScanForSplines())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("spline finding in progress"));
+		return EBTNodeResult::InProgress;
+	}
 
 	return EBTNodeResult::Succeeded;
 }
 
-void UBTT_FindSplineInWorld::ScanForSplines() const
+bool UBTT_FindSplineInWorld::ScanForSplines() const
 {
 	// Get the player controller
 
@@ -52,7 +58,7 @@ void UBTT_FindSplineInWorld::ScanForSplines() const
 	DrawDebugSphere(GetWorld(), ScanStart, ScanRadius, 12, FColor::Green, false, 15.f); // Visualize the starting sphere
 	DrawDebugLine(GetWorld(), ScanStart, ScanEnd, FColor::Green, false, 15.0f);
 	//get current spline in blackboard
-	const AActor* ActorRoadSpline = Cast<AActor>(BlackboardComp->GetValueAsObject("RoadSpline"));
+	const AActor* ActorRoadSpline = Cast<AActor>(BlackboardComp->GetValueAsObject("TempRoadSpline"));
 	USplineComponent* BBSpline = nullptr;
 	if (ActorRoadSpline != nullptr)
 	{
@@ -65,7 +71,7 @@ void UBTT_FindSplineInWorld::ScanForSplines() const
 	{
 		// Array to store eligible spline hits
 		TArray<USplineComponent*> EligibleSplineHits;
-		UE_LOG(LogTemp, Warning, TEXT("searching for splines"));
+		//UE_LOG(LogTemp, Warning, TEXT("searching for splines"));
 
 		// Filter hits to only include spline components with starting points in front of the AI
 		for (const FHitResult& HitResult : HitResults)
@@ -76,9 +82,12 @@ void UBTT_FindSplineInWorld::ScanForSplines() const
 
 			if (SplineComponent && (SplineComponent != BBSpline || HitResult.GetActor() != ActorRoadSpline))
 			{
-				if(BBSpline) UE_LOG(LogTemp, Error, TEXT("BBSPLINE: %s"), *BBSpline->GetName());
-				UE_LOG(LogTemp, Error, TEXT("splineComponent: %s"), *SplineComponent->GetName());
-				UE_LOG(LogTemp, Error, TEXT("actor being added as spline hit result: %s"), *HitResult.GetActor()->GetName());
+				if(BBSpline)
+				{
+					UE_LOG(LogTemp, Error, TEXT("BBSPLINE: %s"), *BBSpline->GetName());
+				}
+				//UE_LOG(LogTemp, Error, TEXT("splineComponent: %s"), *SplineComponent->GetName());
+				//UE_LOG(LogTemp, Error, TEXT("actor being added as spline hit result: %s"), *HitResult.GetActor()->GetName());
 				EligibleSplineHits.Add(SplineComponent);
 			}
 		}
@@ -86,15 +95,17 @@ void UBTT_FindSplineInWorld::ScanForSplines() const
 		//make sure spline is not the one currently set
 		if (EligibleSplineHits.Num() > 0)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Spline was found"));
+			//UE_LOG(LogTemp, Warning, TEXT("Spline was found"));
 			USplineComponent* ChosenSpline = EligibleSplineHits[FMath::RandRange(0, EligibleSplineHits.Num() - 1)];
 			// Set chosen spline in BB
 			BlackboardComp->SetValueAsObject("RoadSpline", ChosenSpline->GetOwner());
 			AEnemyVehiclePawn* AIEnemy = Cast<AEnemyVehiclePawn>(AIPawn);
 			ensureMsgf(AIEnemy != nullptr, TEXT("AI enemy was nyll, need it to set that new spline should be setup"));
 			AIEnemy->SetHasNewSplineBeenSetup(false);
+			return true;
 		}
 	}
+	return false;
 }
 
 

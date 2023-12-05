@@ -89,10 +89,13 @@ private:
 	class AHomingMissileLauncher* HomingMissileLauncher = nullptr;
 
 	bool Overheating = false;
+
+	//missile 
 	bool MinigunPulledTrigger = false;
 	bool MissileIsAvailable = false;
-	bool HasKilled = false;
 	int32 MissileChargeAmount = FMath::RandRange(1, 3);
+	
+	bool HasKilled = false;
 
 	//timer
 	bool TimerIsActive = false;

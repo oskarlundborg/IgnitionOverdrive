@@ -27,6 +27,7 @@ void AEnemyVehiclePawn::BeginPlay()
 	Turret = GetWorld()->SpawnActor<AAITurret>(AITurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
+	
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
 	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform,
@@ -48,6 +49,7 @@ void AEnemyVehiclePawn::BeginPlay()
 		BlackboardComp = AIController->GetBlackboardComponent();
 		ensureMsgf(BlackboardComp != nullptr, TEXT("BlackboardComp was nullptr"));
 	}
+	BlackboardComp->SetValueAsString("StringBehavior", "Drive");
 
 	VehicleMovementComponent = Cast<UChaosVehicleMovementComponent>(GetMovementComponent());
 	ensureMsgf(VehicleMovementComponent != nullptr, TEXT("Vehicle movement comp was null"));
@@ -64,6 +66,8 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	//switch med enum för strings
+	
 	//välj körnings beteende
 	if (SwitchString == "DriveAndShoot")
 	{
@@ -111,7 +115,7 @@ void AEnemyVehiclePawn::DriveAndShoot()
 
 void AEnemyVehiclePawn::Shoot()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
+	//UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
 	EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLocation);
 
@@ -174,10 +178,28 @@ void AEnemyVehiclePawn::Shoot()
 		Minigun->PullTrigger();
 		UE_LOG(LogTemp, Warning, TEXT("minigun name is shooting : , %s"), *Minigun->GetName());
 	}
-
+	
+	//homin missiles
+	
+	/*
 	AController* EnemyController = Cast<AController>(AIController);
-	ensureMsgf(EnemyController != nullptr, TEXT("Enemy controller was null"));
-	if (HomingMissileLauncher && !HomingMissileLauncher->GetIsOnCooldown() && HomingMissileLauncher->
+	ensureMsgf(EnemyController != nullptr, TEXT("Enemy controller was null"));*/
+
+	if(HomingMissileLauncher /*make own timer for ai missiles ? */ )
+	{
+		UObject* EnemyObject = BlackboardComp->GetValueAsObject("EnemyObject");
+		AActor* AIEnemy = Cast<AActor>(EnemyObject);
+		//fix för cooldown after fire
+		//HomingMissileLauncher.OnFireAI(AIEnemy, chargeamount);
+		//GetWorldTimerManager().IsTimerActive(FireTimer)
+		//if !timer started
+		//timer started = true
+		//getworld->settimer->bla bla bla
+		//i timer functionen, timer started false
+	}
+	
+	
+	/*if (HomingMissileLauncher && !HomingMissileLauncher->GetIsOnCooldown() && HomingMissileLauncher->
 		CheckTargetInRange(Enemy))
 	{
 		HomingMissileLauncher->PullTrigger();
@@ -191,7 +213,8 @@ void AEnemyVehiclePawn::Shoot()
 		CheckTargetLineOfSight(EnemyController)))
 	{
 		HomingMissileLauncher->ReleaseTrigger();
-	}
+	}*/
+	
 	if (Minigun == nullptr || Turret == nullptr || HomingMissileLauncher == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("minigun or player turret or homing missile launcher was null"));
@@ -242,23 +265,23 @@ void AEnemyVehiclePawn::ManageSpeed()
 
 
 	const float Speed = VehicleMovementComponent->GetForwardSpeed();
-	UE_LOG(LogTemp, Warning, TEXT("forward speed %f"), VehicleMovementComponent->GetForwardSpeed());
+	//UE_LOG(LogTemp, Warning, TEXT("forward speed %f"), VehicleMovementComponent->GetForwardSpeed());
 	float TempBrakeInput = VehicleMovementComponent->GetBrakeInput();
-	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
+	//	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
 
 	if (ABSDeltaYaw > 3 && VehicleMovementComponent->GetForwardSpeed() > 500)
 	{
 		VehicleMovementComponent->SetThrottleInput(0);
-		UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));
+		//	UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));
 		float MaxDeltaYaw = 30;
 		float NormalizedDeltaYaw = FMath::Clamp(ABSDeltaYaw / MaxDeltaYaw, 0.0f, 1.0f);
-		UE_LOG(LogTemp, Warning, TEXT("Normalized delta yaw: %f"), NormalizedDeltaYaw);
+		//	UE_LOG(LogTemp, Warning, TEXT("Normalized delta yaw: %f"), NormalizedDeltaYaw);
 		float AIBrakeInput = NormalizedDeltaYaw;
 
 		const float LerpValue = FMath::Lerp(TempBrakeInput, AIBrakeInput, GetWorld()->DeltaTimeSeconds * 80);
 
 		VehicleMovementComponent->SetBrakeInput(LerpValue);
-		UE_LOG(LogTemp, Warning, TEXT("lerp value brake input: %f"), LerpValue);
+		//	UE_LOG(LogTemp, Warning, TEXT("lerp value brake input: %f"), LerpValue);
 	}
 	else if (Speed > MaxSpeed)
 	{
@@ -296,7 +319,7 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 
 	if (!HasNewSplineBeenSetup && MySpline)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("setting spline direction"));
+		//UE_LOG(LogTemp, Warning, TEXT("setting spline direction"));
 		FVector SplineStart = MySpline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
 		FVector SplineEnd = MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints() - 1,
 		                                                       ESplineCoordinateSpace::World);
@@ -315,8 +338,8 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 
 		float ClosestInputKey = MySpline->FindInputKeyClosestToWorldLocation(GetActorLocation());
 		TargetSplineDistance = MySpline->GetDistanceAlongSplineAtSplineInputKey(ClosestInputKey);
-		UE_LOG(LogTemp, Warning, TEXT("closest input key %f"), ClosestInputKey);
-		UE_LOG(LogTemp, Warning, TEXT("target spline distance at input key %f"), ClosestInputKey);
+		//UE_LOG(LogTemp, Warning, TEXT("closest input key %f"), ClosestInputKey);
+		//	UE_LOG(LogTemp, Warning, TEXT("target spline distance at input key %f"), ClosestInputKey);
 	}
 
 
@@ -349,12 +372,12 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 
 	FVector TempVel = CurrentVelocity;
 	TempVel.Normalize(0.0001);
-	UE_LOG(LogTemp, Warning, TEXT("current vel:  %s"), *TempVel.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("current vel:  %s"), *TempVel.ToString());
 	FRotator VelRotator = UKismetMathLibrary::MakeRotFromX(TempVel);
 	//få svängnings graden
 	const FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(VelRotator, GetActorRotation());
 	float SteerYaw = DeltaRotator.Yaw;
-	UE_LOG(LogTemp, Warning, TEXT("Steer yaw :  %f"), SteerYaw);
+	//UE_LOG(LogTemp, Warning, TEXT("Steer yaw :  %f"), SteerYaw);
 	for (int i = 0; i < 5; i++)
 	{
 		PredictedLocation = CurrentVelocity * TimeStep + PredictedLocation;
@@ -400,13 +423,19 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
 {
 	if (!MySpline) return;
-	
+
 	if (GoToEndOfSpline
-	? FVector::Dist(GetActorLocation(), MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints() - 1,
-													   ESplineCoordinateSpace::World)) < SplineEndPointDistanceThreshold
+		    ? FVector::Dist(GetActorLocation(), MySpline->GetLocationAtSplinePoint(
+			                    MySpline->GetNumberOfSplinePoints() - 1,
+			                    ESplineCoordinateSpace::World)) < SplineEndPointDistanceThreshold
 		    : FVector::Dist(GetActorLocation(), MySpline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World)) <
 		    SplineEndPointDistanceThreshold)
 	{
+		//clear blackboard value
+		//maybe set temp value
+		BlackboardComp->SetValueAsObject("TempRoadSpline", MySpline);
+		BlackboardComp->ClearValue("RoadSpline");
+
 		VehicleMovementComponent->SetThrottleInput(0);
 		VehicleMovementComponent->SetSteeringInput(0);
 		BlackboardComp->SetValueAsBool("AtRoadEnd", true);

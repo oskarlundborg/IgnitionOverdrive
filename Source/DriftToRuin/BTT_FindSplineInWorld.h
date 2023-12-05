@@ -21,6 +21,6 @@ private:
 	AAIController* AIController;
 	APawn* AIPawn;
 	UBlackboardComponent* BlackboardComp;
-	void ScanForSplines() const;
+	bool ScanForSplines() const;
 	bool InitializeAIComponents(UBehaviorTreeComponent& OwnerComp);
 };
