@@ -401,5 +401,5 @@ protected:
 	FVector LastHitLocation;
 	
 	UPROPERTY(EditAnywhere)
-	double HitDistanceMinimum = 1000.f;
+	double HitDistanceMinimum = 100.f;
 };

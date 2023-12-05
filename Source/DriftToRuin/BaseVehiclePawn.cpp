@@ -672,7 +672,9 @@ void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 
 void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Magenta, FString::Printf(TEXT("%f"), (LastHitLocation - Hit.Location).Length()));
 	if ((LastHitLocation - Hit.Location).Length() <= HitDistanceMinimum) { return; }
+	LastHitLocation = Hit.Location;
 	float Mass = 2500.f;
 	if (OtherComponent->Mobility == EComponentMobility::Movable)
 	{
