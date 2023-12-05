@@ -72,7 +72,7 @@ void UDeformationComponent::BuildGrid()
 	if (SkeletalMeshComponents.IsEmpty()) { return; }
 	
 	FBoxSphereBounds Bounds = FBoxSphereBounds(FVector::ZeroVector, FVector::ZeroVector, 0.f);
-	for (USkeletalMeshComponent* Mesh : SkeletalMeshComponents)
+	for (const USkeletalMeshComponent* Mesh : SkeletalMeshComponents)
 	{
 		Bounds = Bounds + Mesh->GetSkeletalMeshAsset()->GetImportedBounds();
 	}
@@ -125,6 +125,7 @@ void UDeformationComponent::SetupInfluences()
 			}
 			Index++;
 		}
+		
 		
 		// __________________
 		// Add Vertices.

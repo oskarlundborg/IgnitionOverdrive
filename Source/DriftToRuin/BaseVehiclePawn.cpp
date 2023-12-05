@@ -505,7 +505,7 @@ void ABaseVehiclePawn::AddScrapAmount(float Scrap, float HealAmount)
 
 void ABaseVehiclePawn::RemoveScrapAmount(float Scrap)
 {
-	ScrapAmount = FMath::Clamp(ScrapAmount - Scrap, 0, 100);
+	ScrapAmount = FMath::Clamp(ScrapAmount - Scrap, 0.f, 100.f);
 }
 
 float ABaseVehiclePawn::GetScrapToDrop()
@@ -672,6 +672,7 @@ void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 
 void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if ((LastHitLocation - Hit.Location).Length() <= HitDistanceMinimum) { return; }
 	float Mass = 2500.f;
 	if (OtherComponent->Mobility == EComponentMobility::Movable)
 	{
@@ -680,9 +681,9 @@ void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 //#ifdef WITH_EDITOR
 //	GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Cyan, FString::Printf(TEXT("%f"), (GetVelocity() * Mass).Length()));
 //#endif
-	CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * Mass).Length());
+	CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * FVector(Mass)).Length());
 	CrashAudioComponent->Play();
-	CrashAudioComponent->FadeOut(.6f, .2f, EAudioFaderCurve::Sin);
+	CrashAudioComponent->FadeOut(1.f, .2f, EAudioFaderCurve::Sin);
 }
 
 void ABaseVehiclePawn::Hide(UPrimitiveComponent *Component, bool bHide)
