@@ -163,6 +163,11 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	HudCapBR->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("BR_WheelRotatorSocket"));
 	Hide(HudCapBR, true);
 
+	Windshield = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Windshield"));
+	Windshield->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WindshieldSocket"));
+	Hide(Windshield, true);
+
+
 	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
 	MeshDeformer = CreateDefaultSubobject<UDeformationComponent>(TEXT("Mesh Deformer"));
 	MeshDeformer->AddMesh(GetMesh());
@@ -637,6 +642,7 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		ScrapLevelAudioComponent->Play();
 
 		Hide(Plow, false);
+		Hide(Windshield, false);
 		// plow, wind shield
 	}
 }

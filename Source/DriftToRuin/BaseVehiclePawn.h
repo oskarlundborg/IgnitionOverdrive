@@ -332,6 +332,9 @@ protected:
 	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
 	class USkeletalMeshComponent* Plow;
 
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* Windshield;
+
 	
 	/*UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
