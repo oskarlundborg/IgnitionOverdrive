@@ -38,9 +38,18 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 void AHomingMissileLauncher::BeginPlay()
 {
 	Super::BeginPlay();
-	//AmmoAmount = ChargeCap; // here
+   
 }
-	
+
+void AHomingMissileLauncher::InitializeOwnerVariables()
+{
+	CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	if(CarOwner == nullptr) return;
+	OwnerController = CarOwner->GetController();
+	if(OwnerController == nullptr) return;
+	OwnerPlayerController = Cast<APlayerController>(OwnerController);
+}
+
 void AHomingMissileLauncher::PullTrigger()
 {
 	if(bIsOnCooldown) return;
@@ -240,14 +249,10 @@ float AHomingMissileLauncher::GetValidMagnitude(AActor* Target)
 void AHomingMissileLauncher::CheckTargetStatus()
 {
 	if(!CurrentTarget) return;
-	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
-	const AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
-	const APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
 	if(OwnerPlayerController == nullptr) return;
-	
+	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
 	{
 		CurrentTarget = nullptr;
@@ -282,7 +287,7 @@ bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* 
 
 bool AHomingMissileLauncher::CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const
 {
-	float CurrentDistance = Owner->GetDistanceTo(CurrentTarget);
+	float CurrentDistance = VehicleOwner->GetDistanceTo(CurrentTarget);
 	if(CurrentDistance <= TargetingRange) return true;
 	return false;
 }
@@ -294,9 +299,7 @@ bool AHomingMissileLauncher::CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) c
 
 void AHomingMissileLauncher::FindTarget()
 {
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
-	AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
@@ -312,9 +315,7 @@ void AHomingMissileLauncher::FindTarget()
 
 void AHomingMissileLauncher::CheckCanLockOn()
 {
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
-	AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
@@ -334,9 +335,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return false;
-	AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return false;
 	
 	FVector CameraLocation;
