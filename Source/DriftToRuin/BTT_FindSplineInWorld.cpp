@@ -39,7 +39,7 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	//scan is not that pretty, leave for now and work on AI find opponent instead. 
 
 	// Parameters for the scan
-	float ScanRadius = 1000.0f;
+	float ScanRadius = 1500.0f;
 	float TraceDistance = 100;
 	float Offset = 1400;
 	// Calculate the start and end points for the scan
@@ -55,8 +55,8 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(AIPawn);
 
-	DrawDebugSphere(GetWorld(), ScanStart, ScanRadius, 12, FColor::Green, false, 15.f); // Visualize the starting sphere
-	DrawDebugLine(GetWorld(), ScanStart, ScanEnd, FColor::Green, false, 15.0f);
+	//DrawDebugSphere(GetWorld(), ScanStart, ScanRadius, 12, FColor::Green, false, 15.f); // Visualize the starting sphere
+	//DrawDebugLine(GetWorld(), ScanStart, ScanEnd, FColor::Green, false, 15.0f);
 	//get current spline in blackboard
 	const AActor* ActorRoadSpline = Cast<AActor>(BlackboardComp->GetValueAsObject("TempRoadSpline"));
 	USplineComponent* BBSpline = nullptr;
@@ -65,7 +65,7 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 		UE_LOG(LogTemp, Warning, TEXT("ACTOR ROAD SPLINE WAS NOT NULL SETTING BB SPLINE: "));
 		BBSpline = ActorRoadSpline->GetComponentByClass<USplineComponent>();
 	}
-
+// set spec trace channel for spline
 	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd, FQuat::Identity, ECC_Visibility,
 	                                            FCollisionShape::MakeSphere(ScanRadius), CollisionParams))
 	{

@@ -23,6 +23,8 @@ void AEnemyVehiclePawn::BeginPlay()
 	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_SetStartingRotation, this,
 	//                                      &AEnemyVehiclePawn::SetStartingRotation, 0.5f, false);
 
+	
+
 	if (AITurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<AAITurret>(AITurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
@@ -33,11 +35,13 @@ void AEnemyVehiclePawn::BeginPlay()
 	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform,
 	                           TEXT("MinigunRef"));
 	Minigun->SetOwner(this);
+	Minigun->InitializeOwnerVariables();
 
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
 	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 	                                  TEXT("MissileLauncerRef"));
 	HomingLauncher->SetOwner(this);
+	HomingLauncher->InitializeOwnerVariables();
 
 	// set turret starting location check if this works or i need the timer 
 	SetStartingRotation();
@@ -57,6 +61,12 @@ void AEnemyVehiclePawn::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("movement cojmponent null"));
 	}
+
+	VehicleMovementComponent->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
+
+	//DefaultFrontFriction=VehicleMovementComp->Wheels[0]->FrictionForceMultiplier;
+
+	//DefaultRearFriction=VehicleMovementComp->Wheels[2]->FrictionForceMultiplier;
 
 	InitializeSensors();
 	InitializeSpline();
@@ -260,7 +270,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 	//UE_LOG(LogTemp, Warning, TEXT("maxspeed %f"), MaxSpeed);
 
 	//clamp value betwwen low speed and maxspeed
-	MaxSpeed = FMath::Clamp(MaxSpeed, 50, 800);
+	MaxSpeed = FMath::Clamp(MaxSpeed, 50, 1000);
 	//	UE_LOG(LogTemp, Warning, TEXT("maxspeed after clamp %f"), MaxSpeed);
 
 
