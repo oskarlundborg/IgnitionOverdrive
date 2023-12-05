@@ -187,7 +187,7 @@ void ABaseVehiclePawn::OnBoosting()
 	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
 	VehicleMovementComp->SetThrottleInput(1);
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
+	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
 }
 
 void ABaseVehiclePawn::SetBoostCost(float NewBoostCost)
@@ -205,7 +205,7 @@ void ABaseVehiclePawn::RechargeBoost()
 	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
 	
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount, 0.0f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
+	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate, true);
 }
 
 bool ABaseVehiclePawn::IsGrounded() const
