@@ -22,6 +22,8 @@ public:
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
 
+	void InitializeOwnerVariables();
+	
 	AActor* GetLastTarget() const;
 	
 	bool IsCharging();
@@ -57,6 +59,13 @@ public:
 	bool GetCanLockOnTarget();
 	
 private:
+	UPROPERTY()
+	const ABaseVehiclePawn* CarOwner;
+	UPROPERTY()
+	const AController* OwnerController;
+	UPROPERTY()
+	const APlayerController* OwnerPlayerController;
+	
 	FTimerHandle ChargeHandle;
 	FTimerHandle FireTimer;
 	FTimerHandle CooldownTimer;
@@ -115,6 +124,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	
 	void FindTarget();
 	void CheckCanLockOn();
 	bool PerformTargetLockSweep(FHitResult& HitResult);
