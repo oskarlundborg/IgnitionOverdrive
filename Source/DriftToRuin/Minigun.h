@@ -7,6 +7,7 @@
 #include "Components/PoseableMeshComponent.h"
 #include "Minigun.generated.h"
 
+class APlayerVehiclePawn;
 /**
  * 
  */
@@ -21,6 +22,8 @@ public:
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
 	bool GetIsOverheated();
+
+	void InitializeOwnerVariables();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ProjectileSpawned(ABaseProjectile* Projectile);
@@ -50,6 +53,11 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
+	UPROPERTY()
+	const APlayerVehiclePawn* CarOwner;
+	UPROPERTY()
+	const AController* OwnerController;
+	
 	FTimerHandle FireRateTimer;
 
 	UPROPERTY()
@@ -78,6 +86,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetPowerAmmoPercent();
 
+	UFUNCTION(BlueprintCallable)
+	bool GetIsPoweredUp();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsFiring();
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Overheat")
 	bool PoweredUp = false;
 

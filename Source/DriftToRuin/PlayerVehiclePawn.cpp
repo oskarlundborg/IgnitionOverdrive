@@ -31,6 +31,10 @@ void APlayerVehiclePawn::BeginPlay()
 	}
 
 	VehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
+
+	DefaultFrontFriction=VehicleMovementComp->Wheels[0]->FrictionForceMultiplier;
+
+	DefaultRearFriction=VehicleMovementComp->Wheels[2]->FrictionForceMultiplier;
 	
 	if(PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
@@ -40,10 +44,12 @@ void APlayerVehiclePawn::BeginPlay()
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
 	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("MinigunRef"));
 	Minigun->SetOwner(this);
+	Minigun->InitializeOwnerVariables();
 
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
 	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("MissileLauncerRef"));
 	HomingLauncher->SetOwner(this);
+	HomingLauncher->InitializeOwnerVariables();
 }
 
 void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -76,9 +82,6 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		EnhancedInputComponent->BindAction(AirRollYawAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollYaw);
 		EnhancedInputComponent->BindAction(AirRollYawAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollYaw);
-
-		EnhancedInputComponent->BindAction(AirRollRollAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollRoll);
-		EnhancedInputComponent->BindAction(AirRollRollAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollRoll);
 
 		EnhancedInputComponent->BindAction(AirRollPitchAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::ApplyAirRollPitch);
 		EnhancedInputComponent->BindAction(AirRollPitchAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::ApplyAirRollPitch);
@@ -134,48 +137,52 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::OnHandbrakePressed()
 {
+	VehicleMovementComp->SetHandbrakeInput(true);
+	
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.51);
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.63);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftRearFriction);
 		}
 		else
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.86);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftFrontFriction);
 		}
 	}
 
 	//Det här inställningarna ska försöka ge spelaren mer kontroll av drifts.
 	
-	VehicleMovementComp->TorqueControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = true;
-	VehicleMovementComp->TargetRotationControl.RotationDamping = 1000.0f;
-	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 1000.0f;
+	VehicleMovementComp->TargetRotationControl.RotationDamping = 10.0f;
+	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 100.0f;
 	VehicleMovementComp->TargetRotationControl.RotationStiffness = 10.0f;
-	VehicleMovementComp->TorqueControl.YawFromRollTorqueScaling = 100.0f;
-	VehicleMovementComp->TorqueControl.YawFromSteering = 100.0f;
-	VehicleMovementComp->TorqueControl.YawTorqueScaling = 100.0f;
+	VehicleMovementComp->TargetRotationControl.MaxAccel = 1000.0f;
+	
 	
 	
 }
 
 void APlayerVehiclePawn::OnHandbrakeReleased()
 {
+	VehicleMovementComp->SetHandbrakeInput(false);
+	
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultRearFriction);
 		}
 		else
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultFrontFriction);
 		}
 	}
-
-	VehicleMovementComp->TorqueControl.Enabled = false;
 	VehicleMovementComp->TargetRotationControl.Enabled = false;
 }
 
@@ -184,7 +191,7 @@ void APlayerVehiclePawn::SideSwipeLeft()
 	if(bCanSideSwipe)
 	{
 		bCanSideSwipe = false;
-		SideThrusterRNiagaraComponent->Activate();
+		SideThrusterRNiagaraComponent->Activate(true);
 		GetMesh()->AddImpulse(-GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
 		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
 	}
@@ -196,7 +203,7 @@ void APlayerVehiclePawn::SideSwipeRight()
 	if(bCanSideSwipe)
 	{
 		bCanSideSwipe = false;
-		SideThrusterLNiagaraComponent->Activate();
+		SideThrusterLNiagaraComponent->Activate(true);
 		GetMesh()->AddImpulse(GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
 		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
 	}
@@ -204,19 +211,13 @@ void APlayerVehiclePawn::SideSwipeRight()
 
 void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 {
-	if(bCanAirRoll)
+	if(bCanAirRoll && !VehicleMovementComp->GetHandbrakeInput())
 	{
-		//GetVehicleMovementComponent()->SetYawInput(Value.Get<float>());
-		GetMesh()->AddAngularImpulseInDegrees((GetMesh()->GetUpVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
+		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetUpVector() * Value.Get<float>() * AirRollSensitivity, NAME_None, true);
 	}
-}
-
-void APlayerVehiclePawn::ApplyAirRollRoll(const FInputActionValue& Value)
-{
-	if(bCanAirRoll)
+	else if(bCanAirRoll && VehicleMovementComp->GetHandbrakeInput())
 	{
-		//GetVehicleMovementComponent()->SetRollInput(Value.Get<float>());
-		GetMesh()->AddAngularImpulseInDegrees((GetMesh()->GetForwardVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
+		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetForwardVector() * Value.Get<float>() *-1 * AirRollSensitivity, NAME_None, true);
 	}
 }
 

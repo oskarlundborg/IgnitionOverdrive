@@ -1,4 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+/**
+* @author Joakim Pettersson
+*	Class for health component placed on all vehicles.
+*	Creator of class and some functions.
+*
+* @author Hugo Westgren
+*	Developed to work correctly with other gameplay systems.
+**/
 
 #pragma once
 

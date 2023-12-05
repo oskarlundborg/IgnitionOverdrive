@@ -22,6 +22,8 @@ public:
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
 
+	void InitializeOwnerVariables();
+	
 	AActor* GetLastTarget() const;
 	
 	bool IsCharging();
@@ -32,6 +34,8 @@ public:
 
 	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
 	bool CheckTargetLineOfSight(const AController* Controller) const;
+	
+	void OnFireAI(AActor* Target, int32 Charge);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void MissileFired(int32 ChargeNumber);
@@ -55,6 +59,13 @@ public:
 	bool GetCanLockOnTarget();
 	
 private:
+	UPROPERTY()
+	const ABaseVehiclePawn* CarOwner;
+	UPROPERTY()
+	const AController* OwnerController;
+	UPROPERTY()
+	const APlayerController* OwnerPlayerController;
+	
 	FTimerHandle ChargeHandle;
 	FTimerHandle FireTimer;
 	FTimerHandle CooldownTimer;
@@ -113,23 +124,26 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	
 	void FindTarget();
 	void CheckCanLockOn();
 	bool PerformTargetLockSweep(FHitResult& HitResult);
 	
 	void ChargeFire();
 	void OnChargeFire();
-	void Fire();
+	UFUNCTION()
+	void Fire(AActor* Target);
 	void OnFire();
 
 	void CheckTargetStatus();
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
 	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
+	
 
 	void ResetCooldown();
 	void SetCooldownDuration();
 
-	float GetValidMagnitude();
+	float GetValidMagnitude(AActor* Target);
 	UFUNCTION()
 	void SetTarget(ABaseProjectile* Projectile, ABaseVehiclePawn* Target);
 

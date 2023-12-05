@@ -1,4 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+/**
+* @author Joakim Pettersson
+*	Base class for playable vehicles. Mostly contains input functionality.
+*	Responsible for all vehicle input systems & controls.
+*
+* @author Mihajlo Radotic
+*	Responsible for all weapon systems & controls.
+**/
 
 #pragma once
 
@@ -87,9 +95,6 @@ private:
 	UInputAction* AirRollYawAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* AirRollRollAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* AirRollPitchAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
@@ -107,6 +112,16 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=SideSwipe, meta=(AllowPrivateAccess = "true"))
 	float SideSwipeForce = 3000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Drift, meta=(AllowPrivateAccess = "true"))
+	float DriftRearFriction = 3.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Drift, meta=(AllowPrivateAccess = "true"))
+	float DriftFrontFriction = 4.0f;
+
+	float DefaultRearFriction;
+
+	float DefaultFrontFriction;
 	
 	bool bCanAirRoll = false;
 
@@ -140,7 +155,6 @@ private:
 	void SideSwipeRight();
 
 	void ApplyAirRollYaw(const FInputActionValue& Value);
-	void ApplyAirRollRoll(const FInputActionValue& Value);
 	void ApplyAirRollPitch(const FInputActionValue& Value);
 
 	void FireMinigun();

@@ -1,4 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+/**
+* @author Joakim Pettersson
+*	Base class for every vehicle in the game,
+*	includes functionality intended for use in both AI & Player vehicles.
+*	Responsible for all Vehicle physics and systems.
+*
+* @author Mihajlo Radotic
+*	Responsible for all weapon systems.
+*
+* @author Hugo Westgren
+*	Responsible for code regarding gamestate systems (pickups & scrap)
+**/
+
 
 #pragma once
 
@@ -66,29 +79,29 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	
 	//How often boost is consumed.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostConsumptionRate = 1.0f;
+	float BoostConsumptionRate = 0.005f;
 
 	//Amount of boost consumed per call (BoostConsumptionRate).
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostCost = 0.5f;
+	float BoostCost = 0.35f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float DefaultBoostCost = 0.5f;
+	float DefaultBoostCost = 0.35f;
 
 	//How often boost recharges.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostRechargeRate = 0.1f;
+	float BoostRechargeRate = 0.005f;
 
 	//Boost Recharge amount per tick.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostRechargeAmount = 0.05f;
+	float BoostRechargeAmount = 0.06f;
 	
 	//Max Torque when boosting.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostMaxTorque = 10000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	float DefaultCameraLagMaxDistance = 25.0f;
+	float DefaultCameraLagMaxDistance = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float BoostCameraLagMaxDistance = 150.0f;

@@ -115,9 +115,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Create shield powerup mesh (hidden and ignored unless powerup active)
 	ShieldMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMesh"));
 	ShieldMesh->SetupAttachment(CameraComponent);
-	ShieldMesh->SetRelativeLocation({1600,0,-67});
+	ShieldMesh->SetRelativeLocation({2000,0,-67});
 	ShieldMesh->SetRelativeRotation({0,180,0});
-	ShieldMesh->SetRelativeScale3D({5,5,5});
+	ShieldMesh->SetRelativeScale3D({10,10,5});
 	ShieldMesh->SetVisibility(false);
 	ShieldMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ShieldMesh->SetGenerateOverlapEvents(false);
@@ -187,7 +187,7 @@ void ABaseVehiclePawn::OnBoosting()
 	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
 	VehicleMovementComp->SetThrottleInput(1);
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
+	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
 }
 
 void ABaseVehiclePawn::SetBoostCost(float NewBoostCost)
@@ -205,7 +205,7 @@ void ABaseVehiclePawn::RechargeBoost()
 	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
 	
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount, 0.0f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate*UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), true);
+	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate, true);
 }
 
 bool ABaseVehiclePawn::IsGrounded() const
@@ -483,15 +483,19 @@ void ABaseVehiclePawn::ActivatePowerup()
 	{
 	case 1:
 		PowerupComponent->HealthPowerup(); //Pickup.HealthPowerup(); //Regenerate Health
+		SetHeldPowerup(0);
 		break;
 	case 2:
 		PowerupComponent->BoostPowerup(); //Pickup.BoostPowerup(); //Infinite boost
+		SetHeldPowerup(0);
 		break;
 	case 3:
 		PowerupComponent->OverheatPowerup(); //Pickup.OverheatPowerup(); //No overheat
+		SetHeldPowerup(0);
 		break;
 	case 4:
 		PowerupComponent->ShieldPowerup(); //Pickup.ShieldPowerup(); //skapar shield
+		SetHeldPowerup(0);
 		break;
 	default:
 		break;

@@ -7,6 +7,7 @@
 #include "BaseVehiclePawn.h"
 #include "PlayerTurret.h"
 #include "Minigun.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -37,9 +38,18 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 void AHomingMissileLauncher::BeginPlay()
 {
 	Super::BeginPlay();
-	//AmmoAmount = ChargeCap; // here
+   
 }
-	
+
+void AHomingMissileLauncher::InitializeOwnerVariables()
+{
+	CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	if(CarOwner == nullptr) return;
+	OwnerController = CarOwner->GetController();
+	if(OwnerController == nullptr) return;
+	OwnerPlayerController = Cast<APlayerController>(OwnerController);
+}
+
 void AHomingMissileLauncher::PullTrigger()
 {
 	if(bIsOnCooldown) return;
@@ -167,10 +177,10 @@ void AHomingMissileLauncher::OnChargeFire()
 	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, ChargeTime / 100, true);
 }
 
-void AHomingMissileLauncher::Fire()
+void AHomingMissileLauncher::Fire(AActor* Target)
 {
 	if(!GetOwner()) return;
-	if(!CurrentTarget)
+	if(!Target)
 	{
 		GetWorldTimerManager().ClearTimer(FireTimer);
 		return;
@@ -180,10 +190,10 @@ void AHomingMissileLauncher::Fire()
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
 	MissileFired(ChargeAmount);
 	Projectile->SetOwner(GetOwner());
-	ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(CurrentTarget);
+	ABaseVehiclePawn* CarTarget = Cast<ABaseVehiclePawn>(Target);
 	if(CarTarget == nullptr) return;
 	
-	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = GetValidMagnitude();
+	Projectile->GetProjectileMovementComponent()->HomingAccelerationMagnitude = GetValidMagnitude(Target);
 
 	FTimerHandle TargetHandle;
 	FTimerDelegate TargetDelegate;
@@ -193,13 +203,25 @@ void AHomingMissileLauncher::Fire()
 	if(--ChargeAmount <= 0)
 	{
 		GetWorldTimerManager().ClearTimer(FireTimer);
-		CurrentTarget = nullptr;
+		Target = nullptr;
 	}
 }
-	
+
 void AHomingMissileLauncher::OnFire()
 {
-	GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
+	FTimerDelegate FireDelegate;
+	FireDelegate.BindUFunction(this, FName("Fire"), CurrentTarget);
+	GetWorldTimerManager().SetTimer(FireTimer, FireDelegate, 0.5f, true, 0.f);
+	//GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
+}
+
+void AHomingMissileLauncher::OnFireAI(AActor* Target, int32 Charge)
+{
+	FTimerDelegate FireDelegate;
+	ChargeAmount = Charge;
+	FireDelegate.BindUFunction(this, FName("Fire"), Target);
+	GetWorldTimerManager().SetTimer(FireTimer, FireDelegate, 0.5f, true, 0.f);
+	//GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::FireAI, 0.5f, true, 0.f);
 }
 
 void AHomingMissileLauncher::SetTarget(ABaseProjectile* Projectile, ABaseVehiclePawn* Target)
@@ -207,10 +229,10 @@ void AHomingMissileLauncher::SetTarget(ABaseProjectile* Projectile, ABaseVehicle
 	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = Target->GetHomingTargetPoint();
 }
 
-float AHomingMissileLauncher::GetValidMagnitude()
+float AHomingMissileLauncher::GetValidMagnitude(AActor* Target)
 {
 	float HomingMagnitude;
-	const float TargetDistance = GetOwner()->GetDistanceTo(CurrentTarget);
+	const float TargetDistance = GetOwner()->GetDistanceTo(Target);
 	if(TargetDistance < CloseTargetRange)
 	{
 		HomingMagnitude = CloseRangeMagnitude;
@@ -223,33 +245,30 @@ float AHomingMissileLauncher::GetValidMagnitude()
 	}
 	return HomingMagnitude;
 }
-
 	
 void AHomingMissileLauncher::CheckTargetStatus()
 {
 	if(!CurrentTarget) return;
-	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
-	const AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
-	const APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
 	if(OwnerPlayerController == nullptr) return;
-	
+	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
 	{
 		CurrentTarget = nullptr;
 		ChargeAmount = 0;
 		bIsCharging = false;
 		ChargeValue = 0.f;
+		GetWorldTimerManager().ClearTimer(FireTimer);
 		//GetWorldTimerManager().ClearTimer(ChargeHandle);
 		//GetWorldTimerManager().ClearTimer(FireTimer);
 	}
 }
-		
+
 bool AHomingMissileLauncher::CheckTargetLineOfSight(const AController* Controller) const
 {
-	return Controller->LineOfSightTo(CurrentTarget);
+	FVector OwnerEyes(GetOwner()->GetActorLocation().X, GetOwner()->GetActorLocation().Y, GetOwner()->GetActorLocation().Z + 900.f);
+	return Controller->LineOfSightTo(CurrentTarget, OwnerEyes);
 }
 
 bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* PlayerController) const
@@ -268,7 +287,7 @@ bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* 
 
 bool AHomingMissileLauncher::CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const
 {
-	float CurrentDistance = Owner->GetDistanceTo(CurrentTarget);
+	float CurrentDistance = VehicleOwner->GetDistanceTo(CurrentTarget);
 	if(CurrentDistance <= TargetingRange) return true;
 	return false;
 }
@@ -280,14 +299,12 @@ bool AHomingMissileLauncher::CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) c
 
 void AHomingMissileLauncher::FindTarget()
 {
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
-	AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
 	bool bHit = PerformTargetLockSweep(HitResult);
-	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 30, FColor::Green, true);
+	
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
 	{
 		CurrentTarget = HitResult.GetActor();
@@ -298,9 +315,7 @@ void AHomingMissileLauncher::FindTarget()
 
 void AHomingMissileLauncher::CheckCanLockOn()
 {
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return;
-	AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
@@ -320,9 +335,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
-	const ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	if(CarOwner == nullptr) return false;
-	AController* OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return false;
 	
 	FVector CameraLocation;
@@ -340,7 +353,9 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
 	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
+	
 	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepSphere, TraceParams);
+	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 20, FColor::Green, true);
 	return bHit;
 }
 
@@ -349,7 +364,7 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
 	CheckCanLockOn();
-	if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
+	//if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCooldownTime());
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }

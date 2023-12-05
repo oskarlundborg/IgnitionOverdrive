@@ -113,5 +113,5 @@ void UHealthComponent::RegenerateHealth()
 void UHealthComponent::StopRegenerating()
 {
 	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-	CarOwner->GetPowerupComponent()->ClearPowerup();
+	CarOwner->GetPowerupComponent()->ClearPowerup(1);
 }
