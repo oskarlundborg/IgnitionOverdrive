@@ -149,15 +149,11 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 
 	//Det här inställningarna ska försöka ge spelaren mer kontroll av drifts.
 	
-	VehicleMovementComp->TorqueControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = true;
 	VehicleMovementComp->TargetRotationControl.RotationDamping = 1000.0f;
 	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 1000.0f;
 	VehicleMovementComp->TargetRotationControl.RotationStiffness = 10.0f;
-	VehicleMovementComp->TorqueControl.YawFromRollTorqueScaling = 100.0f;
-	VehicleMovementComp->TorqueControl.YawFromSteering = 100.0f;
-	VehicleMovementComp->TorqueControl.YawTorqueScaling = 100.0f;
 	
 	
 }
@@ -177,8 +173,6 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 	}
-
-	VehicleMovementComp->TorqueControl.Enabled = false;
 	VehicleMovementComp->TargetRotationControl.Enabled = false;
 }
 
