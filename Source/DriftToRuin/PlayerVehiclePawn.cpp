@@ -40,10 +40,12 @@ void APlayerVehiclePawn::BeginPlay()
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
 	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("MinigunRef"));
 	Minigun->SetOwner(this);
+	Minigun->InitializeOwnerVariables();
 
 	HomingLauncher = GetWorld()->SpawnActor<AHomingMissileLauncher>(HomingLauncherClass);
 	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("MissileLauncerRef"));
 	HomingLauncher->SetOwner(this);
+	HomingLauncher->InitializeOwnerVariables();
 }
 
 void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

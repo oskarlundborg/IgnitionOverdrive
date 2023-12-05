@@ -64,6 +64,13 @@ bool AMinigun::GetIsOverheated()
 	return bIsOverheated;
 }
 
+void AMinigun::InitializeOwnerVariables()
+{
+	CarOwner = Cast<APlayerVehiclePawn>(GetOwner());
+	if (CarOwner == nullptr) return;
+	OwnerController = CarOwner->GetController();
+}
+
 /*Handles firing logic, meaning spawning projectiles*/
 void AMinigun::Fire()
 {
@@ -150,9 +157,7 @@ void AMinigun::UpdateOverheat()
 /*Adjusts projectile rotation on spawn to aim towards the crosshair*/
 void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
 {
-	const APlayerVehiclePawn* CarOwner = Cast<APlayerVehiclePawn>(GetOwner());
 	if (CarOwner == nullptr) return;
-	AController* OwnerController = CarOwner->GetController();
 	if (OwnerController == nullptr) return;
 
 	FVector CameraLocation;
@@ -199,10 +204,10 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 //projectile transform adjust for AI firing
 void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
 {
-	const AEnemyVehiclePawn* CarOwner = Cast<AEnemyVehiclePawn>(GetOwner());
-	if (CarOwner == nullptr) return;
+	const AEnemyVehiclePawn* AIOwner = Cast<AEnemyVehiclePawn>(GetOwner());
+	if (AIOwner == nullptr) return;
 	FVector EnemyLocation;
-	AAIController* AIController = CarOwner->GetController<AAIController>();
+	AAIController* AIController = AIOwner->GetController<AAIController>();
 	if (AIController != nullptr)
 	{
 		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
