@@ -123,6 +123,22 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	ShieldMesh->SetGenerateOverlapEvents(false);
 
 	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
+	MeshDeformer = CreateDefaultSubobject<UDeformationComponent>(TEXT("Mesh Deformer"));
+	MeshDeformer->AddMesh(GetMesh());
+	MeshDeformer->BoneIgnoreFilter = {
+		TEXT("FL_WheelRotator"),
+		TEXT("FL_SwayBar"),
+		TEXT("FL_End"),
+		TEXT("FR_WheelRotator"),
+		TEXT("FR_SwayBar"),
+		TEXT("FR_End"),
+		TEXT("BL_WheelRotator"),
+		TEXT("BL_SwayBar"),
+		TEXT("BL_End"),
+		TEXT("BR_WheelRotator"),
+		TEXT("BR_SwayBar"),
+		TEXT("BR_End"),
+	};
 }
 
 void ABaseVehiclePawn::BeginPlay()
@@ -549,9 +565,6 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		HealthComponent->SetHealth(HealthComponent->GetHealth() + 25);
 		bHitLevelThree = true;
 	}
-	
-	
-	
 }
 
 USceneComponent* ABaseVehiclePawn::GetHomingTargetPoint() const
@@ -567,14 +580,12 @@ void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 	{
 		const auto Speed = GetVehicleMovement()->GetForwardSpeed();
 		if( Speed < 100.f ) { return; }
-		GEngine->AddOnScreenDebugMessage(0, 3, FColor::Cyan, FString::Printf(TEXT("%f"),
-			UGameplayStatics::ApplyDamage(
-				OtherActor,
-				FMath::Clamp(FMath::Clamp(Speed, 1.f, Speed) / BumperDamageDividedBy, 0.f, MaxBumperDamage),
-				GetController(),
-				this,
-				nullptr
-			))
+		UGameplayStatics::ApplyDamage(
+			OtherActor,
+			FMath::Clamp(FMath::Clamp(Speed, 1.f, Speed) / BumperDamageDividedBy, 0.f, MaxBumperDamage),
+			GetController(),
+			this,
+			nullptr
 		);
 	}
 }
@@ -586,9 +597,9 @@ void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 	{
 		Mass = OtherComponent->GetMass();
 	}
-#ifdef WITH_EDITOR
-	GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Cyan, FString::Printf(TEXT("%f"), (GetVelocity() * Mass).Length()));
-#endif
+//#ifdef WITH_EDITOR
+//	GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Cyan, FString::Printf(TEXT("%f"), (GetVelocity() * Mass).Length()));
+//#endif
 	CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * Mass).Length());
 	CrashAudioComponent->Play();
 	CrashAudioComponent->FadeOut(.6f, .2f, EAudioFaderCurve::Sin);
