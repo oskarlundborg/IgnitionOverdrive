@@ -246,3 +246,8 @@ float AMinigun::GetPowerAmmoPercent()
 {
 	return PowerAmmo / 100;
 }
+
+bool AMinigun::GetIsPoweredUp()
+{
+	return PoweredUp;
+}
