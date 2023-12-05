@@ -385,7 +385,7 @@ protected:
 
 	// ___
 	// Front Bumper
-	UPROPERTY(EditDefaultsOnly, Category="Bumper")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Bumper")
 	UCapsuleComponent* BumperCollision;
 
 	UPROPERTY(EditDefaultsOnly, Category="Bumper", meta=(AllowPrivateAccess=true))
