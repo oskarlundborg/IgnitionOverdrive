@@ -31,6 +31,10 @@ void APlayerVehiclePawn::BeginPlay()
 	}
 
 	VehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
+
+	DefaultFrontFriction=VehicleMovementComp->Wheels[0]->FrictionForceMultiplier;
+
+	DefaultRearFriction=VehicleMovementComp->Wheels[2]->FrictionForceMultiplier;
 	
 	if(PlayerTurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<APlayerTurret>(PlayerTurretClass);
@@ -139,11 +143,13 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.51);
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.63);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftRearFriction);
 		}
 		else
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.86);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftFrontFriction);
 		}
 	}
 
@@ -151,9 +157,11 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	
 	VehicleMovementComp->TargetRotationControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = true;
-	VehicleMovementComp->TargetRotationControl.RotationDamping = 1000.0f;
-	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 1000.0f;
+	VehicleMovementComp->TargetRotationControl.RotationDamping = 10.0f;
+	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 100.0f;
 	VehicleMovementComp->TargetRotationControl.RotationStiffness = 10.0f;
+	VehicleMovementComp->TargetRotationControl.MaxAccel = 1000.0f;
+	
 	
 	
 }
@@ -167,10 +175,12 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultRearFriction);
 		}
 		else
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultFrontFriction);
 		}
 	}
 	VehicleMovementComp->TargetRotationControl.Enabled = false;
