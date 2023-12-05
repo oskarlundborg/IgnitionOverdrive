@@ -115,9 +115,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Create shield powerup mesh (hidden and ignored unless powerup active)
 	ShieldMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMesh"));
 	ShieldMesh->SetupAttachment(CameraComponent);
-	ShieldMesh->SetRelativeLocation({3000,0,-67});
+	ShieldMesh->SetRelativeLocation({2000,0,-67});
 	ShieldMesh->SetRelativeRotation({0,180,0});
-	ShieldMesh->SetRelativeScale3D({10,10,10});
+	ShieldMesh->SetRelativeScale3D({10,10,5});
 	ShieldMesh->SetVisibility(false);
 	ShieldMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ShieldMesh->SetGenerateOverlapEvents(false);
