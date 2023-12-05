@@ -217,7 +217,7 @@ void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 	}
 	else if(bCanAirRoll && VehicleMovementComp->GetHandbrakeInput())
 	{
-		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetForwardVector() * Value.Get<float>() *-1 * AirRollSensitivity, NAME_None, true);
+		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetForwardVector() * -Value.Get<float>() * AirRollSensitivity, NAME_None, true);
 	}
 }
 

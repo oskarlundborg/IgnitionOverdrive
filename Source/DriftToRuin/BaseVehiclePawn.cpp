@@ -183,6 +183,7 @@ void ABaseVehiclePawn::OnBoosting()
 {
 	if(!Booster.bEnabled || Booster.BoostAmount <= 0)
 	{
+		Booster.bEnabled = false;
 		VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
 		VehicleMovementComp->SetThrottleInput(0);
 		RechargeBoost();
