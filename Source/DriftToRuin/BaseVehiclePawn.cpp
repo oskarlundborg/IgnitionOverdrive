@@ -167,6 +167,10 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	Windshield->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WindshieldSocket"));
 	Hide(Windshield, true);
 
+	ScrapLeadBeamNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_LeadScrap"));
+	ScrapLeadBeamNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
+	
+
 
 	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
 	MeshDeformer = CreateDefaultSubobject<UDeformationComponent>(TEXT("Mesh Deformer"));
@@ -552,6 +556,7 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	bHitLevelTwo = false;
 	bHitLevelThree = false;
 	ScrapAmount = 0;
+	ScrapLeadBeamNiagaraComponent->Deactivate();
 
 	Hide(SpikeL, true);
 	Hide(SpikeR, true);
@@ -662,6 +667,7 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		HealthComponent->SetHealth(HealthComponent->GetHealth() + 25);
 		bHitLevelThree = true;
 		ScrapLevelAudioComponent->Play();
+		ScrapLeadBeamNiagaraComponent->Activate();
 
 		Hide(Plow, false);
 		Hide(Windshield, false);
