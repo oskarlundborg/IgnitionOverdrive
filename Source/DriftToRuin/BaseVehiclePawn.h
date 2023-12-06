@@ -396,4 +396,10 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Deformer", meta=(AllowPrivateAccess=true))
 	UDeformationComponent* MeshDeformer;
+	
+	UPROPERTY(VisibleAnywhere)
+	FVector LastHitLocation;
+	
+	UPROPERTY(EditAnywhere)
+	double HitDistanceMinimum = 100.f;
 };

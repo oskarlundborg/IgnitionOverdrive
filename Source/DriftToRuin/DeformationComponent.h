@@ -17,12 +17,13 @@ class DRIFTTORUIN_API UDeformationComponent : public UActorComponent
 public:	
 	UDeformationComponent();
 	
-	UFUNCTION(BlueprintCallable, Category="Deform")
+	UFUNCTION(BlueprintCallable, Category=Deformation)
 	void DeformMesh(const FVector Location, const FVector Normal);
 
-	UFUNCTION(BlueprintCallable, Category="Deform")
+	UFUNCTION(BlueprintCallable, Category=Deformation)
 	void ResetMesh();
 
+	UFUNCTION(BlueprintCallable, Category=Deformation)
 	void AddMesh(USkeletalMeshComponent* Mesh);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -30,22 +31,22 @@ public:
 	UFUNCTION()
 	void OnHit(AActor* Self, AActor* Other, FVector NormalImpulse, const FHitResult& Hit);
 	
-	UPROPERTY(EditAnywhere, Category="Deformation")
+	UPROPERTY(EditAnywhere, Category=Deformation)
 	float MaxDeform = 33.f;
 
-	UPROPERTY(EditAnywhere, Category="Deformation")
+	UPROPERTY(EditAnywhere, Category=Deformation)
 	TArray<FString> BoneIgnoreFilter;
 	
 	UPROPERTY(EditAnywhere)
 	bool bDrawDebug = false;
 
-	UPROPERTY(EditAnywhere, Category="Points")
+	UPROPERTY(EditAnywhere, Category=Grid)
 	float PointDensity = 30.f;
 
-	UPROPERTY(EditAnywhere, Category="Points")
+	UPROPERTY(EditAnywhere, Category=Grid)
 	float PointInfluenceMaxDistance = 60.f;
 
-	UPROPERTY(EditAnywhere, Category="Points")
+	UPROPERTY(EditAnywhere, Category=Grid)
 	int32 PointInfluenceMaxNum = 10;
 	
 protected:

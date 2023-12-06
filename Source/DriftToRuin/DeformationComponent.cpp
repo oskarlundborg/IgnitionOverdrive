@@ -72,7 +72,7 @@ void UDeformationComponent::BuildGrid()
 	if (SkeletalMeshComponents.IsEmpty()) { return; }
 	
 	FBoxSphereBounds Bounds = FBoxSphereBounds(FVector::ZeroVector, FVector::ZeroVector, 0.f);
-	for (USkeletalMeshComponent* Mesh : SkeletalMeshComponents)
+	for (const USkeletalMeshComponent* Mesh : SkeletalMeshComponents)
 	{
 		Bounds = Bounds + Mesh->GetSkeletalMeshAsset()->GetImportedBounds();
 	}
@@ -376,71 +376,5 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 
 void UDeformationComponent::ResetMesh()
 {
-	for (FPoint& Point : Grid)
-	{
-		// __________________
-		// Move Vertices.
-		for (const auto& SkeletalVertexInfluence : Point.SkeletalVertexInfluences)
-		{
-			if (!SkeletalVertexInfluence.Key) { continue; }
-
-			FPositionVertexBuffer& Positions = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
-			FColorVertexBuffer& ColorVertexBuffer = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.ColorVertexBuffer;
-
-			for (const FPoint::Vertex& Vertex : SkeletalVertexInfluence.Value)
-			{
-				Positions.VertexPosition(Vertex.Id) = FVector3f(Point.InitialPosition);
-
-				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
-				{
-					ColorVertexBuffer.VertexColor(Vertex.Id).R = FMath::Min(255 - FVector3f(Point.InitialPosition).Size() / MaxDeform * 255, ColorVertexBuffer.VertexColor(Vertex.Id).R);
-				}
-			}
-		}
-		for (const auto& StaticVertexInfluence : Point.StaticVertexInfluences)
-		{
-			if (!StaticVertexInfluence.Key) { continue; }
-			
-			FStaticMeshLODResources& LODResources = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0];
-			FPositionVertexBuffer& Positions = LODResources.VertexBuffers.PositionVertexBuffer;
-			FColorVertexBuffer& ColorVertexBuffer = LODResources.VertexBuffers.ColorVertexBuffer;
-
-			for (const FPoint::Vertex& Vertex : StaticVertexInfluence.Value)
-			{
-				Positions.VertexPosition(Vertex.Id) = FVector3f(Point.InitialPosition);
-				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
-				{
-					ColorVertexBuffer.VertexColor(Vertex.Id).R = FMath::Min(255 - FVector3f(Point.InitialPosition).Size() / MaxDeform * 255, ColorVertexBuffer.VertexColor(Vertex.Id).R);
-				}
-			}
-		}
-		// __________________
-		// Move Attached Components.
-		for (const TTuple<USceneComponent*, float> InfluenceComponent : Point.ComponentInfluences)
-		{
-			InfluenceComponent.Key->AddLocalOffset(FVector(Point.InitialPosition) * FVector(InfluenceComponent.Value));
-		}
-	}
-	// __________________
-	// Update the render data.
-	ENQUEUE_RENDER_COMMAND(UpdateSkeletalMeshRenderData)([&](FRHICommandListImmediate& RHICmdList)
-	{
-		for (const auto& Mesh : SkeletalMeshComponents)
-		{
-			FSkeletalMeshLODRenderData& LODRenderData = Mesh->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0];
-			LODRenderData.StaticVertexBuffers.PositionVertexBuffer.UpdateRHI(RHICmdList);
-			LODRenderData.StaticVertexBuffers.StaticMeshVertexBuffer.UpdateRHI(RHICmdList);
-			LODRenderData.StaticVertexBuffers.ColorVertexBuffer.UpdateRHI(RHICmdList);
-		}
-	});
-	// __________________
-	// Notify change in render data to apply update.
-	for (const auto& Mesh : SkeletalMeshComponents)
-	{
-		Mesh->MarkRenderStateDirty();
-		if (Mesh->GetCPUSkinningEnabled())
-		{
-			Mesh->MarkRenderDynamicDataDirty();
-		}
-	}
+	// @TODO
 }
