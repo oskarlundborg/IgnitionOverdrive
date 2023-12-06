@@ -234,11 +234,55 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 
 void ABaseVehiclePawn::OnBoostPressed()
 {
-	if(bCanBoost)
+	if(Booster.BoostAmount <= 0) return;
+	BoostAudioComponent->Play();
+	bCanFadeOutBoost = true;
+	bBoostReleased = false;
+	GetWorld()->GetTimerManager().SetTimer(BoostCooldownTimer, this, &ABaseVehiclePawn::EnableBoost, 0.7f, false);
+	
+	
+}
+
+void ABaseVehiclePawn::OnBoostReleased()
+{
+	bBoostReleased = true;
+	DisableBoost();
+}
+
+void ABaseVehiclePawn::OnBoosting()
+{
+	if(Booster.bEnabled && Booster.BoostAmount <= 0)
 	{
-		if(Booster.BoostAmount <= 0) return;
-		BoostVfxNiagaraComponent->Activate(true);
+		DisableBoost();
+		return;
+	}
+	if(!Booster.bEnabled)
+	{
+		if(bUseCrazyCamera)
+		{
+			SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, DefaultCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed);
+			CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, DefaultCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed));
+		}
+		return;
+	}
+	if(bUseCrazyCamera)
+	{
+		SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, BoostCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed);
+		CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, BoostCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed));
+	}
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
+	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
+	VehicleMovementComp->SetThrottleInput(1);
+	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
+	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
+}
+
+void ABaseVehiclePawn::EnableBoost()
+{
+	if(!bBoostReleased)
+	{
 		Booster.SetEnabled(true);
+		BoostVfxNiagaraComponent->Activate(true);
 		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 		{
 			if(Wheel->AxleType==EAxleType::Rear)
@@ -257,56 +301,32 @@ void ABaseVehiclePawn::OnBoostPressed()
 		}
 		OnBoosting();
 	}
-	else
-	{
-		//GetWorld()->GetTimerManager().SetTimer(BoostCooldownTimer, this, &ABaseVehiclePawn::EnableBoost, 0.7f, false);
-	}
 	
 }
 
-void ABaseVehiclePawn::OnBoostReleased()
+void ABaseVehiclePawn::DisableBoost()
 {
 	Booster.SetEnabled(false);
-	//DisableBoost();
-}
-
-void ABaseVehiclePawn::OnBoosting()
-{
-	if(!Booster.bEnabled || Booster.BoostAmount <= 0)
+	VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
+	VehicleMovementComp->SetThrottleInput(0);
+	BoostVfxNiagaraComponent->Deactivate();
+	if(bCanFadeOutBoost)
 	{
-		Booster.bEnabled = false;
-		VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
-		VehicleMovementComp->SetThrottleInput(0);
-		RechargeBoost();
-		BoostVfxNiagaraComponent->Deactivate();
-		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
-		{
-			if(Wheel->AxleType==EAxleType::Rear)
-			{
-				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
-			}
-			else
-			{
-				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
-			}
-		}
-		if(bUseCrazyCamera)
-		{
-			SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, DefaultCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed);
-			CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, DefaultCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed));
-		}
-		return;
+		BoostAudioComponent->SetTriggerParameter(TEXT("StopBoost"));
 	}
-	if(bUseCrazyCamera)
+	bCanFadeOutBoost = false;
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
-		SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, BoostCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed);
-		CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, BoostCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed));
+		if(Wheel->AxleType==EAxleType::Rear)
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+		}
+		else
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+		}
 	}
-	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
-	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
-	VehicleMovementComp->SetThrottleInput(1);
-	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
+	RechargeBoost();
 }
 
 void ABaseVehiclePawn::SetBoostCost(float NewBoostCost)

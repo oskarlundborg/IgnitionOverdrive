@@ -76,20 +76,17 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 
 	UPROPERTY(EditDefaultsOnly, Category = "Physics", meta = (AllowPrivateAccess = "true"))
 	float AirborneDownforceCoefficient = 2.5f;
-
-	bool bCanBoost = true;
-
+	
 	FTimerHandle BoostCooldownTimer;
 
-	void EnableBoost()
-	{
-		bCanBoost = true;
-	}
+	void EnableBoost();
 
-	void DisableBoost()
-	{
-		bCanBoost = false;
-	}
+	void DisableBoost();
+
+	bool bBoostReleased = false;
+
+	bool bCanFadeOutBoost = true;
+
 	
 	//Struct for booster
 	UPROPERTY()
