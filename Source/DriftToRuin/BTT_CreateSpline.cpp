@@ -35,17 +35,6 @@ EBTNodeResult::Type UBTT_CreateSpline::ExecuteTask(UBehaviorTreeComponent& Owner
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 void UBTT_CreateSpline::CreateSpline()
 {
 	const FVector CurrentLocation = AIPawn->GetActorLocation();
