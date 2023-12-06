@@ -352,10 +352,12 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
+	//FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
+	FCollisionShape SweepBox = FCollisionShape::MakeBox(FVector(60.f, 90.f ,60.f));
 	
-	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepSphere, TraceParams);
+	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepBox, TraceParams);
 	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 20, FColor::Green, true);
+	//DrawDebugBox(GetWorld(), TraceEnd, SweepBox.GetExtent(), FColor::Blue, true);
 	return bHit;
 }
 
