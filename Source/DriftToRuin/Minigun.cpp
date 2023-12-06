@@ -16,6 +16,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PowerupComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 AMinigun::AMinigun()
 {
@@ -80,12 +81,14 @@ void AMinigun::Fire()
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation;
 
-	//if sats, välj mellan AI adjust eller vanlig adjust. 
+	//if sats, välj mellan AI adjust eller vanlig adjust.
 
+	bool IsAI = false;
 	if (Cast<AEnemyVehiclePawn>(GetOwner()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AI adjust projectile true"));
 		AIAdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
+		IsAI = true;
 	}
 	else
 	{
@@ -93,6 +96,11 @@ void AMinigun::Fire()
 	}
 
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	if (IsAI)
+	{
+		Projectile->GetProjectileMovementComponent()->ProjectileGravityScale = 0.0f;
+	}
+
 	ProjectileSpawned(Projectile);
 	UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashNiagaraSystem, GetWeaponMesh(), FName("MuzzleFlashSocket"),
 	                                             GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlashSocket")),
@@ -225,7 +233,6 @@ void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator&
 				EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
 				EnemyLocation += FVector(0, 0, 200);
 			}
-			
 		}
 		else
 		{
