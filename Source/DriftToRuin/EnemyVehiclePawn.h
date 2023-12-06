@@ -37,7 +37,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float SplineEndPointDistanceThreshold = 800;
 	UPROPERTY(EditAnywhere)
-	float NextPointOnSplineThreshold = 1000;
+	float NextPointOnSplineThreshold = 800;
 
 	// car driving
 	UPROPERTY(EditAnywhere)
