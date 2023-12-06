@@ -41,7 +41,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Gearbox value defaults
 	VehicleMovementComp->TransmissionSetup.bUseAutomaticGears = true;
-	VehicleMovementComp->TransmissionSetup.GearChangeTime = 0.25f;
+	VehicleMovementComp->TransmissionSetup.GearChangeTime = 0.1f;
 
 	//Creates Health Component and sets it max health value
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
@@ -212,6 +212,17 @@ void ABaseVehiclePawn::OnBoostPressed()
 	if(Booster.BoostAmount <= 0) return;
 	BoostVfxNiagaraComponent->Activate(true);
 	Booster.SetEnabled(true);
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(Wheel->AxleType==EAxleType::Rear)
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
+		}
+		else
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
+		}
+	}
 	if(bUseCrazyCamera)
 	{
 		APlayerController* PController = Cast<APlayerController>(GetController());
@@ -234,6 +245,17 @@ void ABaseVehiclePawn::OnBoosting()
 		VehicleMovementComp->SetThrottleInput(0);
 		RechargeBoost();
 		BoostVfxNiagaraComponent->Deactivate();
+		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+		{
+			if(Wheel->AxleType==EAxleType::Rear)
+			{
+				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+			}
+			else
+			{
+				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+			}
+		}
 		if(bUseCrazyCamera)
 		{
 			SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, DefaultCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed);
