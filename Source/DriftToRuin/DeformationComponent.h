@@ -1,7 +1,8 @@
-﻿/*
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+/**
  * @author Gin Lindelöw
- *		
- */
+ *	Handler for skeletal mesh deformation at runtime.
+ **/
 
 #pragma once
 
@@ -13,7 +14,6 @@ UCLASS()
 class DRIFTTORUIN_API UDeformationComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
 public:	
 	UDeformationComponent();
 	
