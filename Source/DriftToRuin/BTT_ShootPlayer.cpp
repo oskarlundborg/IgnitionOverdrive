@@ -17,12 +17,17 @@ EBTNodeResult::Type UBTT_ShootPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerC
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
+	// Access the Blackboard
+	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	ensureMsgf(BlackboardComp != nullptr, TEXT("BlackboardComp was nullptr"));
 	
 	AEnemyVehiclePawn* Enemy = Cast<AEnemyVehiclePawn>(OwnerComp.GetAIOwner()->GetPawn());
+	
 	if (Enemy)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("setting drive and shoot"));
-		Enemy->SetSwitchString("DriveAndShoot");
+		UE_LOG(LogTemp, Warning, TEXT("setting behavior"));
+		
+		Enemy->SetSwitchString(BlackboardComp->GetValueAsString("StringBehavior"));
 		return EBTNodeResult::Succeeded;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("failed to set drive and shoot"));

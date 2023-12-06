@@ -16,6 +16,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PowerupComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 AMinigun::AMinigun()
 {
@@ -80,12 +81,14 @@ void AMinigun::Fire()
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation;
 
-	//if sats, välj mellan AI adjust eller vanlig adjust. 
+	//if sats, välj mellan AI adjust eller vanlig adjust.
 
+	bool IsAI = false;
 	if (Cast<AEnemyVehiclePawn>(GetOwner()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AI adjust projectile true"));
 		AIAdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
+		IsAI = true;
 	}
 	else
 	{
@@ -93,11 +96,16 @@ void AMinigun::Fire()
 	}
 
 	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	if (IsAI)
+	{
+		Projectile->GetProjectileMovementComponent()->ProjectileGravityScale = 0.0f;
+	}
+
 	ProjectileSpawned(Projectile);
 	UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashNiagaraSystem, GetWeaponMesh(), FName("MuzzleFlashSocket"),
 	                                             GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlashSocket")),
 	                                             GetWeaponMesh()->GetSocketRotation(FName("MuzzleFlashSocket")),
-	                                             EAttachLocation::KeepWorldPosition, false);
+	                                             EAttachLocation::KeepWorldPosition, true);
 	Projectile->SetOwner(GetOwner());
 }
 
@@ -213,9 +221,18 @@ void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator&
 		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
 		if (BlackboardComp != nullptr)
 		{
-			// Now you can use BlackboardComp as needed
-			EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
-			EnemyLocation += FVector(0, 0, 200);
+			UObject* EnemyObject = BlackboardComp->GetValueAsObject("Enemy");
+			ABaseVehiclePawn* EnemyVehicle = Cast<ABaseVehiclePawn>(EnemyObject);
+			if (EnemyVehicle != nullptr)
+			{
+				EnemyLocation = EnemyVehicle->GetHomingTargetPoint()->GetComponentLocation();
+				UE_LOG(LogTemp, Warning, TEXT("Using homin target point"));
+			}
+			else
+			{
+				EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
+				EnemyLocation += FVector(0, 0, 200);
+			}
 		}
 		else
 		{

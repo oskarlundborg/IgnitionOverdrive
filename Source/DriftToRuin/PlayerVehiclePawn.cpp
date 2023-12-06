@@ -158,9 +158,10 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	VehicleMovementComp->TargetRotationControl.Enabled = true;
 	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = true;
 	VehicleMovementComp->TargetRotationControl.RotationDamping = 10.0f;
-	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 100.0f;
+	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 200.0f;
 	VehicleMovementComp->TargetRotationControl.RotationStiffness = 10.0f;
-	VehicleMovementComp->TargetRotationControl.MaxAccel = 1000.0f;
+	VehicleMovementComp->TargetRotationControl.MaxAccel = 5000.0f;
+	
 	
 	
 	
@@ -184,6 +185,7 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 		}
 	}
 	VehicleMovementComp->TargetRotationControl.Enabled = false;
+	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = false;
 }
 
 void APlayerVehiclePawn::SideSwipeLeft()
@@ -217,7 +219,7 @@ void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 	}
 	else if(bCanAirRoll && VehicleMovementComp->GetHandbrakeInput())
 	{
-		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetForwardVector() * Value.Get<float>() *-1 * AirRollSensitivity, NAME_None, true);
+		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetForwardVector() * -Value.Get<float>() * AirRollSensitivity, NAME_None, true);
 	}
 }
 

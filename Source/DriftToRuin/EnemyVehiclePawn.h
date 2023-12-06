@@ -37,7 +37,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float SplineEndPointDistanceThreshold = 800;
 	UPROPERTY(EditAnywhere)
-	float NextPointOnSplineThreshold = 1000;
+	float NextPointOnSplineThreshold = 800;
 
 	// car driving
 	UPROPERTY(EditAnywhere)
@@ -89,10 +89,13 @@ private:
 	class AHomingMissileLauncher* HomingMissileLauncher = nullptr;
 
 	bool Overheating = false;
+
+	//missile 
 	bool MinigunPulledTrigger = false;
 	bool MissileIsAvailable = false;
-	bool HasKilled = false;
 	int32 MissileChargeAmount = FMath::RandRange(1, 3);
+	
+	bool HasKilled = false;
 
 	//timer
 	bool TimerIsActive = false;
