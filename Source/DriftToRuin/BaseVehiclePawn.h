@@ -287,6 +287,9 @@ protected:
 	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraComponent* SideThrusterRNiagaraComponent;
 
+	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* ScrapLeadBeamNiagaraComponent;
+
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
 	
