@@ -267,7 +267,7 @@ void AHomingMissileLauncher::CheckTargetStatus()
 
 bool AHomingMissileLauncher::CheckTargetLineOfSight(const AController* Controller) const
 {
-	FVector OwnerEyes(GetOwner()->GetActorLocation().X, GetOwner()->GetActorLocation().Y, GetOwner()->GetActorLocation().Z + 900.f);
+	FVector OwnerEyes(GetOwner()->GetActorLocation().X, GetOwner()->GetActorLocation().Y, GetOwner()->GetActorLocation().Z + 1000.f);
 	return Controller->LineOfSightTo(CurrentTarget, OwnerEyes);
 }
 
@@ -364,7 +364,7 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
 	CheckCanLockOn();
-	//if(GetOwner() && CurrentTarget) UE_LOG(LogTemp, Warning, TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget));
+	//if(GetOwner() && CurrentTarget) GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget)));
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCooldownTime());
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }
