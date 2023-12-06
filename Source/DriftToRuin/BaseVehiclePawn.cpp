@@ -175,6 +175,19 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
 	MeshDeformer = CreateDefaultSubobject<UDeformationComponent>(TEXT("Mesh Deformer"));
 	MeshDeformer->AddMesh(GetMesh());
+	MeshDeformer->AddMesh(SideThrusterL);
+	MeshDeformer->AddMesh(SideThrusterR);
+	MeshDeformer->AddMesh(ExhaustL);
+	MeshDeformer->AddMesh(ExhaustR);
+	MeshDeformer->AddMesh(SpikeL);
+	MeshDeformer->AddMesh(SpikeR);
+	MeshDeformer->AddMesh(HudCapBR);
+	MeshDeformer->AddMesh(HudCapFR);
+	MeshDeformer->AddMesh(HudCapBL);
+	MeshDeformer->AddMesh(HudCapFL);
+	MeshDeformer->AddMesh(FuelTank);
+	MeshDeformer->AddMesh(Plow);
+	MeshDeformer->AddMesh(Windshield);
 	MeshDeformer->BoneIgnoreFilter = {
 		TEXT("FL_WheelRotator"),
 		TEXT("FL_SwayBar"),
@@ -188,6 +201,11 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 		TEXT("BR_WheelRotator"),
 		TEXT("BR_SwayBar"),
 		TEXT("BR_End"),
+		TEXT("Root_Thruster"),
+		TEXT("BL_ThrusterHatchet"),
+		TEXT("BR_ThrusterHatchet"),
+		TEXT("TL_ThrusterHatchet"),
+		TEXT("TR_ThrusterHatchet"),
 	};
 }
 
@@ -682,7 +700,7 @@ USceneComponent* ABaseVehiclePawn::GetHomingTargetPoint() const
 
 void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if( OtherActor == this || OverlappedComp != BumperCollision ) { return; }
+	if (OtherActor == this || OverlappedComp != BumperCollision /* || (LastHitLocation - SweepResult.Location).Length() <= HitDistanceMinimum */) { return; }
 	ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor);
 	if(OtherVehicle && !OtherVehicle->GetIsDead())
 	{
