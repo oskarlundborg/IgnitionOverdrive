@@ -10,6 +10,9 @@
 *
 * @author Hugo Westgren
 *	Responsible for code regarding gamestate systems (pickups & scrap)
+*	
+* @author Gin Lindelöw
+*	Bumper and deformation functionality.
 **/
 
 #pragma once
