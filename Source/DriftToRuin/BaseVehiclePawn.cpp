@@ -52,6 +52,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Creates Audio Component for Engine or something...
 	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
+
+	//Creates Audio component for CRAZY EXPLOSIVE BOOSTS or something...
+	BoostAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("BoostAudioSource"));
 	
 	//Creates Audio Component for CRASHING or something...
 	CrashAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("CrashAudioSource"));
@@ -231,31 +234,40 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 
 void ABaseVehiclePawn::OnBoostPressed()
 {
-	if(Booster.BoostAmount <= 0) return;
-	BoostVfxNiagaraComponent->Activate(true);
-	Booster.SetEnabled(true);
-	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	if(bCanBoost)
 	{
-		if(Wheel->AxleType==EAxleType::Rear)
+		if(Booster.BoostAmount <= 0) return;
+		BoostVfxNiagaraComponent->Activate(true);
+		Booster.SetEnabled(true);
+		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
+			if(Wheel->AxleType==EAxleType::Rear)
+			{
+				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
+			}
+			else
+			{
+				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
+			}
 		}
-		else
+		if(bUseCrazyCamera)
 		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
+			APlayerController* PController = Cast<APlayerController>(GetController());
+			if(BoostCameraShake != nullptr) PController->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
 		}
+		OnBoosting();
 	}
-	if(bUseCrazyCamera)
+	else
 	{
-		APlayerController* PController = Cast<APlayerController>(GetController());
-		if(BoostCameraShake != nullptr) PController->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
+		//GetWorld()->GetTimerManager().SetTimer(BoostCooldownTimer, this, &ABaseVehiclePawn::EnableBoost, 0.7f, false);
 	}
-	OnBoosting();
+	
 }
 
 void ABaseVehiclePawn::OnBoostReleased()
 {
 	Booster.SetEnabled(false);
+	//DisableBoost();
 }
 
 void ABaseVehiclePawn::OnBoosting()
@@ -441,6 +453,13 @@ void ABaseVehiclePawn::InitAudio()
 		CrashAudioComponent->SetVolumeMultiplier(1);
 		CrashAudioComponent->SetActive(bPlayCrashSound);
 		CrashAudioComponent->Stop();
+	}
+	if(BoostAudioComponent)
+	{
+		BoostAudioComponent->SetSound(BoostAudioSound);
+		BoostAudioComponent->SetVolumeMultiplier(1);
+		BoostAudioComponent->SetActive(bPlayEngineSound);
+		BoostAudioComponent->Stop();
 	}
 }
 

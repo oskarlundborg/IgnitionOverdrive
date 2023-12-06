@@ -76,6 +76,20 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 
 	UPROPERTY(EditDefaultsOnly, Category = "Physics", meta = (AllowPrivateAccess = "true"))
 	float AirborneDownforceCoefficient = 2.5f;
+
+	bool bCanBoost = true;
+
+	FTimerHandle BoostCooldownTimer;
+
+	void EnableBoost()
+	{
+		bCanBoost = true;
+	}
+
+	void DisableBoost()
+	{
+		bCanBoost = false;
+	}
 	
 	//Struct for booster
 	UPROPERTY()
@@ -253,6 +267,9 @@ protected:
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* BoostAudioComponent;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* CrashAudioComponent;
@@ -295,6 +312,9 @@ protected:
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* BoostAudioSound;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* CrashAudioSound;
