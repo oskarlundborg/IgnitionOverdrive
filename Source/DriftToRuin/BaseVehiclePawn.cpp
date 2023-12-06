@@ -52,6 +52,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Creates Audio Component for Engine or something...
 	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
+
+	//Creates Audio component for CRAZY EXPLOSIVE BOOSTS or something...
+	BoostAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("BoostAudioSource"));
 	
 	//Creates Audio Component for CRASHING or something...
 	CrashAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("CrashAudioSource"));
@@ -232,52 +235,29 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 void ABaseVehiclePawn::OnBoostPressed()
 {
 	if(Booster.BoostAmount <= 0) return;
-	BoostVfxNiagaraComponent->Activate(true);
-	Booster.SetEnabled(true);
-	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
-	{
-		if(Wheel->AxleType==EAxleType::Rear)
-		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
-		}
-		else
-		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
-		}
-	}
-	if(bUseCrazyCamera)
-	{
-		APlayerController* PController = Cast<APlayerController>(GetController());
-		if(BoostCameraShake != nullptr) PController->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
-	}
-	OnBoosting();
+	BoostAudioComponent->Play();
+	bCanFadeOutBoost = true;
+	bBoostReleased = false;
+	GetWorld()->GetTimerManager().SetTimer(BoostCooldownTimer, this, &ABaseVehiclePawn::EnableBoost, 0.7f, false);
+	
+	
 }
 
 void ABaseVehiclePawn::OnBoostReleased()
 {
-	Booster.SetEnabled(false);
+	bBoostReleased = true;
+	DisableBoost();
 }
 
 void ABaseVehiclePawn::OnBoosting()
 {
-	if(!Booster.bEnabled || Booster.BoostAmount <= 0)
+	if(Booster.bEnabled && Booster.BoostAmount <= 0)
 	{
-		Booster.bEnabled = false;
-		VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
-		VehicleMovementComp->SetThrottleInput(0);
-		RechargeBoost();
-		BoostVfxNiagaraComponent->Deactivate();
-		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
-		{
-			if(Wheel->AxleType==EAxleType::Rear)
-			{
-				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
-			}
-			else
-			{
-				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
-			}
-		}
+		DisableBoost();
+		return;
+	}
+	if(!Booster.bEnabled)
+	{
 		if(bUseCrazyCamera)
 		{
 			SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, DefaultCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed);
@@ -295,6 +275,58 @@ void ABaseVehiclePawn::OnBoosting()
 	VehicleMovementComp->SetThrottleInput(1);
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
 	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
+}
+
+void ABaseVehiclePawn::EnableBoost()
+{
+	if(!bBoostReleased)
+	{
+		Booster.SetEnabled(true);
+		BoostVfxNiagaraComponent->Activate(true);
+		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+		{
+			if(Wheel->AxleType==EAxleType::Rear)
+			{
+				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
+			}
+			else
+			{
+				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
+			}
+		}
+		if(bUseCrazyCamera)
+		{
+			APlayerController* PController = Cast<APlayerController>(GetController());
+			if(BoostCameraShake != nullptr) PController->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
+		}
+		OnBoosting();
+	}
+	
+}
+
+void ABaseVehiclePawn::DisableBoost()
+{
+	Booster.SetEnabled(false);
+	VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
+	VehicleMovementComp->SetThrottleInput(0);
+	BoostVfxNiagaraComponent->Deactivate();
+	if(bCanFadeOutBoost)
+	{
+		BoostAudioComponent->SetTriggerParameter(TEXT("StopBoost"));
+	}
+	bCanFadeOutBoost = false;
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(Wheel->AxleType==EAxleType::Rear)
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+		}
+		else
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+		}
+	}
+	RechargeBoost();
 }
 
 void ABaseVehiclePawn::SetBoostCost(float NewBoostCost)
@@ -441,6 +473,13 @@ void ABaseVehiclePawn::InitAudio()
 		CrashAudioComponent->SetVolumeMultiplier(1);
 		CrashAudioComponent->SetActive(bPlayCrashSound);
 		CrashAudioComponent->Stop();
+	}
+	if(BoostAudioComponent)
+	{
+		BoostAudioComponent->SetSound(BoostAudioSound);
+		BoostAudioComponent->SetVolumeMultiplier(1);
+		BoostAudioComponent->SetActive(bPlayEngineSound);
+		BoostAudioComponent->Stop();
 	}
 }
 
