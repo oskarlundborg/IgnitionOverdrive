@@ -12,14 +12,15 @@
 *	Responsible for code regarding gamestate systems (pickups & scrap)
 **/
 
-
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DeformationComponent.h"
 #include "NiagaraComponent.h"
 #include "WheeledVehiclePawn.h"
 #include "Components/CapsuleComponent.h"
 #include "BaseVehiclePawn.generated.h"
+
 /*Maybe should be moved to player and AI classes, should work for first playable for now*/
 class APlayerTurret;
 class AHomingMissileLauncher;
@@ -215,9 +216,6 @@ public:
 protected:
 	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
 	class UChaosWheeledVehicleMovementComponent* VehicleMovementComp;
-
-	UPROPERTY(Category=Components, EditDefaultsOnly, BlueprintReadOnly)
-	class UStaticMeshComponent* ShieldMesh;
 	
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;
@@ -255,6 +253,9 @@ protected:
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* CrashAudioComponent;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* ScrapLevelAudioComponent;
 
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraComponent* BoostVfxNiagaraComponent;
@@ -297,6 +298,43 @@ protected:
 
 	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* SideThrusterR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class UStaticMeshComponent* ShieldMesh;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* ExhaustL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* ExhaustR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* SpikeL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* SpikeR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* HudCapBR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* HudCapFR;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* HudCapBL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* HudCapFL;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* FuelTank;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* Plow;
+
+	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
+	class USkeletalMeshComponent* Windshield;
+
 	
 	/*UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
@@ -328,6 +366,8 @@ protected:
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+	void Hide(UPrimitiveComponent* Component, bool bHide);
 	
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -345,7 +385,7 @@ protected:
 
 	// ___
 	// Front Bumper
-	UPROPERTY(EditDefaultsOnly, Category="Bumper")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Bumper")
 	UCapsuleComponent* BumperCollision;
 
 	UPROPERTY(EditDefaultsOnly, Category="Bumper", meta=(AllowPrivateAccess=true))
@@ -353,4 +393,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Bumper", meta=(AllowPrivateAccess=true))
 	float MaxBumperDamage = 50.f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Deformer", meta=(AllowPrivateAccess=true))
+	UDeformationComponent* MeshDeformer;
+	
+	UPROPERTY(VisibleAnywhere)
+	FVector LastHitLocation;
+	
+	UPROPERTY(EditAnywhere)
+	double HitDistanceMinimum = 100.f;
 };

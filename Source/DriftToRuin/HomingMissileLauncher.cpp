@@ -322,7 +322,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
     bool bHit = PerformTargetLockSweep(HitResult);
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
 	
-	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead() && !bIsOnCooldown)
+	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead() && !bIsOnCooldown && !bIsCharging)
 	{
 		bCanLockOn = true;
 		//UE_LOG(LogTemp, Warning, TEXT("Can LOCK"));

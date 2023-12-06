@@ -97,7 +97,7 @@ void AMinigun::Fire()
 	UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashNiagaraSystem, GetWeaponMesh(), FName("MuzzleFlashSocket"),
 	                                             GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlashSocket")),
 	                                             GetWeaponMesh()->GetSocketRotation(FName("MuzzleFlashSocket")),
-	                                             EAttachLocation::KeepWorldPosition, false);
+	                                             EAttachLocation::KeepWorldPosition, true);
 	Projectile->SetOwner(GetOwner());
 }
 
