@@ -170,8 +170,8 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	Windshield->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WindshieldSocket"));
 	Hide(Windshield, true);
 
-	ScrapLeadBeamNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapFirst"));
-	ScrapLeadBeamNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
+	ScrapStartNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapFirst"));
+	ScrapStartNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
 
 	ScrapExplosionNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapMid"));
 	ScrapExplosionNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));

@@ -310,6 +310,9 @@ protected:
 	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraComponent* ScrapLeadBeamNiagaraComponent;
 
+	UPROPERTY(Category = VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* ScrapStartNiagaraComponent;
+
 	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraComponent* ScrapIntroNiagaraComponent;
 
