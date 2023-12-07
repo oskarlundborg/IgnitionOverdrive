@@ -275,9 +275,9 @@ void UDeformationComponent::SetupInfluences()
 		// TODO: Figure out how to use UMirrorDataTable for this as that is the new way.
 		//MirrorDataTable->EmptyTable();
 		//MirrorDataTable->MirrorAxis = EAxis::Type::None;
-		TargetSkeletalMesh->SkelMirrorTable.Empty();
-		TargetSkeletalMesh->SkelMirrorAxis = EAxis::Type::None;
-		TargetSkeletalMesh->SkelMirrorFlipAxis = EAxis::Type::None;
+		//TargetSkeletalMesh->SkelMirrorTable.Empty();
+		//TargetSkeletalMesh->SkelMirrorAxis = EAxis::Type::None;
+		//TargetSkeletalMesh->SkelMirrorFlipAxis = EAxis::Type::None;
 		TargetSkeletalMesh->GetRefBasesInvMatrix().Empty();
 		TargetSkeletalMesh->CalculateInvRefMatrices();
 		
