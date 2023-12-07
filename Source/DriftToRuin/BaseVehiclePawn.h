@@ -145,6 +145,9 @@ public:
 	UFUNCTION()
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void HitScrapLevelThree(bool bHitScrapLevelThree);
+
 	void OnBoostPressed();
 	void OnBoostReleased();
 	void OnBoosting();
@@ -306,6 +309,12 @@ protected:
 
 	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraComponent* ScrapLeadBeamNiagaraComponent;
+
+	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* ScrapIntroNiagaraComponent;
+
+	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* ScrapExplosionNiagaraComponent;
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
