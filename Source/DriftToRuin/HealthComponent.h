@@ -85,5 +85,7 @@ private:
 
 	UPROPERTY(Category=Health, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float RegenPerSecond = 20;
+
+	FTimerHandle RegenerateHandle;
 		
 };
