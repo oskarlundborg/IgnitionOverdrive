@@ -170,8 +170,14 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	Windshield->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WindshieldSocket"));
 	Hide(Windshield, true);
 
-	ScrapLeadBeamNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_LeadScrap"));
+	ScrapLeadBeamNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapFirst"));
 	ScrapLeadBeamNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
+
+	ScrapExplosionNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapMid"));
+	ScrapExplosionNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
+
+	ScrapIntroNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapLast"));
+	ScrapIntroNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
 	
 
 
@@ -613,7 +619,8 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	bHitLevelTwo = false;
 	bHitLevelThree = false;
 	ScrapAmount = 0;
-	ScrapLeadBeamNiagaraComponent->Deactivate();
+	HitScrapLevelThree(false);
+	
 
 	Hide(SpikeL, true);
 	Hide(SpikeR, true);
@@ -724,7 +731,7 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		HealthComponent->SetHealth(HealthComponent->GetHealth() + 25);
 		bHitLevelThree = true;
 		ScrapLevelAudioComponent->Play();
-		ScrapLeadBeamNiagaraComponent->Activate();
+		HitScrapLevelThree(true);
 
 		Hide(Plow, false);
 		Hide(Windshield, false);
