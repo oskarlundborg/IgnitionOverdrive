@@ -44,10 +44,10 @@ void AHomingMissileLauncher::BeginPlay()
 void AHomingMissileLauncher::InitializeOwnerVariables()
 {
 	CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-	if(CarOwner == nullptr) return;
+	/*if(CarOwner == nullptr) return;
 	OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
-	OwnerPlayerController = Cast<APlayerController>(OwnerController);
+	OwnerPlayerController = Cast<APlayerController>(OwnerController);*/
 }
 
 void AHomingMissileLauncher::PullTrigger()
@@ -250,7 +250,9 @@ void AHomingMissileLauncher::CheckTargetStatus()
 {
 	if(!CurrentTarget) return;
 	if(CarOwner == nullptr) return;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
+	APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
 	if(OwnerPlayerController == nullptr) return;
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
@@ -300,6 +302,7 @@ bool AHomingMissileLauncher::CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) c
 void AHomingMissileLauncher::FindTarget()
 {
 	if(CarOwner == nullptr) return;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
@@ -316,6 +319,7 @@ void AHomingMissileLauncher::FindTarget()
 void AHomingMissileLauncher::CheckCanLockOn()
 {
 	if(CarOwner == nullptr) return;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
@@ -336,6 +340,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
 	if(CarOwner == nullptr) return false;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return false;
 	
 	FVector CameraLocation;

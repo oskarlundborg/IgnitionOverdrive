@@ -68,8 +68,8 @@ bool AMinigun::GetIsOverheated()
 void AMinigun::InitializeOwnerVariables()
 {
 	CarOwner = Cast<APlayerVehiclePawn>(GetOwner());
-	if (CarOwner == nullptr) return;
-	OwnerController = CarOwner->GetController();
+	//if (CarOwner == nullptr) return;
+	//OwnerController = CarOwner->GetController();
 }
 
 /*Handles firing logic, meaning spawning projectiles*/
@@ -120,11 +120,12 @@ void AMinigun::OnPullTrigger()
 /*Builds up overheat while the weapon is firing*/
 void AMinigun::BuildUpOverheat()
 {
-	float OverheatAccumulation = OverheatValue + OverheatBuildUpRate;
+	float OverheatAccumulation = OverheatValue + (OverheatBuildUpRate * GetWorld()->DeltaTimeSeconds);
 	OverheatValue = FMath::Clamp(OverheatAccumulation, 0.f, OverheatMax);
 	if (OverheatValue == OverheatMax)
 	{
 		bIsOverheated = true;
+		MinigunFullOverheat();
 		ReleaseTrigger();
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::OverheatCooldown, OverheatCooldownDuration,
@@ -136,7 +137,7 @@ void AMinigun::BuildUpOverheat()
 void AMinigun::CoolDownWeapon()
 {
 	if (bIsFiring || bIsOverheated) return;
-	float OverheatCoolDown = OverheatValue - OverheatCoolDownRate;
+	float OverheatCoolDown = OverheatValue - (OverheatCoolDownRate * GetWorld()->DeltaTimeSeconds);
 	OverheatValue = FMath::Clamp(OverheatCoolDown, 0.f, OverheatMax);
 }
 
@@ -166,12 +167,13 @@ void AMinigun::UpdateOverheat()
 void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
 {
 	if (CarOwner == nullptr) return;
-	if (OwnerController == nullptr) return;
+	//if (OwnerController == nullptr) return;
+	AController* Bajs = Cast<AController>(CarOwner->GetController());
 
 	FVector CameraLocation;
 	FRotator CameraRotation;
 
-	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
+	Bajs->GetPlayerViewPoint(CameraLocation, CameraRotation);
 	FVector OffsetVector = CarOwner->GetTurret()->GetActorLocation() - CameraLocation;
 	float OffsetLenght = OffsetVector.Length();
 	FVector TraceStart = CameraLocation + (CameraRotation.Vector() * OffsetLenght);

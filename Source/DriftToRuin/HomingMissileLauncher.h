@@ -61,10 +61,10 @@ public:
 private:
 	UPROPERTY()
 	const ABaseVehiclePawn* CarOwner;
-	UPROPERTY()
+	/*UPROPERTY()
 	const AController* OwnerController;
 	UPROPERTY()
-	const APlayerController* OwnerPlayerController;
+	const APlayerController* OwnerPlayerController;*/
 	
 	FTimerHandle ChargeHandle;
 	FTimerHandle FireTimer;
