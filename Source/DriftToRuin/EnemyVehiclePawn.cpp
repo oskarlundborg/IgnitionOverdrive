@@ -332,9 +332,7 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 		return;
 	//get a spline point along the spline
 	//only gets the point if you are at the start point of the spline. Very few Work cases
-
-	float TargetSplineDistance = 0.0f;
-
+	
 	if (!HasNewSplineBeenSetup && MySpline)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("setting spline direction"));
@@ -356,8 +354,8 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 
 		float ClosestInputKey = MySpline->FindInputKeyClosestToWorldLocation(GetActorLocation());
 		TargetSplineDistance = MySpline->GetDistanceAlongSplineAtSplineInputKey(ClosestInputKey);
-		//UE_LOG(LogTemp, Warning, TEXT("closest input key %f"), ClosestInputKey);
-		//	UE_LOG(LogTemp, Warning, TEXT("target spline distance at input key %f"), ClosestInputKey);
+		UE_LOG(LogTemp, Warning, TEXT("closest input key %f"), ClosestInputKey);
+		UE_LOG(LogTemp, Warning, TEXT("target spline distance at input key %f"), TargetSplineDistance);
 	}
 
 
@@ -408,33 +406,11 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 	float SteeringValue = FMath::Clamp(DeltaYaw, -1.0, 1.0);
 
 
-	//check which sensor is closer to point
+	/*//check which sensor is closer to point
 	SensorGapDifference = FVector::Dist(LeftSensor->GetComponentLocation(), SplineLocationPoint) - FVector::Dist(
 		RightSensor->GetComponentLocation(), SplineLocationPoint);
-	SensorGapDifference = FMath::Abs(SensorGapDifference);
-
-
-	//steering
-	//float TempSteeringInput = SteeringValue;
-
-	/*if (SensorGapDifference < 10)
-	{
-		SteeringInput = 0;
-	}*/
-	/*else if (FVector::Dist(LeftSensor->GetComponentLocation(), SplineLocationPoint) > FVector::Dist(
-		RightSensor->GetComponentLocation(), SplineLocationPoint))
-	{
-		SteeringInput = 0.6;
-	}
-	else
-	{
-		SteeringInput = -0.6;
-	}*/
-	//lerp the steering input for smoother turn
-	// find out waht delta time * 40 does
-	//const float LerpValue = FMath::Lerp(TempSteeringInput, SteeringInput, GetWorld()->DeltaTimeSeconds * 40);
-	//lerp for smoother turning curve
-	//TempSteeringInput = LerpValue;
+	SensorGapDifference = FMath::Abs(SensorGapDifference);*/
+	
 	AIVehicleMovementComp->SetSteeringInput(SteeringValue);
 }
 
@@ -458,6 +434,7 @@ void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
 		AIVehicleMovementComp->SetSteeringInput(0);
 		BlackboardComp->SetValueAsBool("AtRoadEnd", true);
 		HasNewSplineBeenSetup = false;
+		TargetSplineDistance = 0.0f;
 	}
 }
 

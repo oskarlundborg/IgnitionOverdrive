@@ -75,7 +75,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
 	float SplineEndPointDistanceThreshold = 800;
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float NextPointOnSplineThreshold = 1000;
+	float NextPointOnSplineThreshold = 500;
 
 	// car driving
 	UPROPERTY()
@@ -95,6 +95,8 @@ private:
 	//spline values
 	UPROPERTY()
 	FVector SplineLocationPoint;
+	UPROPERTY()
+	float TargetSplineDistance;
 
 	//FVector SplineTangent;
 
