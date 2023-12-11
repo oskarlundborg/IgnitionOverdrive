@@ -32,8 +32,8 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Steering value defaults
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->Reset();
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(0.0f, 1.0f);
-	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(40.0f, 0.7f);
-	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(120.0f, 0.6f);
+	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(80.0f, 0.7f);
+	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(160.0f, 0.6f);
 
 	//Differential value defaults
 	VehicleMovementComp->DifferentialSetup.DifferentialType = EVehicleDifferential::AllWheelDrive;
@@ -329,12 +329,12 @@ void ABaseVehiclePawn::DisableBoost()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 5.0f);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 6.0f);
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 		else
 		{
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 4.6f);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 5.6f);
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 	}
