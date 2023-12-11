@@ -20,7 +20,11 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp = CastChecked<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
 
 	//Engine value defaults
-	VehicleMovementComp->EngineSetup.MaxTorque = 800.f;
+	VehicleMovementComp->EngineSetup.MaxTorque = 1000.f;
+	VehicleMovementComp->EngineSetup.MaxRPM = 9000.0f;
+	VehicleMovementComp->EngineSetup.EngineBrakeEffect = 0.05f;
+	VehicleMovementComp->EngineSetup.EngineRevUpMOI = 5000.0f;
+	VehicleMovementComp->EngineSetup.EngineRevDownRate = 2000.0f;
 	VehicleMovementComp->EngineSetup.EngineIdleRPM = 1500.f;
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->Reset();
 	VehicleMovementComp->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(0.0f, 550.0f);
@@ -34,6 +38,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(0.0f, 1.0f);
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(80.0f, 0.7f);
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(160.0f, 0.6f);
+	VehicleMovementComp->SteeringSetup.AngleRatio = 1.0f;
 
 	//Differential value defaults
 	VehicleMovementComp->DifferentialSetup.DifferentialType = EVehicleDifferential::AllWheelDrive;
@@ -42,6 +47,33 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Gearbox value defaults
 	VehicleMovementComp->TransmissionSetup.bUseAutomaticGears = true;
 	VehicleMovementComp->TransmissionSetup.GearChangeTime = 0.1f;
+	VehicleMovementComp->TransmissionSetup.FinalRatio = 4.0f;
+	VehicleMovementComp->TransmissionSetup.ForwardGearRatios[0] = 7.5f;
+	VehicleMovementComp->TransmissionSetup.ForwardGearRatios[1] = 4.5f;
+	VehicleMovementComp->TransmissionSetup.ForwardGearRatios[2] = 3.4f;
+	VehicleMovementComp->TransmissionSetup.ForwardGearRatios[3] = 2.6f;
+	VehicleMovementComp->TransmissionSetup.ForwardGearRatios[4] = 2.3f;
+	VehicleMovementComp->TransmissionSetup.ForwardGearRatios[5] = 2.02f;
+	VehicleMovementComp->TransmissionSetup.ForwardGearRatios[6] = 1.97f;
+	VehicleMovementComp->TransmissionSetup.ReverseGearRatios[0] = 7.0f;
+	VehicleMovementComp->TransmissionSetup.ReverseGearRatios[1] = 5.0f;
+	VehicleMovementComp->TransmissionSetup.ChangeUpRPM = 8000.0f;
+	VehicleMovementComp->TransmissionSetup.ChangeDownRPM = 5000.0f;
+	VehicleMovementComp->TransmissionSetup.TransmissionEfficiency = 0.94f;
+
+	//Vehicle setup
+	VehicleMovementComp->Mass = 2500.0f;
+	VehicleMovementComp->bEnableCenterOfMassOverride = true;
+	VehicleMovementComp->CenterOfMassOverride = FVector(0, 0, -35.0f);
+	VehicleMovementComp->ChassisWidth = 246.0f;
+	VehicleMovementComp->ChassisHeight = 254.0f;
+	VehicleMovementComp->DragCoefficient = 0.5f;
+	VehicleMovementComp->DownforceCoefficient = 2.0f;
+
+	//WINGS?
+	VehicleMovementComp->TorqueControl.Enabled = true;
+	VehicleMovementComp->TorqueControl.YawTorqueScaling = 400.0f;
+	VehicleMovementComp->TorqueControl.YawFromRollTorqueScaling = 50.0f;
 
 	//Creates Health Component and sets it max health value
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
@@ -289,7 +321,7 @@ void ABaseVehiclePawn::EnableBoost()
 		Booster.SetEnabled(true);
 		BoostVfxNiagaraComponent->Activate(true);
 		VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
-		VehicleMovementComp->SetDownforceCoefficient(2);
+		VehicleMovementComp->SetDownforceCoefficient(4);
 		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 		{
 			if(Wheel->AxleType==EAxleType::Rear)
@@ -317,7 +349,7 @@ void ABaseVehiclePawn::DisableBoost()
 {
 	Booster.SetEnabled(false);
 	VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
-	VehicleMovementComp->SetDownforceCoefficient(1);
+	VehicleMovementComp->SetDownforceCoefficient(2);
 	VehicleMovementComp->SetThrottleInput(0);
 	BoostVfxNiagaraComponent->Deactivate();
 	if(bCanFadeOutBoost)
