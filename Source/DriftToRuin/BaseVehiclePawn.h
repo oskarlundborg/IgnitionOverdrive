@@ -10,6 +10,9 @@
 *
 * @author Hugo Westgren
 *	Responsible for code regarding gamestate systems (pickups & scrap)
+*	
+* @author Gin Lindelöw
+*	Bumper and deformation functionality.
 **/
 
 #pragma once
@@ -74,6 +77,17 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(EditDefaultsOnly, Category = "Physics", meta = (AllowPrivateAccess = "true"))
 	float AirborneDownforceCoefficient = 2.5f;
 	
+	FTimerHandle BoostCooldownTimer;
+
+	void EnableBoost();
+
+	void DisableBoost();
+
+	bool bBoostReleased = false;
+
+	bool bCanFadeOutBoost = true;
+
+	
 	//Struct for booster
 	UPROPERTY()
 	FBooster Booster;
@@ -130,6 +144,9 @@ public:
 
 	UFUNCTION()
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HitScrapLevelThree(bool bHitScrapLevelThree);
 
 	void OnBoostPressed();
 	void OnBoostReleased();
@@ -250,6 +267,9 @@ protected:
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* EngineAudioComponent;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* BoostAudioComponent;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* CrashAudioComponent;
@@ -287,8 +307,23 @@ protected:
 	UPROPERTY(Category=VFX, EditDefaultsOnly, BlueprintReadOnly)
 	UNiagaraComponent* SideThrusterRNiagaraComponent;
 
+	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* ScrapLeadBeamNiagaraComponent;
+
+	UPROPERTY(Category = VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* ScrapStartNiagaraComponent;
+
+	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* ScrapIntroNiagaraComponent;
+
+	UPROPERTY(Category =VFX, EditDefaultsOnly, BlueprintReadOnly)
+	UNiagaraComponent* ScrapExplosionNiagaraComponent;
+
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* EngineAudioSound;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* BoostAudioSound;
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* CrashAudioSound;

@@ -21,6 +21,10 @@ public:
 
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void MinigunFullOverheat();
+	UFUNCTION(BlueprintCallable)
 	bool GetIsOverheated();
 
 	void InitializeOwnerVariables();
@@ -55,8 +59,8 @@ public:
 private:
 	UPROPERTY()
 	const APlayerVehiclePawn* CarOwner;
-	UPROPERTY()
-	const AController* OwnerController;
+	//UPROPERTY()
+	//const AController* OwnerController;
 	
 	FTimerHandle FireRateTimer;
 

@@ -52,6 +52,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Creates Audio Component for Engine or something...
 	EngineAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineAudioSource"));
+
+	//Creates Audio component for CRAZY EXPLOSIVE BOOSTS or something...
+	BoostAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("BoostAudioSource"));
 	
 	//Creates Audio Component for CRASHING or something...
 	CrashAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("CrashAudioSource"));
@@ -167,10 +170,33 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	Windshield->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WindshieldSocket"));
 	Hide(Windshield, true);
 
+	ScrapStartNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapFirst"));
+	ScrapStartNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
+
+	ScrapExplosionNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapMid"));
+	ScrapExplosionNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
+
+	ScrapIntroNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapLast"));
+	ScrapIntroNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
+	
+
 
 	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
 	MeshDeformer = CreateDefaultSubobject<UDeformationComponent>(TEXT("Mesh Deformer"));
 	MeshDeformer->AddMesh(GetMesh());
+	MeshDeformer->AddMesh(SideThrusterL);
+	MeshDeformer->AddMesh(SideThrusterR);
+	MeshDeformer->AddMesh(ExhaustL);
+	MeshDeformer->AddMesh(ExhaustR);
+	MeshDeformer->AddMesh(SpikeL);
+	MeshDeformer->AddMesh(SpikeR);
+	MeshDeformer->AddMesh(HudCapBR);
+	MeshDeformer->AddMesh(HudCapFR);
+	MeshDeformer->AddMesh(HudCapBL);
+	MeshDeformer->AddMesh(HudCapFL);
+	MeshDeformer->AddMesh(FuelTank);
+	MeshDeformer->AddMesh(Plow);
+	MeshDeformer->AddMesh(Windshield);
 	MeshDeformer->BoneIgnoreFilter = {
 		TEXT("FL_WheelRotator"),
 		TEXT("FL_SwayBar"),
@@ -184,6 +210,11 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 		TEXT("BR_WheelRotator"),
 		TEXT("BR_SwayBar"),
 		TEXT("BR_End"),
+		TEXT("Root_Thruster"),
+		TEXT("BL_ThrusterHatchet"),
+		TEXT("BR_ThrusterHatchet"),
+		TEXT("TL_ThrusterHatchet"),
+		TEXT("TR_ThrusterHatchet"),
 	};
 }
 
@@ -210,52 +241,29 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 void ABaseVehiclePawn::OnBoostPressed()
 {
 	if(Booster.BoostAmount <= 0) return;
-	BoostVfxNiagaraComponent->Activate(true);
-	Booster.SetEnabled(true);
-	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
-	{
-		if(Wheel->AxleType==EAxleType::Rear)
-		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
-		}
-		else
-		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
-		}
-	}
-	if(bUseCrazyCamera)
-	{
-		APlayerController* PController = Cast<APlayerController>(GetController());
-		if(BoostCameraShake != nullptr) PController->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
-	}
-	OnBoosting();
+	BoostAudioComponent->Play();
+	bCanFadeOutBoost = true;
+	bBoostReleased = false;
+	GetWorld()->GetTimerManager().SetTimer(BoostCooldownTimer, this, &ABaseVehiclePawn::EnableBoost, 0.7f, false);
+	
+	
 }
 
 void ABaseVehiclePawn::OnBoostReleased()
 {
-	Booster.SetEnabled(false);
+	bBoostReleased = true;
+	DisableBoost();
 }
 
 void ABaseVehiclePawn::OnBoosting()
 {
-	if(!Booster.bEnabled || Booster.BoostAmount <= 0)
+	if(Booster.bEnabled && Booster.BoostAmount <= 0)
 	{
-		Booster.bEnabled = false;
-		VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
-		VehicleMovementComp->SetThrottleInput(0);
-		RechargeBoost();
-		BoostVfxNiagaraComponent->Deactivate();
-		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
-		{
-			if(Wheel->AxleType==EAxleType::Rear)
-			{
-				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
-			}
-			else
-			{
-				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
-			}
-		}
+		DisableBoost();
+		return;
+	}
+	if(!Booster.bEnabled)
+	{
 		if(bUseCrazyCamera)
 		{
 			SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, DefaultCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed);
@@ -271,8 +279,60 @@ void ABaseVehiclePawn::OnBoosting()
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
 	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
 	VehicleMovementComp->SetThrottleInput(1);
-	SetBoostAmount(FMath::Clamp(Booster.BoostAmount-BoostCost, 0.f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate, true);
+	SetBoostAmount(FMath::Clamp(Booster.BoostAmount - BoostCost * GetWorld()->DeltaTimeSeconds, 0.f, Booster.MaxBoostAmount));
+	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate * GetWorld()->DeltaTimeSeconds, true);
+}
+
+void ABaseVehiclePawn::EnableBoost()
+{
+	if(!bBoostReleased)
+	{
+		Booster.SetEnabled(true);
+		BoostVfxNiagaraComponent->Activate(true);
+		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+		{
+			if(Wheel->AxleType==EAxleType::Rear)
+			{
+				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
+			}
+			else
+			{
+				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
+			}
+		}
+		if(bUseCrazyCamera)
+		{
+			APlayerController* PController = Cast<APlayerController>(GetController());
+			if(BoostCameraShake != nullptr) PController->PlayerCameraManager->StartCameraShake(BoostCameraShake, 1);
+		}
+		OnBoosting();
+	}
+	
+}
+
+void ABaseVehiclePawn::DisableBoost()
+{
+	Booster.SetEnabled(false);
+	VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
+	VehicleMovementComp->SetThrottleInput(0);
+	BoostVfxNiagaraComponent->Deactivate();
+	if(bCanFadeOutBoost)
+	{
+		BoostAudioComponent->SetTriggerParameter(TEXT("StopBoost"));
+	}
+	bCanFadeOutBoost = false;
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(Wheel->AxleType==EAxleType::Rear)
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+		}
+		else
+		{
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
+		}
+	}
+	RechargeBoost();
 }
 
 void ABaseVehiclePawn::SetBoostCost(float NewBoostCost)
@@ -289,8 +349,8 @@ void ABaseVehiclePawn::RechargeBoost()
 {
 	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
 	
-	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount, 0.0f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate, true);
+	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount * GetWorld()->DeltaTimeSeconds, 0.0f, Booster.MaxBoostAmount));
+	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate * GetWorld()->DeltaTimeSeconds, true);
 }
 
 bool ABaseVehiclePawn::IsGrounded() const
@@ -419,6 +479,13 @@ void ABaseVehiclePawn::InitAudio()
 		CrashAudioComponent->SetVolumeMultiplier(1);
 		CrashAudioComponent->SetActive(bPlayCrashSound);
 		CrashAudioComponent->Stop();
+	}
+	if(BoostAudioComponent)
+	{
+		BoostAudioComponent->SetSound(BoostAudioSound);
+		BoostAudioComponent->SetVolumeMultiplier(1);
+		BoostAudioComponent->SetActive(bPlayEngineSound);
+		BoostAudioComponent->Stop();
 	}
 }
 
@@ -552,6 +619,8 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	bHitLevelTwo = false;
 	bHitLevelThree = false;
 	ScrapAmount = 0;
+	HitScrapLevelThree(false);
+	
 
 	Hide(SpikeL, true);
 	Hide(SpikeR, true);
@@ -662,6 +731,7 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		HealthComponent->SetHealth(HealthComponent->GetHealth() + 25);
 		bHitLevelThree = true;
 		ScrapLevelAudioComponent->Play();
+		HitScrapLevelThree(true);
 
 		Hide(Plow, false);
 		Hide(Windshield, false);
@@ -676,7 +746,7 @@ USceneComponent* ABaseVehiclePawn::GetHomingTargetPoint() const
 
 void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if( OtherActor == this || OverlappedComp != BumperCollision ) { return; }
+	if (OtherActor == this || OverlappedComp != BumperCollision /* || (LastHitLocation - SweepResult.Location).Length() <= HitDistanceMinimum */) { return; }
 	ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor);
 	if(OtherVehicle && !OtherVehicle->GetIsDead())
 	{
@@ -694,7 +764,6 @@ void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 
 void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Magenta, FString::Printf(TEXT("%f"), (LastHitLocation - Hit.Location).Length()));
 	if ((LastHitLocation - Hit.Location).Length() <= HitDistanceMinimum) { return; }
 	LastHitLocation = Hit.Location;
 	float Mass = 2500.f;
@@ -702,12 +771,12 @@ void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 	{
 		Mass = OtherComponent->GetMass();
 	}
-//#ifdef WITH_EDITOR
-//	GEngine->AddOnScreenDebugMessage(-1, 4, FColor::Cyan, FString::Printf(TEXT("%f"), (GetVelocity() * Mass).Length()));
-//#endif
-	CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * FVector(Mass)).Length());
-	CrashAudioComponent->Play();
-	CrashAudioComponent->FadeOut(1.f, .2f, EAudioFaderCurve::Sin);
+	if (!CrashAudioComponent->IsPlaying())
+	{
+		CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * FVector(Mass)).Length());
+		CrashAudioComponent->Play();
+		CrashAudioComponent->FadeOut(1.f, .2f, EAudioFaderCurve::Sin);
+	}
 }
 
 void ABaseVehiclePawn::Hide(UPrimitiveComponent *Component, bool bHide)

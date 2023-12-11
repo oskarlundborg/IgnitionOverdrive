@@ -44,10 +44,10 @@ void AHomingMissileLauncher::BeginPlay()
 void AHomingMissileLauncher::InitializeOwnerVariables()
 {
 	CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-	if(CarOwner == nullptr) return;
+	/*if(CarOwner == nullptr) return;
 	OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
-	OwnerPlayerController = Cast<APlayerController>(OwnerController);
+	OwnerPlayerController = Cast<APlayerController>(OwnerController);*/
 }
 
 void AHomingMissileLauncher::PullTrigger()
@@ -198,7 +198,7 @@ void AHomingMissileLauncher::Fire(AActor* Target)
 	FTimerHandle TargetHandle;
 	FTimerDelegate TargetDelegate;
 	TargetDelegate.BindUFunction(this, FName("SetTarget"), Projectile, CarTarget);
-	GetWorldTimerManager().SetTimer(TargetHandle, TargetDelegate, 0.35f, false);
+	GetWorldTimerManager().SetTimer(TargetHandle, TargetDelegate, 0.45f, false);
 	
 	if(--ChargeAmount <= 0)
 	{
@@ -250,7 +250,9 @@ void AHomingMissileLauncher::CheckTargetStatus()
 {
 	if(!CurrentTarget) return;
 	if(CarOwner == nullptr) return;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
+	APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
 	if(OwnerPlayerController == nullptr) return;
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
@@ -300,6 +302,7 @@ bool AHomingMissileLauncher::CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) c
 void AHomingMissileLauncher::FindTarget()
 {
 	if(CarOwner == nullptr) return;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
@@ -316,6 +319,7 @@ void AHomingMissileLauncher::FindTarget()
 void AHomingMissileLauncher::CheckCanLockOn()
 {
 	if(CarOwner == nullptr) return;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
@@ -336,6 +340,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
 	if(CarOwner == nullptr) return false;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return false;
 	
 	FVector CameraLocation;
@@ -352,10 +357,12 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
+	//FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
+	FCollisionShape SweepBox = FCollisionShape::MakeBox(FVector(60.f, 90.f ,60.f));
 	
-	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepSphere, TraceParams);
+	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepBox, TraceParams);
 	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 20, FColor::Green, true);
+	//DrawDebugBox(GetWorld(), TraceEnd, SweepBox.GetExtent(), FColor::Blue, true);
 	return bHit;
 }
 

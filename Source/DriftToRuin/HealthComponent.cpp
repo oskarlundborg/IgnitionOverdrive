@@ -106,8 +106,7 @@ bool UHealthComponent::IsDead() const
 void UHealthComponent::RegenerateHealth()
 {
 	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-	FTimerHandle StopHandle;
-	GetWorld()->GetTimerManager().SetTimer(StopHandle, this, &UHealthComponent::StopRegenerating, CarOwner->GetPowerupComponent()->HealthPowerDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(RegenerateHandle, this, &UHealthComponent::StopRegenerating, CarOwner->GetPowerupComponent()->HealthPowerDuration, false);
 }
 
 void UHealthComponent::StopRegenerating()
