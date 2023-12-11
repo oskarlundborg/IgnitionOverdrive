@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+//Daniel Olsson AI engineer, behaviors i en switch form. beingplay setup är samma för player, dvs  (mihaljos weapon kod)
 
 
 #include "EnemyVehiclePawn.h"
@@ -20,16 +21,11 @@ void AEnemyVehiclePawn::BeginPlay()
 	Super::BeginPlay();
 	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 
-	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_SetStartingRotation, this,
-	//                                      &AEnemyVehiclePawn::SetStartingRotation, 0.5f, false);
-
-	
-
 	if (AITurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<AAITurret>(AITurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
-	
+
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
 	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform,
@@ -77,7 +73,7 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	//switch med enum för strings
-	
+
 	//välj körnings beteende
 	if (SwitchString == "DriveAndShoot")
 	{
@@ -126,11 +122,11 @@ void AEnemyVehiclePawn::DriveAndShoot()
 void AEnemyVehiclePawn::Shoot()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
-	EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
+	const FVector EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLocation);
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds(), InterpSpeed);
+	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
 	if (Turret != nullptr)
 	{
 		Turret->SetActorRotation(NewRotation);
@@ -188,14 +184,14 @@ void AEnemyVehiclePawn::Shoot()
 		Minigun->PullTrigger();
 		UE_LOG(LogTemp, Warning, TEXT("minigun name is shooting : , %s"), *Minigun->GetName());
 	}
-	
+
 	//homin missiles
-	
+
 	/*
 	AController* EnemyController = Cast<AController>(AIController);
 	ensureMsgf(EnemyController != nullptr, TEXT("Enemy controller was null"));*/
 
-	if(HomingMissileLauncher /*make own timer for ai missiles ? */ )
+	if (HomingMissileLauncher /*make own timer for ai missiles ? */)
 	{
 		UObject* EnemyObject = BlackboardComp->GetValueAsObject("EnemyObject");
 		AActor* AIEnemy = Cast<AActor>(EnemyObject);
@@ -207,8 +203,8 @@ void AEnemyVehiclePawn::Shoot()
 		//getworld->settimer->bla bla bla
 		//i timer functionen, timer started false
 	}
-	
-	
+
+
 	/*if (HomingMissileLauncher && !HomingMissileLauncher->GetIsOnCooldown() && HomingMissileLauncher->
 		CheckTargetInRange(Enemy))
 	{
@@ -224,7 +220,7 @@ void AEnemyVehiclePawn::Shoot()
 	{
 		HomingMissileLauncher->ReleaseTrigger();
 	}*/
-	
+
 	if (Minigun == nullptr || Turret == nullptr || HomingMissileLauncher == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("minigun or player turret or homing missile launcher was null"));
@@ -245,8 +241,24 @@ void AEnemyVehiclePawn::RandomlyRotateTurret()
 	}
 	//smooth rotation
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds(), InterpSpeed);
+	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
 	Turret->SetActorRotation(NewRotation);
+}
+
+void AEnemyVehiclePawn::AddNewTurretRotation()
+{
+	//add a new rotation to the target rotation
+	TurretDelayTime = FMath::RandRange(TurretDelayTimeMinRange, TurretDelayTimeMaxRange);
+	const FRotator CarRotation = GetActorRotation();
+	TurretRotation = Turret->GetActorRotation();
+	const float RandomValue = FMath::FRand(); // Generates a random float between 0 and 1
+
+	// 70% chance to rotate towards car's rotation, 30% chance to rotate the other way
+	//this rotation does not go thorugh - and 0 + values. it cant rotate around the 0 point.
+	const FRotator RotationIncrement = (RandomValue < 0.7f) ? CarRotation - TurretRotation : TurretRotation - CarRotation;
+	TargetRotation.Yaw = TurretRotation.Yaw + RotationIncrement.Yaw;
+	
+	TimerIsActive = false;
 }
 
 void AEnemyVehiclePawn::ManageSpeed()
@@ -308,17 +320,6 @@ void AEnemyVehiclePawn::ManageSpeed()
 }
 
 
-void AEnemyVehiclePawn::AddNewTurretRotation()
-{
-	//add a new rotation to the target rotation
-	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
-	RotationIncrement = FMath::RandBool() ? FRotator(0, 50, 0) : FRotator(0, -50, 0);
-	StartingRotation = Turret->GetActorRotation();
-	TargetRotation.Yaw = StartingRotation.Yaw + RotationIncrement.Yaw;
-	TimerIsActive = false;
-}
-
-
 void AEnemyVehiclePawn::DriveAlongSpline()
 {
 	InitializeSpline();
@@ -326,6 +327,8 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 		return;
 	//get a spline point along the spline
 	//only gets the point if you are at the start point of the spline. Very few Work cases
+
+	float TargetSplineDistance = 0.0f;
 
 	if (!HasNewSplineBeenSetup && MySpline)
 	{
@@ -487,7 +490,7 @@ bool AEnemyVehiclePawn::InitializeSpline()
 
 void AEnemyVehiclePawn::SetStartingRotation()
 {
-	StartingRotation = Turret->GetActorRotation();
+	TurretRotation = Turret->GetActorRotation();
 }
 
 void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)

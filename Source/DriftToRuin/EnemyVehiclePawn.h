@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+//Daniel Olsson AI engineer, behaviors i en switch form. beingplay setup är samma för player, dvs  (mihaljos weapon kod)
 
 #pragma once
-
 #include "CoreMinimal.h"
 #include "BaseVehiclePawn.h"
 #include "EnemyVehiclePawn.generated.h"
@@ -23,23 +23,25 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-	void RandomlyRotateTurret();
-	void ManageSpeed();
-	void DriveAlongSpline();
-	void CheckIfAtEndOfSpline();
 
 	//set functions
 	void SetSwitchString(const FString& NewSwitchString);
 	void SetHasNewSplineBeenSetup(bool bValue);
+
+	/*void RandomlyRotateTurret();
+	void ManageSpeed();
+	void DriveAlongSpline();
+	void CheckIfAtEndOfSpline();
 
 
 	//pathfinding
 	UPROPERTY(EditAnywhere)
 	float SplineEndPointDistanceThreshold = 800;
 	UPROPERTY(EditAnywhere)
-	float NextPointOnSplineThreshold = 800;
+	float NextPointOnSplineThreshold = 1000;
+	*/
 
-	// car driving
+	/*// car driving
 	UPROPERTY(EditAnywhere)
 	float ThrottleInput;
 	UPROPERTY(EditAnywhere)
@@ -47,46 +49,72 @@ public:
 	UPROPERTY(EditAnywhere)
 	float SteeringInput;
 	UPROPERTY(EditAnywhere)
-	float MaxSpeed = 1500.0f;
+	float MaxSpeed = 1500.0f;*/
 
 private:
+	//weapon components
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<AAITurret> AITurretClass;
 	UPROPERTY()
 	AAITurret* Turret;
-
-	FString SwitchString = "Drive";
+	AMinigun* Minigun = nullptr;
+	AHomingMissileLauncher* HomingMissileLauncher = nullptr;
 
 	//Common Components
 	AAIController* AIController;
 	UBlackboardComponent* BlackboardComp;
 	class USplineComponent* MySpline = nullptr;
-	class UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
+	UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
+
+	//pathfinding
+	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
+	float SplineEndPointDistanceThreshold = 800;
+	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
+	float NextPointOnSplineThreshold = 1000;
+
+	// car driving
+	UPROPERTY()
+	float ThrottleInput;
+	UPROPERTY()
+	float BrakeInput;
+	UPROPERTY()
+	float SteeringInput;
+
+	//Speed
+	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
+	float MaxSpeed = 1500.0f;
+
+	//Behavior //göra om till enumerator
+	FString SwitchString = "Drive";
 
 	//spline values
-	FVector Destination = FVector::ZeroVector;
-	float TargetSplineDistance = 0.0f;
-	float CurrentSplineDistance = 0.0f;
-	int DistanceBetweenSplinePoint;
+	UPROPERTY()
 	FVector SplineLocationPoint;
-	FVector SplineTangent;
 
+	//FVector SplineTangent;
+
+	UPROPERTY()
 	bool GoToEndOfSpline;
+	UPROPERTY()
 	bool HasNewSplineBeenSetup = false;
 
-	//rotator for turret
-	FRotator StartingRotation;
-	FRotator RotationIncrement;
-	FRotator TargetRotation;
-	FRotator NewRotation;
-	float InterpSpeed = 1;
 
-	//enemy
-	FVector EnemyLocation;
+	//rotation for turret
+	UPROPERTY()
+	FRotator TurretRotation;
+	UPROPERTY()
+	FRotator TargetRotation;
+	UPROPERTY()
+	FRotator NewRotation;
+	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
+	float RotationInterpSpeed = 1;
+	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
+	int32 TurretDelayTimeMinRange = 1;
+	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
+	int32 TurretDelayTimeMaxRange = 3;
 
 	//shoot
-	class AMinigun* Minigun = nullptr;
-	class AHomingMissileLauncher* HomingMissileLauncher = nullptr;
+
 
 	bool Overheating = false;
 
@@ -94,7 +122,7 @@ private:
 	bool MinigunPulledTrigger = false;
 	bool MissileIsAvailable = false;
 	int32 MissileChargeAmount = FMath::RandRange(1, 3);
-	
+
 	bool HasKilled = false;
 
 	//timer
@@ -114,11 +142,21 @@ private:
 	FTimerHandle TimerHandle_ResetRotationFlag;
 
 	//Functions
+
+
 	//driving behavior functions
 	void DrivePath();
 	void DriveAndShoot();
 
+	//speed 
+	void ManageSpeed();
+
+	//spline behavior
+	void DriveAlongSpline();
+	void CheckIfAtEndOfSpline();
+
 	//turret rotation
+	void RandomlyRotateTurret();
 	void SetStartingRotation();
 	void AddNewTurretRotation();
 
@@ -128,5 +166,4 @@ private:
 	//helper function
 	bool InitializeSensors();
 	bool InitializeSpline();
-	
 };
