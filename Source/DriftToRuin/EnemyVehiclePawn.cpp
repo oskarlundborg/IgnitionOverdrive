@@ -348,11 +348,15 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 		float DistanceToEnd = FVector::Dist(GetActorLocation(), SplineEnd);*/
 		//FMath::Abs(RotationToEndPoint);
 		//FMath::Abs(RotationToStartPoint);
-		UE_LOG(LogTemp, Error, TEXT("RotationToEndPoint:  %s"), *RotationToEndPoint.ToString());
+		/*UE_LOG(LogTemp, Error, TEXT("RotationToEndPoint:  %s"), *RotationToEndPoint.ToString());
 		UE_LOG(LogTemp, Error, TEXT("RotationToStartPoint: %s"), *RotationToStartPoint.ToString());
-		UE_LOG(LogTemp, Error, TEXT("actor rotatation: %s"), *GetActorRotation().ToString());
-		float DifferenceYawStartPoint = FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToStartPoint.Yaw);
-		float DifferenceYawEndPoint = FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToEndPoint.Yaw);
+		UE_LOG(LogTemp, Error, TEXT("actor rotatation: %s"), *GetActorRotation().ToString());*/
+		
+		//float DifferenceYawStartPoint = FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToStartPoint.Yaw);
+		//float DifferenceYawEndPoint = FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToEndPoint.Yaw);
+		float DifferenceYawStartPoint = FMath::Abs(FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToStartPoint.Yaw));
+		float DifferenceYawEndPoint = FMath::Abs(FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToEndPoint.Yaw));
+
 		if (DifferenceYawStartPoint >= DifferenceYawEndPoint)
 		{
 			GoToEndOfSpline = true;
