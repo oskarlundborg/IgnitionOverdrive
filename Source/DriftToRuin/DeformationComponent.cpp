@@ -20,6 +20,14 @@ UDeformationComponent::UDeformationComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+void UDeformationComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	GetOwner()->OnActorHit.AddDynamic(this, &UDeformationComponent::OnHit);
+	BuildGrid();
+	SetupInfluences();
+}
+
 void UDeformationComponent::AddMesh(USkeletalMeshComponent* Mesh)
 {
 	SkeletalMeshComponents.Add(Mesh);
@@ -42,14 +50,6 @@ void UDeformationComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			);
 		}
 	}
-}
-
-void UDeformationComponent::BeginPlay()
-{
-	Super::BeginPlay();
-	GetOwner()->OnActorHit.AddDynamic(this, &UDeformationComponent::OnHit);
-	BuildGrid();
-	SetupInfluences();
 }
 
 void UDeformationComponent::OnHit(AActor* Self, AActor* Other, FVector NormalImpulse, const FHitResult& Hit)

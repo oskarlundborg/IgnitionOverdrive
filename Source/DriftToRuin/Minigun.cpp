@@ -40,6 +40,8 @@ AMinigun::AMinigun()
 void AMinigun::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ProjectilePool = CreateDefaultSubobject<UObjectPoolComponent>(TEXT("Projectile Pool"));
 }
 
 /*Called when input action is started*/
@@ -95,7 +97,11 @@ void AMinigun::Fire()
 		AdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
 	}
 
-	auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	//auto Projectile = GetWorld()->SpawnActor<ABaseProjectile>(ProjectileClass, SpawnLocation, ProjectileRotation);
+	ABaseProjectile* Projectile = ProjectilePool->Fetch<ABaseProjectile>(SpawnLocation, ProjectileRotation, [&]
+	{
+		Projectile->GetProjectileMovementComponent()->SetUpdatedComponent(Projectile->GetRootComponent());
+	});
 	if (IsAI)
 	{
 		Projectile->GetProjectileMovementComponent()->ProjectileGravityScale = 0.0f;

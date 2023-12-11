@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseWeapon.h"
-#include "Components/PoseableMeshComponent.h"
+#include "ObjectPoolComponent.h"
 #include "Minigun.generated.h"
 
 class APlayerVehiclePawn;
@@ -36,6 +36,9 @@ public:
 	float PowerAmmo = 0;
 	UPROPERTY(BlueprintReadWrite)
 	float MaxPowerAmmo = 100;
+	
+	UPROPERTY(EditDefaultsOnly)
+	UObjectPoolComponent* ProjectilePool;
 
 protected:
 	virtual void BeginPlay() override;
