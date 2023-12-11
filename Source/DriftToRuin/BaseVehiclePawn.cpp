@@ -293,10 +293,12 @@ void ABaseVehiclePawn::EnableBoost()
 		{
 			if(Wheel->AxleType==EAxleType::Rear)
 			{
+				VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, BoostRearFrictionForce);
 				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
 			}
 			else
 			{
+				VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, BoostFrontFrictionForce);
 				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
 			}
 		}
@@ -325,10 +327,12 @@ void ABaseVehiclePawn::DisableBoost()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 5.0f);
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 		else
 		{
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 4.6f);
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 	}
