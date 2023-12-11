@@ -55,7 +55,7 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(AIPawn);
 
-	//DrawDebugSphere(GetWorld(), ScanStart, ScanRadius, 12, FColor::Green, false, 15.f); // Visualize the starting sphere
+	DrawDebugSphere(GetWorld(), ScanStart, ScanRadius, 12, FColor::Green, false, 15.f); // Visualize the starting sphere
 	//DrawDebugLine(GetWorld(), ScanStart, ScanEnd, FColor::Green, false, 15.0f);
 	//get current spline in blackboard
 	const AActor* ActorRoadSpline = Cast<AActor>(BlackboardComp->GetValueAsObject("TempRoadSpline"));
@@ -86,8 +86,8 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 				{
 					UE_LOG(LogTemp, Error, TEXT("BBSPLINE: %s"), *BBSpline->GetName());
 				}
-				//UE_LOG(LogTemp, Error, TEXT("splineComponent: %s"), *SplineComponent->GetName());
-				//UE_LOG(LogTemp, Error, TEXT("actor being added as spline hit result: %s"), *HitResult.GetActor()->GetName());
+				UE_LOG(LogTemp, Error, TEXT("splineComponent: %s"), *SplineComponent->GetName());
+				UE_LOG(LogTemp, Error, TEXT("actor being added as spline hit result: %s"), *HitResult.GetActor()->GetName());
 				EligibleSplineHits.Add(SplineComponent);
 			}
 		}

@@ -5,6 +5,7 @@
 
 #include "BaseProjectile.h"
 #include "BaseVehiclePawn.h"
+#include "EnemyVehiclePawn.h"
 #include "PlayerTurret.h"
 #include "Minigun.h"
 #include "Camera/CameraComponent.h"
@@ -152,6 +153,32 @@ bool AHomingMissileLauncher::GetCanLockOnTarget()
 	return bCanLockOn;
 }
 
+float AHomingMissileLauncher::GetTargetRange()
+{
+	return TargetingRange;
+}
+
+float AHomingMissileLauncher::GetChargeValueCap()
+{
+	return ChargeCap;
+}
+
+FTimerHandle& AHomingMissileLauncher::GetFireTimer()
+{
+	return FireTimer;
+}
+
+void AHomingMissileLauncher::SetChargeAmount(const float NewChargeAmount)
+{
+	ChargeAmount = NewChargeAmount;
+}
+
+void AHomingMissileLauncher::SetAICooldown()
+{
+	bIsOnCooldown = true;
+	GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, 10.0f, false, 10.0f);
+}
+
 void AHomingMissileLauncher::ChargeFire()
 {
 	if(!CurrentTarget || ChargeAmount == ChargeCap)
@@ -204,6 +231,10 @@ void AHomingMissileLauncher::Fire(AActor* Target)
 	{
 		GetWorldTimerManager().ClearTimer(FireTimer);
 		Target = nullptr;
+		if(GetOwner()->IsA(AEnemyVehiclePawn::StaticClass()))
+		{
+			SetAICooldown();
+		}
 	}
 }
 

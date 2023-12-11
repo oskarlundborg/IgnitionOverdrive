@@ -57,14 +57,19 @@ private:
 	TSubclassOf<AAITurret> AITurretClass;
 	UPROPERTY()
 	AAITurret* Turret;
-	AMinigun* Minigun = nullptr;
-	AHomingMissileLauncher* HomingMissileLauncher = nullptr;
-
-	//Common Components
+	
+	/*AMinigun* Minigun;
+	UPROPERTY()
+	AHomingMissileLauncher* HomingMissileLauncher;*/
+	
+	UPROPERTY()
 	AAIController* AIController;
+	UPROPERTY()
 	UBlackboardComponent* BlackboardComp;
+	UPROPERTY()
 	class USplineComponent* MySpline = nullptr;
-	UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	UChaosVehicleMovementComponent* AIVehicleMovementComp = nullptr;
 
 	//pathfinding
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
@@ -115,34 +120,56 @@ private:
 
 	//shoot
 
-
+	UPROPERTY()
 	bool Overheating = false;
 
-	//missile 
+	//missile
+	UPROPERTY()
 	bool MinigunPulledTrigger = false;
+	UPROPERTY()
 	bool MissileIsAvailable = false;
-	int32 MissileChargeAmount = FMath::RandRange(1, 3);
+	UPROPERTY()
+	int32 MissileCharge;
+	UPROPERTY()
+	AActor* AIEnemy;
 
+	UPROPERTY()
 	bool HasKilled = false;
 
-	//timer
+	
+	//timer // kan de göras om snyggare 
+	UPROPERTY()
 	bool TimerIsActive = false;
+	UPROPERTY()
 	bool TimerFirstTime = true;
 
+	
+	FTimerHandle MissileCooldownTimer;
+
 	//Sensors
+	UPROPERTY()
 	float SensorGapDifference;
+	UPROPERTY()
 	USceneComponent* LeftSensor;
+	UPROPERTY()
 	USceneComponent* RightSensor;
 
 	//timers - borde kollas igenom om dessa ska användas
+	UPROPERTY()
 	int TimeElapsed;
+	UPROPERTY()
 	int TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 
+	UPROPERTY()
 	FTimerHandle TimerHandle_SetStartingRotation;
+	UPROPERTY()
 	FTimerHandle TimerHandle_ResetRotationFlag;
 
+	UPROPERTY()
+	bool HominIsActive = false;
 	//Functions
 
+	FTimerHandle test;
 
 	//driving behavior functions
 	void DrivePath();
@@ -163,6 +190,9 @@ private:
 	//shoot
 	void Shoot();
 
+	//missile
+	void FireLoadedMissile();
+	
 	//helper function
 	bool InitializeSensors();
 	bool InitializeSpline();
