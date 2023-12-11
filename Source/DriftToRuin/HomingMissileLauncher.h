@@ -57,6 +57,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool GetCanLockOnTarget();
+
+	UFUNCTION()
+	void Fire(AActor* Target);
+
+	float GetTargetRange();
+	float GetChargeValueCap();
+	FTimerHandle& GetFireTimer();
+	void SetChargeAmount(float NewChargeAmount);
+	void SetAICooldown();
 	
 private:
 	UPROPERTY()
@@ -132,7 +141,6 @@ private:
 	void ChargeFire();
 	void OnChargeFire();
 	UFUNCTION()
-	void Fire(AActor* Target);
 	void OnFire();
 
 	void CheckTargetStatus();

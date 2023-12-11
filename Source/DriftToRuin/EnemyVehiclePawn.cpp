@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+//Daniel Olsson AI engineer, behaviors i en switch form. beingplay setup är samma för player, dvs  (mihaljos weapon kod)
 
 
 #include "EnemyVehiclePawn.h"
@@ -20,16 +21,11 @@ void AEnemyVehiclePawn::BeginPlay()
 	Super::BeginPlay();
 	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 
-	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_SetStartingRotation, this,
-	//                                      &AEnemyVehiclePawn::SetStartingRotation, 0.5f, false);
-
-	
-
 	if (AITurretClass == nullptr || MinigunClass == nullptr || HomingLauncherClass == nullptr) return;
 	Turret = GetWorld()->SpawnActor<AAITurret>(AITurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
-	
+
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
 	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform,
@@ -55,14 +51,14 @@ void AEnemyVehiclePawn::BeginPlay()
 	}
 	BlackboardComp->SetValueAsString("StringBehavior", "Drive");
 
-	VehicleMovementComponent = Cast<UChaosVehicleMovementComponent>(GetMovementComponent());
-	ensureMsgf(VehicleMovementComponent != nullptr, TEXT("Vehicle movement comp was null"));
-	if (VehicleMovementComponent == nullptr)
+	AIVehicleMovementComp = Cast<UChaosVehicleMovementComponent>(GetMovementComponent());
+	ensureMsgf(AIVehicleMovementComp != nullptr, TEXT("Vehicle movement comp was null"));
+	if (AIVehicleMovementComp == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("movement cojmponent null"));
 	}
 
-	VehicleMovementComponent->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
+	AIVehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
 
 	//DefaultFrontFriction=VehicleMovementComp->Wheels[0]->FrictionForceMultiplier;
 
@@ -77,7 +73,7 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	//switch med enum för strings
-	
+
 	//välj körnings beteende
 	if (SwitchString == "DriveAndShoot")
 	{
@@ -126,11 +122,11 @@ void AEnemyVehiclePawn::DriveAndShoot()
 void AEnemyVehiclePawn::Shoot()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
-	EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
+	const FVector EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLocation);
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds(), InterpSpeed);
+	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
 	if (Turret != nullptr)
 	{
 		Turret->SetActorRotation(NewRotation);
@@ -154,12 +150,12 @@ void AEnemyVehiclePawn::Shoot()
 		{
 			Minigun = Cast<AMinigun>(ChildActor);
 		}
-		if (HomingMissileLauncher == nullptr)
+		if (HomingLauncher == nullptr)
 		{
-			HomingMissileLauncher = Cast<AHomingMissileLauncher>(ChildActor);
+			HomingLauncher = Cast<AHomingMissileLauncher>(ChildActor);
 		}
 
-		if (Minigun != nullptr && HomingMissileLauncher != nullptr)
+		if (Minigun != nullptr && HomingLauncher != nullptr)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("child actor was playerturret: %s"), *ChildActor->GetName());
 			break; // Exit the loop since we found what we were looking for
@@ -188,46 +184,50 @@ void AEnemyVehiclePawn::Shoot()
 		Minigun->PullTrigger();
 		UE_LOG(LogTemp, Warning, TEXT("minigun name is shooting : , %s"), *Minigun->GetName());
 	}
-	
+
 	//homin missiles
-	
+
 	/*
 	AController* EnemyController = Cast<AController>(AIController);
 	ensureMsgf(EnemyController != nullptr, TEXT("Enemy controller was null"));*/
+	UObject* EnemyObject = BlackboardComp->GetValueAsObject("Enemy");
+	AIEnemy = Cast<AActor>(EnemyObject);
+	float DistToTarget = GetDistanceTo(AIEnemy);
+	//charge time needs to be done.
 
-	if(HomingMissileLauncher /*make own timer for ai missiles ? */ )
+	if (HomingLauncher && AIEnemy && DistToTarget < HomingLauncher->
+		GetTargetRange() && !HomingLauncher
+		->GetIsOnCooldown() && HomingLauncher->GetChargeAmount() <= 0 && !HominIsActive)
 	{
-		UObject* EnemyObject = BlackboardComp->GetValueAsObject("EnemyObject");
-		AActor* AIEnemy = Cast<AActor>(EnemyObject);
-		//fix för cooldown after fire
-		//HomingMissileLauncher.OnFireAI(AIEnemy, chargeamount);
-		//GetWorldTimerManager().IsTimerActive(FireTimer)
-		//if !timer started
-		//timer started = true
-		//getworld->settimer->bla bla bla
-		//i timer functionen, timer started false
+		HominIsActive = true;
+		MissileCharge = FMath::RandRange(1, 3);
+		
+		FTimerHandle ChargeAndFireTimer;
+		GetWorld()->GetTimerManager().SetTimer(
+			ChargeAndFireTimer,
+			this,
+			&AEnemyVehiclePawn::FireLoadedMissile,
+			1.5f, // Set this to the time you want for charging
+			false);
+
+		//HomingLauncher->OnFireAI(AIEnemy, MissileCharge);
 	}
-	
-	
-	/*if (HomingMissileLauncher && !HomingMissileLauncher->GetIsOnCooldown() && HomingMissileLauncher->
-		CheckTargetInRange(Enemy))
-	{
-		HomingMissileLauncher->PullTrigger();
-		//MissilePulledTrigger = true;
-	}
-	else if (HomingMissileLauncher && HomingMissileLauncher->GetChargeAmount() == MissileChargeAmount)
-	{
-		HomingMissileLauncher->ReleaseTrigger();
-	}
-	else if (HomingMissileLauncher && (!HomingMissileLauncher->CheckTargetInRange(Enemy) || !HomingMissileLauncher->
-		CheckTargetLineOfSight(EnemyController)))
-	{
-		HomingMissileLauncher->ReleaseTrigger();
-	}*/
-	
-	if (Minigun == nullptr || Turret == nullptr || HomingMissileLauncher == nullptr)
+
+
+	if (Minigun == nullptr || Turret == nullptr || HomingLauncher == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("minigun or player turret or homing missile launcher was null"));
+	}
+}
+
+void AEnemyVehiclePawn::FireLoadedMissile()
+{
+	HominIsActive = false;
+	UE_LOG(LogTemp, Error, TEXT("about to shoot homin"));
+	float DistToTarget = GetDistanceTo(AIEnemy);
+	if (DistToTarget < HomingLauncher->GetTargetRange())
+	{
+		HomingLauncher->OnFireAI(AIEnemy, MissileCharge);
 	}
 }
 
@@ -245,8 +245,26 @@ void AEnemyVehiclePawn::RandomlyRotateTurret()
 	}
 	//smooth rotation
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds(), InterpSpeed);
+	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
 	Turret->SetActorRotation(NewRotation);
+}
+
+void AEnemyVehiclePawn::AddNewTurretRotation()
+{
+	//add a new rotation to the target rotation
+	TurretDelayTime = FMath::RandRange(TurretDelayTimeMinRange, TurretDelayTimeMaxRange);
+	const FRotator CarRotation = GetActorRotation();
+	TurretRotation = Turret->GetActorRotation();
+	const float RandomValue = FMath::FRand(); // Generates a random float between 0 and 1
+
+	// 70% chance to rotate towards car's rotation, 30% chance to rotate the other way
+	//this rotation does not go thorugh - and 0 + values. it cant rotate around the 0 point.
+	const FRotator RotationIncrement = (RandomValue < 0.7f)
+		                                   ? CarRotation - TurretRotation
+		                                   : TurretRotation - CarRotation;
+	TargetRotation.Yaw = TurretRotation.Yaw + RotationIncrement.Yaw;
+
+	TimerIsActive = false;
 }
 
 void AEnemyVehiclePawn::ManageSpeed()
@@ -274,14 +292,14 @@ void AEnemyVehiclePawn::ManageSpeed()
 	//	UE_LOG(LogTemp, Warning, TEXT("maxspeed after clamp %f"), MaxSpeed);
 
 
-	const float Speed = VehicleMovementComponent->GetForwardSpeed();
+	const float Speed = AIVehicleMovementComp->GetForwardSpeed();
 	//UE_LOG(LogTemp, Warning, TEXT("forward speed %f"), VehicleMovementComponent->GetForwardSpeed());
-	float TempBrakeInput = VehicleMovementComponent->GetBrakeInput();
+	float TempBrakeInput = AIVehicleMovementComp->GetBrakeInput();
 	//	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
 
-	if (ABSDeltaYaw > 3 && VehicleMovementComponent->GetForwardSpeed() > 500)
+	if (ABSDeltaYaw > 3 && AIVehicleMovementComp->GetForwardSpeed() > 500)
 	{
-		VehicleMovementComponent->SetThrottleInput(0);
+		AIVehicleMovementComp->SetThrottleInput(0);
 		//	UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));
 		float MaxDeltaYaw = 30;
 		float NormalizedDeltaYaw = FMath::Clamp(ABSDeltaYaw / MaxDeltaYaw, 0.0f, 1.0f);
@@ -290,42 +308,33 @@ void AEnemyVehiclePawn::ManageSpeed()
 
 		const float LerpValue = FMath::Lerp(TempBrakeInput, AIBrakeInput, GetWorld()->DeltaTimeSeconds * 80);
 
-		VehicleMovementComponent->SetBrakeInput(LerpValue);
+		AIVehicleMovementComp->SetBrakeInput(LerpValue);
 		//	UE_LOG(LogTemp, Warning, TEXT("lerp value brake input: %f"), LerpValue);
 	}
 	else if (Speed > MaxSpeed)
 	{
-		VehicleMovementComponent->SetBrakeInput(0);
+		AIVehicleMovementComp->SetBrakeInput(0);
 		// be able to slow down very much faster in a curve
-		VehicleMovementComponent->SetThrottleInput(VehicleMovementComponent->GetThrottleInput() - 0.2);
+		AIVehicleMovementComp->SetThrottleInput(AIVehicleMovementComp->GetThrottleInput() - 0.2);
 		//UE_LOG(LogTemp, Warning, TEXT("throttle input changing to: %f"), VehicleMovementComponent->GetThrottleInput());
 	}
 	else
 	{
-		VehicleMovementComponent->SetThrottleInput(0.6);
-		VehicleMovementComponent->SetBrakeInput(0);
+		AIVehicleMovementComp->SetThrottleInput(0.6);
+		AIVehicleMovementComp->SetBrakeInput(0);
 	}
-}
-
-
-void AEnemyVehiclePawn::AddNewTurretRotation()
-{
-	//add a new rotation to the target rotation
-	TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
-	RotationIncrement = FMath::RandBool() ? FRotator(0, 50, 0) : FRotator(0, -50, 0);
-	StartingRotation = Turret->GetActorRotation();
-	TargetRotation.Yaw = StartingRotation.Yaw + RotationIncrement.Yaw;
-	TimerIsActive = false;
 }
 
 
 void AEnemyVehiclePawn::DriveAlongSpline()
 {
 	InitializeSpline();
-	if (LeftSensor == nullptr || RightSensor == nullptr || VehicleMovementComponent == nullptr || MySpline == nullptr)
+	if (LeftSensor == nullptr || RightSensor == nullptr || AIVehicleMovementComp == nullptr || MySpline == nullptr)
 		return;
 	//get a spline point along the spline
 	//only gets the point if you are at the start point of the spline. Very few Work cases
+
+	float TargetSplineDistance = 0.0f;
 
 	if (!HasNewSplineBeenSetup && MySpline)
 	{
@@ -427,7 +436,7 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 	//const float LerpValue = FMath::Lerp(TempSteeringInput, SteeringInput, GetWorld()->DeltaTimeSeconds * 40);
 	//lerp for smoother turning curve
 	//TempSteeringInput = LerpValue;
-	VehicleMovementComponent->SetSteeringInput(SteeringValue);
+	AIVehicleMovementComp->SetSteeringInput(SteeringValue);
 }
 
 void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
@@ -446,8 +455,8 @@ void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
 		BlackboardComp->SetValueAsObject("TempRoadSpline", MySpline);
 		BlackboardComp->ClearValue("RoadSpline");
 
-		VehicleMovementComponent->SetThrottleInput(0);
-		VehicleMovementComponent->SetSteeringInput(0);
+		AIVehicleMovementComp->SetThrottleInput(0);
+		AIVehicleMovementComp->SetSteeringInput(0);
 		BlackboardComp->SetValueAsBool("AtRoadEnd", true);
 		HasNewSplineBeenSetup = false;
 	}
@@ -487,7 +496,7 @@ bool AEnemyVehiclePawn::InitializeSpline()
 
 void AEnemyVehiclePawn::SetStartingRotation()
 {
-	StartingRotation = Turret->GetActorRotation();
+	TurretRotation = Turret->GetActorRotation();
 }
 
 void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)
