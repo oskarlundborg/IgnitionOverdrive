@@ -201,7 +201,7 @@ void AEnemyVehiclePawn::Shoot()
 	{
 		HominIsActive = true;
 		MissileCharge = FMath::RandRange(1, 3);
-		
+
 		FTimerHandle ChargeAndFireTimer;
 		GetWorld()->GetTimerManager().SetTimer(
 			ChargeAndFireTimer,
@@ -212,7 +212,7 @@ void AEnemyVehiclePawn::Shoot()
 
 		//HomingLauncher->OnFireAI(AIEnemy, MissileCharge);
 	}
-	
+
 	if (Minigun == nullptr || Turret == nullptr || HomingLauncher == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("minigun or player turret or homing missile launcher was null"));
@@ -261,7 +261,7 @@ void AEnemyVehiclePawn::AddNewTurretRotation()
 	const FRotator RotationIncrement = (RandomValue < 0.7f)
 		                                   ? CarRotation - TurretRotation
 		                                   : TurretRotation - CarRotation;
-	TargetRotation.Yaw = TurretRotation.Yaw + RotationIncrement.Yaw;
+	TargetRotation.Yaw = CarRotation.Yaw - TurretRotation.Yaw + RotationIncrement.Yaw;
 
 	TimerIsActive = false;
 }
@@ -332,17 +332,28 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 		return;
 	//get a spline point along the spline
 	//only gets the point if you are at the start point of the spline. Very few Work cases
-	
+
 	if (!HasNewSplineBeenSetup && MySpline)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("setting spline direction"));
 		FVector SplineStart = MySpline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
 		FVector SplineEnd = MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints() - 1,
 		                                                       ESplineCoordinateSpace::World);
-		// Calculate distances from actor to start and end points
-		float DistanceToStart = FVector::Dist(GetActorLocation(), SplineStart);
-		float DistanceToEnd = FVector::Dist(GetActorLocation(), SplineEnd);
-		if (DistanceToEnd > DistanceToStart)
+		// Calculate rotation to start and end pouint, choose the point that has less rotation, so that car smoothly transitions into new spline road.
+
+		// dubbel kolla dessa 
+		FRotator RotationToStartPoint = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), SplineStart);
+		FRotator RotationToEndPoint = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), SplineEnd);
+		/*float DistanceToStart = FVector::Dist(GetActorLocation(), SplineStart);
+		float DistanceToEnd = FVector::Dist(GetActorLocation(), SplineEnd);*/
+		//FMath::Abs(RotationToEndPoint);
+		//FMath::Abs(RotationToStartPoint);
+		UE_LOG(LogTemp, Error, TEXT("RotationToEndPoint:  %s"), *RotationToEndPoint.ToString());
+		UE_LOG(LogTemp, Error, TEXT("RotationToStartPoint: %s"), *RotationToStartPoint.ToString());
+		UE_LOG(LogTemp, Error, TEXT("actor rotatation: %s"), *GetActorRotation().ToString());
+		float DifferenceYawStartPoint = FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToStartPoint.Yaw);
+		float DifferenceYawEndPoint = FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToEndPoint.Yaw);
+		if (DifferenceYawStartPoint >= DifferenceYawEndPoint)
 		{
 			GoToEndOfSpline = true;
 		}
@@ -354,8 +365,6 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 
 		float ClosestInputKey = MySpline->FindInputKeyClosestToWorldLocation(GetActorLocation());
 		TargetSplineDistance = MySpline->GetDistanceAlongSplineAtSplineInputKey(ClosestInputKey);
-		UE_LOG(LogTemp, Warning, TEXT("closest input key %f"), ClosestInputKey);
-		UE_LOG(LogTemp, Warning, TEXT("target spline distance at input key %f"), TargetSplineDistance);
 	}
 
 
@@ -410,7 +419,7 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 	SensorGapDifference = FVector::Dist(LeftSensor->GetComponentLocation(), SplineLocationPoint) - FVector::Dist(
 		RightSensor->GetComponentLocation(), SplineLocationPoint);
 	SensorGapDifference = FMath::Abs(SensorGapDifference);*/
-	
+
 	AIVehicleMovementComp->SetSteeringInput(SteeringValue);
 }
 
