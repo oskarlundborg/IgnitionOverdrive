@@ -221,7 +221,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 void ABaseVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	InitAudio();
 	InitVFX();
 }
@@ -277,7 +277,6 @@ void ABaseVehiclePawn::OnBoosting()
 		CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, BoostCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed));
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
-	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
 	VehicleMovementComp->SetThrottleInput(1);
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount - BoostCost * GetWorld()->DeltaTimeSeconds, 0.f, Booster.MaxBoostAmount));
 	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate * GetWorld()->DeltaTimeSeconds, true);
@@ -289,6 +288,8 @@ void ABaseVehiclePawn::EnableBoost()
 	{
 		Booster.SetEnabled(true);
 		BoostVfxNiagaraComponent->Activate(true);
+		VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
+		VehicleMovementComp->SetDownforceCoefficient(2);
 		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 		{
 			if(Wheel->AxleType==EAxleType::Rear)
@@ -316,6 +317,7 @@ void ABaseVehiclePawn::DisableBoost()
 {
 	Booster.SetEnabled(false);
 	VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
+	VehicleMovementComp->SetDownforceCoefficient(1);
 	VehicleMovementComp->SetThrottleInput(0);
 	BoostVfxNiagaraComponent->Deactivate();
 	if(bCanFadeOutBoost)

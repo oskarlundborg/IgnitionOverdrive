@@ -18,6 +18,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ChaosVehicleMovementComponent.h"
 #include "DeformationComponent.h"
 #include "NiagaraComponent.h"
 #include "WheeledVehiclePawn.h"
