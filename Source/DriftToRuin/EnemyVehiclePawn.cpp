@@ -212,8 +212,7 @@ void AEnemyVehiclePawn::Shoot()
 
 		//HomingLauncher->OnFireAI(AIEnemy, MissileCharge);
 	}
-
-
+	
 	if (Minigun == nullptr || Turret == nullptr || HomingLauncher == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("minigun or player turret or homing missile launcher was null"));
