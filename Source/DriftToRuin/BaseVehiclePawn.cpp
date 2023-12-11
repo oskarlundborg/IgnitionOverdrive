@@ -32,8 +32,8 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Steering value defaults
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->Reset();
 	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(0.0f, 1.0f);
-	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(40.0f, 0.7f);
-	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(120.0f, 0.6f);
+	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(80.0f, 0.7f);
+	VehicleMovementComp->SteeringSetup.SteeringCurve.GetRichCurve()->AddKey(160.0f, 0.6f);
 
 	//Differential value defaults
 	VehicleMovementComp->DifferentialSetup.DifferentialType = EVehicleDifferential::AllWheelDrive;
@@ -221,7 +221,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 void ABaseVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	InitAudio();
 	InitVFX();
 }
@@ -277,7 +277,6 @@ void ABaseVehiclePawn::OnBoosting()
 		CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, BoostCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed));
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
-	VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
 	VehicleMovementComp->SetThrottleInput(1);
 	SetBoostAmount(FMath::Clamp(Booster.BoostAmount - BoostCost * GetWorld()->DeltaTimeSeconds, 0.f, Booster.MaxBoostAmount));
 	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate * GetWorld()->DeltaTimeSeconds, true);
@@ -289,14 +288,18 @@ void ABaseVehiclePawn::EnableBoost()
 	{
 		Booster.SetEnabled(true);
 		BoostVfxNiagaraComponent->Activate(true);
+		VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
+		VehicleMovementComp->SetDownforceCoefficient(2);
 		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 		{
 			if(Wheel->AxleType==EAxleType::Rear)
 			{
+				VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, BoostRearFrictionForce);
 				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.85);
 			}
 			else
 			{
+				VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, BoostFrontFrictionForce);
 				VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.92);
 			}
 		}
@@ -314,6 +317,7 @@ void ABaseVehiclePawn::DisableBoost()
 {
 	Booster.SetEnabled(false);
 	VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
+	VehicleMovementComp->SetDownforceCoefficient(1);
 	VehicleMovementComp->SetThrottleInput(0);
 	BoostVfxNiagaraComponent->Deactivate();
 	if(bCanFadeOutBoost)
@@ -325,10 +329,12 @@ void ABaseVehiclePawn::DisableBoost()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 6.0f);
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 		else
 		{
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 5.6f);
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 	}

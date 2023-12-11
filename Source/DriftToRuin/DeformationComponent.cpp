@@ -101,8 +101,6 @@ void UDeformationComponent::BuildGrid()
 	}
 }
 
-/*
-
 void UDeformationComponent::SetupInfluences()
 {
 	const float PointInfluenceMaxDistSquared = FMath::Square(PointInfluenceMaxDistance);
@@ -276,11 +274,15 @@ void UDeformationComponent::SetupInfluences()
 
 		// __________________
 		// TODO: Figure out how to use UMirrorDataTable for this as that is the new way.
+
+		// May not be needed at all
+		
 		//MirrorDataTable->EmptyTable();
 		//MirrorDataTable->MirrorAxis = EAxis::Type::None;
 		//TargetSkeletalMesh->SkelMirrorTable.Empty();
 		//TargetSkeletalMesh->SkelMirrorAxis = EAxis::Type::None;
 		//TargetSkeletalMesh->SkelMirrorFlipAxis = EAxis::Type::None;
+		
 		TargetSkeletalMesh->GetRefBasesInvMatrix().Empty();
 		TargetSkeletalMesh->CalculateInvRefMatrices();
 		
@@ -292,199 +294,6 @@ void UDeformationComponent::SetupInfluences()
 		Mesh->SetSkeletalMesh(TargetSkeletalMesh);
 	}
 } 
-
-*/
-
-void UDeformationComponent::SetupInfluences()
-{
-    const float PointInfluenceMaxDistSquared = FMath::Square(PointInfluenceMaxDistance);
-
-    // __________________
-    // Add Skeletal Meshes.
-    for (const auto& Mesh : SkeletalMeshComponents)
-    {
-        USkeletalMesh* NewMesh = Mesh->GetSkeletalMeshAsset();
-        NewMesh->GetLODInfo(0)->bAllowCPUAccess = true;
-
-        FSkeletalMeshLODRenderData& LODRenderData = Mesh->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0];
-        FPositionVertexBuffer& Positions = Mesh->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
-
-        TArray<int32> IgnoredBones;
-        TArray<FName> BoneNames;
-        Mesh->GetBoneNames(BoneNames);
-        for ( int Index = 0; FName Name : BoneNames)
-        {
-            if( BoneIgnoreFilter.Contains(Name) )
-            {
-                IgnoredBones.Add(Index);
-            }
-            Index++;
-        }
-        
-        // __________________
-        // Add Vertices.
-        for (uint32 i = 0; i < Positions.GetNumVertices(); ++i)
-        {
-            uint8 MaxWeight = 0;
-            int32 BoneIndex = 0; 
-            for (int32 WeightIdx = 0; WeightIdx < MAX_TOTAL_INFLUENCES; WeightIdx++)
-            {
-                const uint8 Weight = LODRenderData.SkinWeightVertexBuffer.GetBoneWeight(i, WeightIdx);
-
-                if (Weight > MaxWeight)
-                {
-                    MaxWeight = Weight;
-                    BoneIndex = LODRenderData.SkinWeightVertexBuffer.GetBoneIndex(i, WeightIdx);
-                }
-            }
-            int32 SectionIndex;
-            int32 SectionVertexIndex;
-            LODRenderData.GetSectionFromVertexIndex(i, SectionIndex, SectionVertexIndex);
-            BoneIndex = LODRenderData.RenderSections[SectionIndex].BoneMap[BoneIndex];
-
-            if (IgnoredBones.Contains(BoneIndex)) { continue; }
-
-            TMap<int32, float> InfluencePoints;
-            for (int32 PointID = 0; PointID < Grid.Num(); ++PointID)
-            {
-                const float PointDistSquared = FVector::DistSquared(FVector(Positions.VertexPosition(i)), Grid[PointID].InitialPosition);
-                if (PointDistSquared < PointInfluenceMaxDistSquared)
-                {
-                    InfluencePoints.Add(PointID, PointDistSquared);
-                }
-            }
-            InfluencePoints.ValueSort([](const float& A, const float& B)
-            {
-                return A < B;
-            });
-            for (int32 InfPointID = 0; const TTuple<int32, float> InfluencePoint : InfluencePoints)
-            {
-                Grid[InfluencePoint.Key].SkeletalVertexInfluences.FindOrAdd(Mesh).Add( FPoint::Vertex {
-                    .Id = i,
-                    .Influence = 1 - FMath::Sqrt(InfluencePoint.Value) / PointInfluenceMaxDistance}
-                );
-                InfPointID++;
-                if (InfPointID >= PointInfluenceMaxNum) break;
-            }
-        }
-    }
-    for (USkeletalMeshComponent* Mesh : SkeletalMeshComponents)
-    {
-        const TObjectPtr<USkeletalMesh> SourceSkeletalMesh = Mesh->GetSkeletalMeshAsset();
-        TObjectPtr<USkeletalMesh> TargetSkeletalMesh = NewObject<USkeletalMesh>();
-
-        auto& SourceLODRenderData = SourceSkeletalMesh->GetResourceForRendering()->LODRenderData[0];
-        SourceSkeletalMesh->GetLODInfo(0)->bAllowCPUAccess = true;
-
-        TargetSkeletalMesh->SetRefSkeleton(SourceSkeletalMesh->GetRefSkeleton());
-        TargetSkeletalMesh->SetSkeleton(SourceSkeletalMesh->GetSkeleton());
-        TargetSkeletalMesh->SetPhysicsAsset(SourceSkeletalMesh->GetPhysicsAsset());
-
-        // __________________
-        // Allocate Resources.
-        TargetSkeletalMesh->AllocateResourceForRendering();
-        FSkeletalMeshRenderData* MeshRenderData = TargetSkeletalMesh->GetResourceForRendering();
-        FSkeletalMeshLODRenderData* LODMeshRenderData = new FSkeletalMeshLODRenderData;
-        MeshRenderData->LODRenderData.Add(LODMeshRenderData);
-
-        // __________________
-        // Add LOD Data.
-        TargetSkeletalMesh->ResetLODInfo();
-        FSkeletalMeshLODInfo& MeshLodInfo = TargetSkeletalMesh->AddLODInfo();
-        MeshLodInfo.LODHysteresis = 0.02;
-        MeshLodInfo.ScreenSize = 1.0;
-        MeshLodInfo.bAllowCPUAccess = true;
-
-        // __________________
-        // Set Imported Bounds.
-        TargetSkeletalMesh->SetImportedBounds(SourceSkeletalMesh->GetImportedBounds());
-
-#if WITH_EDITORONLY_DATA
-        FSkeletalMeshLODModel* NewSkeletalMeshLODModel = new FSkeletalMeshLODModel();
-        NewSkeletalMeshLODModel->CopyStructure(NewSkeletalMeshLODModel, &SourceSkeletalMesh->GetImportedModel()->LODModels[0]);
-        TargetSkeletalMesh->GetImportedModel()->LODModels.Add(NewSkeletalMeshLODModel);
-#endif
-
-        LODMeshRenderData->RenderSections = SourceLODRenderData.RenderSections;
-
-        TArray<uint32> IndexBuffer;
-        SourceLODRenderData.MultiSizeIndexContainer.GetIndexBuffer(IndexBuffer);
-        LODMeshRenderData->MultiSizeIndexContainer.RebuildIndexBuffer(SourceLODRenderData.MultiSizeIndexContainer.GetDataTypeSize(), IndexBuffer);
-
-        // __________________
-        // Build Position Vertex Buffer.
-        const uint32 VertexCount = SourceLODRenderData.StaticVertexBuffers.PositionVertexBuffer.GetNumVertices();
-        LODMeshRenderData->StaticVertexBuffers.PositionVertexBuffer.Init(VertexCount, true);
-        for (uint32 i = 0; i < VertexCount; ++i)
-        {
-            LODMeshRenderData->StaticVertexBuffers.PositionVertexBuffer.VertexPosition(i) = SourceLODRenderData.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(i);
-        }
-
-        // __________________
-        // Build Static Mesh Vertex Buffer.
-        LODMeshRenderData->StaticVertexBuffers.StaticMeshVertexBuffer.Init(
-            VertexCount,
-            SourceLODRenderData.StaticVertexBuffers.StaticMeshVertexBuffer.GetNumTexCoords(),
-            true
-        );
-
-        // __________________
-        // Copy the vertices into the buffer.
-        for (uint32 VertexIndex = 0; VertexIndex < VertexCount; VertexIndex++)
-        {
-            LODMeshRenderData->StaticVertexBuffers.StaticMeshVertexBuffer.SetVertexTangents(
-                VertexIndex,
-                SourceLODRenderData.StaticVertexBuffers.StaticMeshVertexBuffer.VertexTangentX(VertexIndex),
-                SourceLODRenderData.StaticVertexBuffers.StaticMeshVertexBuffer.VertexTangentY(VertexIndex),
-                SourceLODRenderData.StaticVertexBuffers.StaticMeshVertexBuffer.VertexTangentZ(VertexIndex)
-            );
-
-            for (uint32 UVIndex = 0; UVIndex < SourceLODRenderData.StaticVertexBuffers.StaticMeshVertexBuffer.GetNumTexCoords(); UVIndex++)
-            {
-                LODMeshRenderData->StaticVertexBuffers.StaticMeshVertexBuffer.SetVertexUV(
-                    VertexIndex,
-                    UVIndex,
-                    SourceLODRenderData.StaticVertexBuffers.StaticMeshVertexBuffer.GetVertexUV(VertexIndex, UVIndex)
-                );
-            }
-        }
-
-        // __________________
-        // Build Skin Weight Buffer.
-        LODMeshRenderData->SkinWeightVertexBuffer.SetMaxBoneInfluences(SourceLODRenderData.SkinWeightVertexBuffer.GetMaxBoneInfluences());
-        LODMeshRenderData->SkinWeightVertexBuffer.SetUse16BitBoneIndex(SourceLODRenderData.SkinWeightVertexBuffer.Use16BitBoneIndex());
-        TArray<FSkinWeightInfo> Weights;
-        SourceLODRenderData.SkinWeightVertexBuffer.GetSkinWeights(Weights);
-        LODMeshRenderData->SkinWeightVertexBuffer = Weights;
-
-        // __________________
-        // Set the default Material.
-        TargetSkeletalMesh->SetMaterials(SourceSkeletalMesh->GetMaterials());
-        
-        // __________________
-        // Set Bone data.
-        LODMeshRenderData->RequiredBones = SourceLODRenderData.RequiredBones;
-        LODMeshRenderData->ActiveBoneIndices = SourceLODRenderData.ActiveBoneIndices;
-
-        
-        UMirrorDataTable* MirrorDataTable = NewObject<UMirrorDataTable>(GetTransientPackage(), NAME_None, RF_Transient);
-        if (MirrorDataTable)
-        {          
-            MirrorDataTable->MirrorAxis = EAxis::Type::None;    
-        }
-
-        TargetSkeletalMesh->GetRefBasesInvMatrix().Empty();
-        TargetSkeletalMesh->CalculateInvRefMatrices();
-        
-        FlushRenderingCommands();
-        TargetSkeletalMesh->PostLoad();
-#if WITH_EDITOR
-        TargetSkeletalMesh->StackPostEditChange();
-#endif
-        Mesh->SetSkeletalMesh(TargetSkeletalMesh);
-    }
-}
-
 
 void UDeformationComponent::DeformMesh(const FVector Location, const FVector Normal)
 {
