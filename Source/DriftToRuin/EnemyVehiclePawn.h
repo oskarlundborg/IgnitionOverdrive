@@ -68,8 +68,8 @@ private:
 	UBlackboardComponent* BlackboardComp;
 	UPROPERTY()
 	class USplineComponent* MySpline = nullptr;
-	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
-	UChaosVehicleMovementComponent* AIVehicleMovementComp = nullptr;
+	//UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
+	//UChaosVehicleMovementComponent* AIVehicleMovementComp = nullptr;
 
 	//pathfinding
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
