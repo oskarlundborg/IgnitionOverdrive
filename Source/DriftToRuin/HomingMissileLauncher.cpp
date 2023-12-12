@@ -51,27 +51,33 @@ void AHomingMissileLauncher::InitializeOwnerVariables()
 void AHomingMissileLauncher::PullTrigger()
 {
 	Super::PullTrigger();
-	if(bIsOnCooldown) return;
-	//ChargeAmount = 0;
-	CurrentTarget = nullptr;
-	LastTarget = nullptr;
-	FindTarget();
-	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
-	if(TargetVenchi && !CheckTargetIsDead(TargetVenchi)) OnChargeFire();
+	if(ChargeAmount == 0)
+	{
+		if(bIsOnCooldown) return;
+		//ChargeAmount = 0;
+		CurrentTarget = nullptr;
+		LastTarget = nullptr;
+		FindTarget();
+		ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
+		if(TargetVenchi && !CheckTargetIsDead(TargetVenchi)) OnChargeFire();	
+	} else
+	{
+		bIsCharging = false;
+		ChargeValue = 0.f;
+		if(GetWorldTimerManager().IsTimerActive(ChargeHandle)) GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
+	
+		if(!CurrentTarget || ChargeAmount == 0 || GetWorldTimerManager().IsTimerActive(FireTimer)) return;
+		bIsOnCooldown = true;
+		SetCooldownDuration();
+		GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, CooldownDuration, false, CooldownDuration);
+		OnFire();
+	}
 }
 			
 void AHomingMissileLauncher::ReleaseTrigger()
 {
 	Super::ReleaseTrigger();
-	bIsCharging = false;
-	ChargeValue = 0.f;
-	if(GetWorldTimerManager().IsTimerActive(ChargeHandle)) GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
-	
-	if(!CurrentTarget || ChargeAmount == 0 || GetWorldTimerManager().IsTimerActive(FireTimer)) return;
-	bIsOnCooldown = true;
-	SetCooldownDuration();
-	GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, CooldownDuration, false, CooldownDuration);
-	OnFire();
+
 }
 
 AActor* AHomingMissileLauncher::GetLastTarget() const
