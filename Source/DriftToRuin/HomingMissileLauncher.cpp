@@ -305,7 +305,7 @@ void AHomingMissileLauncher::CheckTargetStatus()
 
 bool AHomingMissileLauncher::CheckTargetLineOfSight(const AController* Controller, const AActor* Target) const
 {
-	return Controller->LineOfSightTo(Target, {CarOwner->GetCameraLocation().X, CarOwner->GetCameraLocation().Y, CarOwner->GetCameraLocation().Z + 200.f});
+	return Controller->LineOfSightTo(Target, {CarOwner->GetCameraLocation().X, CarOwner->GetCameraLocation().Y, CarOwner->GetCameraLocation().Z + 300.f});
 }
 
 bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* PlayerController) const
