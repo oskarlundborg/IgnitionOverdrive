@@ -53,11 +53,11 @@ void AHomingMissileLauncher::InitializeOwnerVariables()
 
 void AHomingMissileLauncher::PullTrigger()
 {
+	Super::PullTrigger();
 	if(bIsOnCooldown) return;
 	//ChargeAmount = 0;
 	CurrentTarget = nullptr;
 	LastTarget = nullptr;
-	Super::PullTrigger();
 	FindTarget();
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
 	if(TargetVenchi && !CheckTargetIsDead(TargetVenchi)) OnChargeFire();
@@ -286,22 +286,37 @@ void AHomingMissileLauncher::CheckTargetStatus()
 	APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerController);
 	if(OwnerPlayerController == nullptr) return;
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(CurrentTarget);
-	if(!CheckTargetLineOfSight(OwnerController) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
+	if(!CheckTargetLineOfSight(OwnerController, CurrentTarget) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
 	{
 		CurrentTarget = nullptr;
 		ChargeAmount = 0;
 		bIsCharging = false;
 		ChargeValue = 0.f;
+		bCanLockOn = false;
 		GetWorldTimerManager().ClearTimer(FireTimer);
 		//GetWorldTimerManager().ClearTimer(ChargeHandle);
 		//GetWorldTimerManager().ClearTimer(FireTimer);
 	}
 }
 
-bool AHomingMissileLauncher::CheckTargetLineOfSight(const AController* Controller) const
+void AHomingMissileLauncher::CheckHoverTargetStatus()
 {
-	FVector OwnerEyes(GetOwner()->GetActorLocation().X, GetOwner()->GetActorLocation().Y, GetOwner()->GetActorLocation().Z + 1000.f);
-	return Controller->LineOfSightTo(CurrentTarget, OwnerEyes);
+	if(!HoverTarget || !bCanLockOn || !CarOwner) return;
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
+	if(OwnerController == nullptr) return;
+	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HoverTarget);
+	if(!CheckTargetLineOfSight(OwnerController, HoverTarget) || CheckTargetIsDead(TargetVenchi))
+	{
+		//UE_LOG(LogTemp, Error, TEXT("DEAD"));
+		bCanLockOn = false;
+		HoverTarget = nullptr;
+	}
+}
+
+bool AHomingMissileLauncher::CheckTargetLineOfSight(const AController* Controller, const AActor* Target) const
+{
+	//FVector OwnerEyes(GetOwner()->GetActorLocation().X, GetOwner()->GetActorLocation().Y, GetOwner()->GetActorLocation().Z + 1000.f);
+	return Controller->LineOfSightTo(Target, CarOwner->GetCameraLocation());
 }
 
 bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* PlayerController) const
@@ -349,6 +364,11 @@ void AHomingMissileLauncher::FindTarget()
 
 void AHomingMissileLauncher::CheckCanLockOn()
 {
+	if(!bCanStartSweep)
+	{
+		UE_LOG(LogTemp, Error, TEXT("NO SWEEPY SWEEP"))
+		return;
+	}
 	if(CarOwner == nullptr) return;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
@@ -356,7 +376,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	FHitResult HitResult;
     bool bHit = PerformTargetLockSweep(HitResult);
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
-	
+	UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead() && !bIsOnCooldown && !bIsCharging)
 	{
 		bCanLockOn = true;
@@ -366,6 +386,18 @@ void AHomingMissileLauncher::CheckCanLockOn()
 		bCanLockOn = false;
 		//UE_LOG(LogTemp, Warning, TEXT("No"));
 	}
+}
+
+void AHomingMissileLauncher::CheckTargetOverlapBegin(AActor* HoverActor)
+{
+	bCanStartSweep = true;
+	//HoverTarget = HoverActor;
+}
+
+void AHomingMissileLauncher::CheckTargetOverlapEnd(AActor* HoverActor)
+{
+	bCanStartSweep = false;
+	//HoverTarget = nullptr;
 }
 
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
@@ -401,6 +433,7 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
+	//CheckHoverTargetStatus();
 	CheckCanLockOn();
 	//if(GetOwner() && CurrentTarget) GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget)));
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCooldownTime());
