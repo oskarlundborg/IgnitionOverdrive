@@ -58,6 +58,7 @@ void APlayerVehiclePawn::BeginPlay()
 	HomingLauncher->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("MissileLauncerRef"));
 	HomingLauncher->SetOwner(this);
 	HomingLauncher->InitializeOwnerVariables();
+	InitializeWeaponReferancesInBP(Minigun, HomingLauncher);
 }
 
 void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
