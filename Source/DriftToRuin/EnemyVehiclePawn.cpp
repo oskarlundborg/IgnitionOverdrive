@@ -6,6 +6,7 @@
 #include "AITurret.h"
 #include "AIController.h"
 #include "ChaosVehicleMovementComponent.h"
+#include "ChaosWheeledVehicleMovementComponent.h"
 #include "HomingMissileLauncher.h"
 #include "Minigun.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -51,14 +52,14 @@ void AEnemyVehiclePawn::BeginPlay()
 	}
 	BlackboardComp->SetValueAsString("StringBehavior", "Drive");
 
-	AIVehicleMovementComp = Cast<UChaosVehicleMovementComponent>(GetMovementComponent());
-	ensureMsgf(AIVehicleMovementComp != nullptr, TEXT("Vehicle movement comp was null"));
-	if (AIVehicleMovementComp == nullptr)
+	//VehicleMovementComp = Cast<UChaosVehicleMovementComponent>(GetMovementComponent());
+	ensureMsgf(VehicleMovementComp != nullptr, TEXT("Vehicle movement comp was null"));
+	if (VehicleMovementComp == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("movement cojmponent null"));
 	}
 
-	AIVehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
+	VehicleMovementComp->UpdatedPrimitive->SetPhysicsMaxAngularVelocityInDegrees(180);
 
 	//DefaultFrontFriction=VehicleMovementComp->Wheels[0]->FrictionForceMultiplier;
 
@@ -291,14 +292,14 @@ void AEnemyVehiclePawn::ManageSpeed()
 	//	UE_LOG(LogTemp, Warning, TEXT("maxspeed after clamp %f"), MaxSpeed);
 
 
-	const float Speed = AIVehicleMovementComp->GetForwardSpeed();
+	const float Speed = VehicleMovementComp->GetForwardSpeed();
 	//UE_LOG(LogTemp, Warning, TEXT("forward speed %f"), VehicleMovementComponent->GetForwardSpeed());
-	float TempBrakeInput = AIVehicleMovementComp->GetBrakeInput();
+	float TempBrakeInput = VehicleMovementComp->GetBrakeInput();
 	//	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
 
 	if (ABSDeltaYaw > 5 && AIVehicleMovementComp->GetForwardSpeed() > 1000)
 	{
-		AIVehicleMovementComp->SetThrottleInput(0);
+		VehicleMovementComp->SetThrottleInput(0);
 		//	UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));
 		float MaxDeltaYaw = 30;
 		float NormalizedDeltaYaw = FMath::Clamp(ABSDeltaYaw / MaxDeltaYaw, 0.0f, 1.0f);
@@ -307,20 +308,20 @@ void AEnemyVehiclePawn::ManageSpeed()
 
 		const float LerpValue = FMath::Lerp(TempBrakeInput, AIBrakeInput, GetWorld()->DeltaTimeSeconds * 80);
 
-		AIVehicleMovementComp->SetBrakeInput(LerpValue);
+		VehicleMovementComp->SetBrakeInput(LerpValue);
 		//	UE_LOG(LogTemp, Warning, TEXT("lerp value brake input: %f"), LerpValue);
 	}
 	else if (Speed > MaxSpeed)
 	{
-		AIVehicleMovementComp->SetBrakeInput(0);
+		VehicleMovementComp->SetBrakeInput(0);
 		// be able to slow down very much faster in a curve
-		AIVehicleMovementComp->SetThrottleInput(AIVehicleMovementComp->GetThrottleInput() - 0.2);
+		VehicleMovementComp->SetThrottleInput(VehicleMovementComp->GetThrottleInput() - 0.2);
 		//UE_LOG(LogTemp, Warning, TEXT("throttle input changing to: %f"), VehicleMovementComponent->GetThrottleInput());
 	}
 	else
 	{
-		AIVehicleMovementComp->SetThrottleInput(0.6);
-		AIVehicleMovementComp->SetBrakeInput(0);
+		VehicleMovementComp->SetThrottleInput(0.6);
+		VehicleMovementComp->SetBrakeInput(0);
 	}
 }
 
@@ -328,7 +329,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 void AEnemyVehiclePawn::DriveAlongSpline()
 {
 	InitializeSpline();
-	if (LeftSensor == nullptr || RightSensor == nullptr || AIVehicleMovementComp == nullptr || MySpline == nullptr)
+	if (LeftSensor == nullptr || RightSensor == nullptr || VehicleMovementComp == nullptr || MySpline == nullptr)
 		return;
 	//get a spline point along the spline
 	//only gets the point if you are at the start point of the spline. Very few Work cases
@@ -423,8 +424,8 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 	SensorGapDifference = FVector::Dist(LeftSensor->GetComponentLocation(), SplineLocationPoint) - FVector::Dist(
 		RightSensor->GetComponentLocation(), SplineLocationPoint);
 	SensorGapDifference = FMath::Abs(SensorGapDifference);*/
-
-	AIVehicleMovementComp->SetSteeringInput(SteeringValue);
+	
+	VehicleMovementComp->SetSteeringInput(SteeringValue);
 }
 
 void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
@@ -443,8 +444,8 @@ void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
 		BlackboardComp->SetValueAsObject("TempRoadSpline", MySpline);
 		BlackboardComp->ClearValue("RoadSpline");
 
-		AIVehicleMovementComp->SetThrottleInput(0);
-		AIVehicleMovementComp->SetSteeringInput(0);
+		VehicleMovementComp->SetThrottleInput(0);
+		VehicleMovementComp->SetSteeringInput(0);
 		BlackboardComp->SetValueAsBool("AtRoadEnd", true);
 		HasNewSplineBeenSetup = false;
 		TargetSplineDistance = 0.0f;
