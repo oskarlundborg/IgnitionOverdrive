@@ -133,6 +133,15 @@ void UPowerupComponent::ClearPowerup(int PowerupId)
 	}
 }
 
+void UPowerupComponent::ResetPowerups()
+{
+	ClearPowerup(1);
+	ClearPowerup(2);
+	ClearPowerup(3);
+	ClearPowerup(4);
+	Owner->SetHeldPowerup(0);
+}
+
 float UPowerupComponent::GetPowerupPercentage(float PowerupFloat, float PowerupDuration)
 {
 	return FMath::Clamp(PowerupFloat / PowerupDuration, 0.f, 1.f);
