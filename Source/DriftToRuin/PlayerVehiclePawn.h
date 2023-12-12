@@ -51,6 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	APlayerTurret* GetTurret() const;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void InitializeWeaponReferancesInBP(AMinigun* MinigunRef, AHomingMissileLauncher* MissileLauncherRef);
+
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
 
