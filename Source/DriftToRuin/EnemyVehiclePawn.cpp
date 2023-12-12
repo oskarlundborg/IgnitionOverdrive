@@ -288,7 +288,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 	//UE_LOG(LogTemp, Warning, TEXT("maxspeed %f"), MaxSpeed);
 
 	//clamp value betwwen low speed and maxspeed
-	MaxSpeed = FMath::Clamp(MaxSpeed, 50, 1000);
+	MaxSpeed = FMath::Clamp(MaxSpeed, 50, 1500);
 	//	UE_LOG(LogTemp, Warning, TEXT("maxspeed after clamp %f"), MaxSpeed);
 
 
@@ -297,7 +297,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 	float TempBrakeInput = VehicleMovementComp->GetBrakeInput();
 	//	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
 
-	if (ABSDeltaYaw > 5 && AIVehicleMovementComp->GetForwardSpeed() > 1000)
+	if (ABSDeltaYaw > 5 && VehicleMovementComp->GetForwardSpeed() > 1000)
 	{
 		VehicleMovementComp->SetThrottleInput(0);
 		//	UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));

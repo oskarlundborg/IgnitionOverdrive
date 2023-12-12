@@ -67,7 +67,7 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	}
 	
 	FVector PointToDriveTo = BlackboardComp->GetValueAsVector("LocationToDrive");
-	TArray<int32> Differences;
+	
 // set spec trace channel for spline
 	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd, FQuat::Identity, ECC_Visibility,
 	                                            FCollisionShape::MakeSphere(ScanRadius), CollisionParams))
