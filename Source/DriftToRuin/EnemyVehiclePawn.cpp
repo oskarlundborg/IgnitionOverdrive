@@ -296,7 +296,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 	float TempBrakeInput = AIVehicleMovementComp->GetBrakeInput();
 	//	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
 
-	if (ABSDeltaYaw > 3 && AIVehicleMovementComp->GetForwardSpeed() > 500)
+	if (ABSDeltaYaw > 5 && AIVehicleMovementComp->GetForwardSpeed() > 1000)
 	{
 		AIVehicleMovementComp->SetThrottleInput(0);
 		//	UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));

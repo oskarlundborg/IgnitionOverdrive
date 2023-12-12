@@ -65,6 +65,9 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 		UE_LOG(LogTemp, Warning, TEXT("ACTOR ROAD SPLINE WAS NOT NULL SETTING BB SPLINE: "));
 		BBSpline = ActorRoadSpline->GetComponentByClass<USplineComponent>();
 	}
+	
+	FVector PointToDriveTo = BlackboardComp->GetValueAsVector("LocationToDrive");
+	TArray<int32> Differences;
 // set spec trace channel for spline
 	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd, FQuat::Identity, ECC_Visibility,
 	                                            FCollisionShape::MakeSphere(ScanRadius), CollisionParams))
@@ -95,10 +98,32 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 		//make sure spline is not the one currently set
 		if (EligibleSplineHits.Num() > 0)
 		{
+			TArray<float> Differences;
+
+			//hitta en spline som är närmaste till mitt punkten, för att tvinga in Ai i mitten för mer fights. 
+			for (USplineComponent* Spline : EligibleSplineHits)
+			{
+				FVector SplineMidpoint = Spline->GetLocationAtSplineInputKey(Spline->GetNumberOfSplinePoints() / 2, ESplineCoordinateSpace::World);
+				float Distance = FVector::DistSquared(SplineMidpoint, PointToDriveTo);
+				Differences.Add(Distance);
+			}
+			
+			int32 MinDistanceIndex = 0;
+			for (int32 i = 1; i < Differences.Num(); ++i)
+			{
+				if (Differences[i] < Differences[MinDistanceIndex])
+				{
+					MinDistanceIndex = i;
+				}
+			}
+
+			float RandomChance = FMath::FRand();
+			USplineComponent* ClosestSpline = EligibleSplineHits[MinDistanceIndex];
+			
 			//UE_LOG(LogTemp, Warning, TEXT("Spline was found"));
 			USplineComponent* ChosenSpline = EligibleSplineHits[FMath::RandRange(0, EligibleSplineHits.Num() - 1)];
 			// Set chosen spline in BB
-			BlackboardComp->SetValueAsObject("RoadSpline", ChosenSpline->GetOwner());
+			BlackboardComp->SetValueAsObject("RoadSpline", RandomChance <= 0.7f ? ClosestSpline->GetOwner() : ChosenSpline->GetOwner());
 			AEnemyVehiclePawn* AIEnemy = Cast<AEnemyVehiclePawn>(AIPawn);
 			ensureMsgf(AIEnemy != nullptr, TEXT("AI enemy was nyll, need it to set that new spline should be setup"));
 			AIEnemy->SetHasNewSplineBeenSetup(false);
