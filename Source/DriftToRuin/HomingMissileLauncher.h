@@ -33,7 +33,7 @@ public:
 	float GetChargeCapValue();
 
 	bool CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const;
-	bool CheckTargetLineOfSight(const AController* Controller) const;
+	bool CheckTargetLineOfSight(const AController* Controller, const AActor* Target) const;
 	
 	void OnFireAI(AActor* Target, int32 Charge);
 
@@ -66,6 +66,9 @@ public:
 	FTimerHandle& GetFireTimer();
 	void SetChargeAmount(float NewChargeAmount);
 	void SetAICooldown();
+
+	void CheckTargetOverlapBegin(AActor* HoverActor);
+	void CheckTargetOverlapEnd(AActor* HoverActor);
 	
 private:
 	UPROPERTY()
@@ -108,6 +111,7 @@ private:
 	bool bIsCharging;
 	bool bIsOnCooldown;
 	bool bCanLockOn;
+	bool bCanStartSweep;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
 	float TargetingRange;
@@ -125,9 +129,10 @@ private:
 	
 	UPROPERTY()
 	AActor* CurrentTarget;
-
 	UPROPERTY()
 	AActor* LastTarget;
+	UPROPERTY()
+	AActor* HoverTarget;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -146,6 +151,7 @@ private:
 	void CheckTargetStatus();
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
 	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
+	void CheckHoverTargetStatus();
 	
 
 	void ResetCooldown();

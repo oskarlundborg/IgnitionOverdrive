@@ -152,6 +152,8 @@ public:
 	UFUNCTION()
 	virtual void BeginPlay() override;
 
+	FVector GetCameraLocation() const;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void HitScrapLevelThree(bool bHitScrapLevelThree);
 
