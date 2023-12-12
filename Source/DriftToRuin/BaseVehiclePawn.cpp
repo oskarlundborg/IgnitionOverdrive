@@ -258,6 +258,11 @@ void ABaseVehiclePawn::BeginPlay()
 	InitVFX();
 }
 
+FVector ABaseVehiclePawn::GetCameraLocation() const
+{
+	return CameraComponent->GetComponentLocation();
+}
+
 void ABaseVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

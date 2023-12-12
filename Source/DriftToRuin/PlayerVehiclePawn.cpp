@@ -2,6 +2,7 @@
 
 
 #include "PlayerVehiclePawn.h"
+
 #include "EnhancedInputComponent.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
@@ -10,12 +11,19 @@
 #include "TimerManager.h"
 #include "Minigun.h"
 #include "PlayerTurret.h"
+#include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
 
 APlayerVehiclePawn::APlayerVehiclePawn()
 {
-	
+	LockOnCheckCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LockOnCheckBox"));
+	LockOnCheckCollision->SetupAttachment(CameraComponent, FName("LockOnBoxSocket"));
+	LockOnCheckCollision->SetRelativeLocation({7500.f, 0.f, 0.f});
+	LockOnCheckCollision->InitBoxExtent({7500.f, 180.f, 120.f});
+	LockOnCheckCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerVehiclePawn::OnLockOnBoxBeginOverlap);
+	LockOnCheckCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerVehiclePawn::OnLockOnBoxEndOverlap);
 }
 
 void APlayerVehiclePawn::BeginPlay()
@@ -233,6 +241,22 @@ void APlayerVehiclePawn::ApplyAirRollPitch(const FInputActionValue& Value)
 	{
 		GetMesh()->AddAngularImpulseInDegrees(-(GetMesh()->GetRightVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
 	}
+}
+
+void APlayerVehiclePawn::OnLockOnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ABaseVehiclePawn* Target = Cast<ABaseVehiclePawn>(OtherActor);
+	if(!Target) return;
+	if(Target == this || Target->GetIsDead()) return;
+	HomingLauncher->CheckTargetOverlapBegin(OtherActor);
+}
+
+void APlayerVehiclePawn::OnLockOnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if(OtherActor == this) return;
+	HomingLauncher->CheckTargetOverlapEnd(OtherActor);
 }
 
 void APlayerVehiclePawn::FireMinigun()

@@ -14,6 +14,7 @@
 #include "BaseVehiclePawn.h"
 #include "PlayerVehiclePawn.generated.h"
 
+class UBoxComponent;
 /**
  * 
  */
@@ -103,6 +104,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* FireHomingMissilesAction;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="LockOn", meta=(AllowPrivateAccess = "true"))
+	UBoxComponent* LockOnCheckCollision;
+
 	//How fast air rolls can be done
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AirRoll, meta=(AllowPrivateAccess = "true"))
 	float AirRollSensitivity = 0.7f;
@@ -140,6 +144,11 @@ private:
 	FTimerHandle SideSwipeTimer;
 
 	FTimerHandle AirRollTimer;
+	
+	UFUNCTION()
+	void OnLockOnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnLockOnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 	void ApplyThrottle(const struct FInputActionValue& Value);
 	void ApplyBraking(const  FInputActionValue& Value);
