@@ -151,7 +151,6 @@ private:
 	void CheckTargetStatus();
 	bool CheckTargetInScreenBounds(const APlayerController* PlayerController) const;
 	bool CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const;
-	void CheckHoverTargetStatus();
 	
 
 	void ResetCooldown();
