@@ -253,6 +253,9 @@ protected:
 	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCameraShakeBase> BoostCameraShake;
 
+	UPROPERTY(Category=Camera, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> CrashCameraShake;
+
 	UPROPERTY(Category=Powerup, EditAnywhere, BlueprintReadOnly)
 	class UPowerupComponent* PowerupComponent;
 
@@ -426,6 +429,9 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* HomingTargetPoint;
+
+	UPROPERTY()
+	bool bAllowHit = true;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
