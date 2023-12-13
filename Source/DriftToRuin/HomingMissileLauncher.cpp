@@ -7,6 +7,7 @@
 #include "BaseVehiclePawn.h"
 #include "EnemyVehiclePawn.h"
 #include "Minigun.h"
+#include "PlayerVehiclePawn.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AHomingMissileLauncher::AHomingMissileLauncher()
@@ -42,6 +43,7 @@ void AHomingMissileLauncher::BeginPlay()
 void AHomingMissileLauncher::InitializeOwnerVariables()
 {
 	CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	CarOwnerPlayer = Cast<APlayerVehiclePawn>(GetOwner());
 	/*if(CarOwner == nullptr) return;
 	OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
@@ -292,7 +294,6 @@ void AHomingMissileLauncher::CheckTargetStatus()
 	if(!CheckTargetLineOfSight(OwnerController, CurrentTarget) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
 	{
 		CurrentTarget = nullptr;
-		//HoverTarget = nullptr;
 		ChargeAmount = 0;
 		bIsCharging = false;
 		ChargeValue = 0.f;
@@ -354,16 +355,31 @@ void AHomingMissileLauncher::FindTarget()
 void AHomingMissileLauncher::CheckCanLockOn()
 {
 	if(CarOwner == nullptr) return;
+	TArray<AActor*> Overlapping;
+	CarOwnerPlayer->GetLockOnBox(Overlapping);
+	if(Overlapping.IsEmpty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		bCanLockOn = false;
+		return;
+	} 
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
-	/*if(HoverTarget && CheckTargetLineOfSight(OwnerController, HoverTarget))
+	bool bCanStartSweep = false;
+	for(AActor* Actor : Overlapping)
 	{
-		bCanStartSweep = true;
-	} else
+		if(Actor && CheckTargetLineOfSight(OwnerController, Actor))
+		{
+			bCanStartSweep = true;
+			break;
+		}
+	}
+	if(!bCanStartSweep)
 	{
-		bCanStartSweep = false;
-	}*/
-	
+		UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		bCanLockOn = false;
+		return;
+	} 
 	FHitResult HitResult;
     bool bHit = PerformTargetLockSweep(HitResult);
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
@@ -373,40 +389,12 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	} else
 	{
 		bCanLockOn = false;
-		bCanStartSweep = false;
 	}
-}
-
-void AHomingMissileLauncher::CheckTargetOverlapBegin(AActor* OverlapActor)
-{
-	//if(HoverTarget) return;
-	if(CarOwner == nullptr) return;
-	AController* OwnerController = Cast<AController>(CarOwner->GetController());
-	if(CheckTargetLineOfSight(OwnerController, OverlapActor))
-	{
-		bCanStartSweep = true;
-	}
-	/*else
-	{
-		bCanStartSweep = false;
-	}*/
-	//HoverTarget = HoverActor;
-}
-
-void AHomingMissileLauncher::CheckTargetOverlapEnd(AActor* HoverActor)
-{
-	//if(HoverTarget && HoverTarget != HoverActor) return;
-	//bCanStartSweep = false;
-	//HoverTarget = nullptr;
 }
 
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
-	if(!bCanStartSweep || bIsOnCooldown)
-	{
-		UE_LOG(LogTemp, Error, TEXT("NOTS"));
-		return false; 
-	} 
+	if(bIsOnCooldown || bIsCharging) return false;
 	UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
 	if(CarOwner == nullptr) return false;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
@@ -426,11 +414,9 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	//FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
 	FCollisionShape SweepBox = FCollisionShape::MakeBox(FVector(60.f, 90.f ,60.f));
 	
 	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepBox, TraceParams);
-	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 20, FColor::Green, true);
 	//DrawDebugBox(GetWorld(), TraceEnd, SweepBox.GetExtent(), FColor::Blue, true);
 	return bHit;
 }
