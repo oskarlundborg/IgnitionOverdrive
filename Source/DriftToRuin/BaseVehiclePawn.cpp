@@ -94,6 +94,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Audio Component for level up sound
 	ScrapLevelAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ScrapLevelAudioSource"));
 
+	//Audio component for wheel gravel and stuff.
+	WheelAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("WheelAudioSource"));
+
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
 	BoostVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
@@ -268,6 +271,7 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	
 	UpdateEngineSFX();
+	UpdateWheelSFX();
 	UpdateGravelVFX();
 	UpdateAirbornePhysics();
 	
@@ -468,6 +472,28 @@ void ABaseVehiclePawn::UpdateEngineSFX() const
 	EngineAudioComponent->SetFloatParameter(TEXT("EngineRPM"), MappedEngineRotationSpeed);
 }
 
+void ABaseVehiclePawn::UpdateWheelSFX() const
+{
+
+	WheelAudioComponent->SetPaused(!IsGrounded());
+	
+	const float MappedForwardSpeed = FMath::GetMappedRangeValueClamped(FVector2d(0, 100.0f),
+		FVector2d(0.0f, 2.0f),
+		VehicleMovementComp->GetForwardSpeedMPH());
+	WheelAudioComponent->SetFloatParameter(TEXT("ForwardSpeed"),  MappedForwardSpeed);
+	
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(VehicleMovementComp->GetWheelState(Wheel->WheelIndex).bIsSkidding || VehicleMovementComp->GetWheelState(Wheel->WheelIndex).bIsSlipping)
+		{
+			WheelAudioComponent->SetFloatParameter(TEXT("SlideModifier"), 2);
+			return;
+		}
+	}
+	WheelAudioComponent->SetFloatParameter(TEXT("SlideModifier"), 1);
+}	
+
+
 void ABaseVehiclePawn::InitVFX()
 {
 	if(BoostVfxNiagaraComponent)
@@ -529,6 +555,12 @@ void ABaseVehiclePawn::InitAudio()
 		BoostAudioComponent->SetVolumeMultiplier(1);
 		BoostAudioComponent->SetActive(bPlayEngineSound);
 		BoostAudioComponent->Stop();
+	}
+	if(WheelAudioComponent)
+	{
+		WheelAudioComponent->SetSound(WheelAudioSound);
+		WheelAudioComponent->SetVolumeMultiplier(1);
+		WheelAudioComponent->SetActive(bPlayEngineSound);
 	}
 }
 
@@ -807,17 +839,41 @@ void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 {
 	if ((LastHitLocation - Hit.Location).Length() <= HitDistanceMinimum) { return; }
 	LastHitLocation = Hit.Location;
-	float Mass = 2500.f;
-	if (OtherComponent->Mobility == EComponentMobility::Movable)
+	if (!bAllowHit) { return; }
+	bAllowHit = false;
+
+	const auto Speed = VehicleMovementComp->GetForwardSpeedMPH() < 0 ? -VehicleMovementComp->GetForwardSpeedMPH() : VehicleMovementComp->GetForwardSpeedMPH();
+	const auto ImpactForce = FMath::GetMappedRangeValueClamped(
+		FVector2d(0, 200),
+		FVector2d(0.0f, 1.0f),
+		Speed
+	);
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, FString::Printf(TEXT("Impact force: %f"), ImpactForce));
+	
+	if(const APlayerController* PController = Cast<APlayerController>(GetController())) 
 	{
-		Mass = OtherComponent->GetMass();
+		if(CrashCameraShake)
+		{
+			PController->PlayerCameraManager->StartCameraShake(
+				CrashCameraShake,
+				ImpactForce
+			);
+		}
 	}
+	
 	if (!CrashAudioComponent->IsPlaying())
 	{
-		CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * FVector(Mass)).Length());
+		CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), ImpactForce);
 		CrashAudioComponent->Play();
 		CrashAudioComponent->FadeOut(1.f, .2f, EAudioFaderCurve::Sin);
 	}
+	FTimerHandle THandle;
+	FTimerDelegate TDelegate;
+	TDelegate.BindLambda([&]
+	{
+		bAllowHit = true;
+	});
+	GetWorldTimerManager().SetTimer(THandle, TDelegate, 1.f, false);
 }
 
 void ABaseVehiclePawn::Hide(UPrimitiveComponent *Component, bool bHide)
