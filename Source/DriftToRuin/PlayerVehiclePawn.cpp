@@ -15,6 +15,7 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
+#include "Kismet/GameplayStatics.h"
 
 APlayerVehiclePawn::APlayerVehiclePawn()
 {
@@ -207,6 +208,7 @@ void APlayerVehiclePawn::SideSwipeLeft()
 	{
 		bCanSideSwipe = false;
 		SideThrusterRNiagaraComponent->Activate(true);
+		UGameplayStatics::PlaySoundAtLocation(this, SideswipeSound, GetActorLocation());
 		GetMesh()->AddImpulse(-GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
 		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
 	}
@@ -219,6 +221,7 @@ void APlayerVehiclePawn::SideSwipeRight()
 	{
 		bCanSideSwipe = false;
 		SideThrusterLNiagaraComponent->Activate(true);
+		UGameplayStatics::PlaySoundAtLocation(this, SideswipeSound, GetActorLocation());
 		GetMesh()->AddImpulse(GetActorRightVector()*SideSwipeForce, TEXT("Root"), true);
 		GetWorld()->GetTimerManager().SetTimer(SideSwipeTimer, this, &APlayerVehiclePawn::SetCanSideSwipeTrue, SideSwipeCooldown, false);
 	}
