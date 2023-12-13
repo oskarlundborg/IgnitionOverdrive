@@ -839,17 +839,41 @@ void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 {
 	if ((LastHitLocation - Hit.Location).Length() <= HitDistanceMinimum) { return; }
 	LastHitLocation = Hit.Location;
-	float Mass = 2500.f;
-	if (OtherComponent->Mobility == EComponentMobility::Movable)
+	if (!bAllowHit) { return; }
+	bAllowHit = false;
+
+	const auto Speed = VehicleMovementComp->GetForwardSpeedMPH() < 0 ? -VehicleMovementComp->GetForwardSpeedMPH() : VehicleMovementComp->GetForwardSpeedMPH();
+	const auto ImpactForce = FMath::GetMappedRangeValueClamped(
+		FVector2d(0, 200),
+		FVector2d(0.0f, 1.0f),
+		Speed
+	);
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, FString::Printf(TEXT("Impact force: %f"), ImpactForce));
+	
+	if(const APlayerController* PController = Cast<APlayerController>(GetController())) 
 	{
-		Mass = OtherComponent->GetMass();
+		if(CrashCameraShake)
+		{
+			PController->PlayerCameraManager->StartCameraShake(
+				CrashCameraShake,
+				ImpactForce
+			);
+		}
 	}
+	
 	if (!CrashAudioComponent->IsPlaying())
 	{
-		CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), (GetVelocity() * FVector(Mass)).Length());
+		CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), ImpactForce);
 		CrashAudioComponent->Play();
 		CrashAudioComponent->FadeOut(1.f, .2f, EAudioFaderCurve::Sin);
 	}
+	FTimerHandle THandle;
+	FTimerDelegate TDelegate;
+	TDelegate.BindLambda([&]
+	{
+		bAllowHit = true;
+	});
+	GetWorldTimerManager().SetTimer(THandle, TDelegate, 1.f, false);
 }
 
 void ABaseVehiclePawn::Hide(UPrimitiveComponent *Component, bool bHide)
