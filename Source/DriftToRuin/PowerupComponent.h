@@ -32,6 +32,9 @@ public:
 	void ClearPowerup(int PowerupId);
 
 	UFUNCTION(BlueprintCallable)
+	void ResetPowerups();
+
+	UFUNCTION(BlueprintCallable)
 	float GetPowerupPercentage(float PowerupFloat, float PowerupDuration);
 
 	class ABaseVehiclePawn* Owner;

@@ -160,11 +160,11 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	ExhaustL = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ExhaustL"));
 	ExhaustL->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("ExhaustLSocket"));
-	Hide(ExhaustL, true);
+	Hide(ExhaustL, false);
 
 	ExhaustR = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ExhaustR"));
 	ExhaustR->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("ExhaustRSocket"));
-	Hide(ExhaustR, true);
+	Hide(ExhaustR, false);
 
 	SpikeL = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SpikeL"));
 	SpikeL->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("SpikeLSocket"));
@@ -756,8 +756,6 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		bHitLevelTwo = true;
 		ScrapLevelAudioComponent->Play();
 
-		Hide(ExhaustL, false);
-		Hide(ExhaustR, false);
 		Hide(FuelTank, false);
 		//fuel tank, exhausts
 	}
