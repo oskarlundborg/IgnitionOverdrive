@@ -343,6 +343,9 @@ protected:
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* WheelAudioSound;
+	
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* SideswipeSound;
 
 	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* SideThrusterL;
