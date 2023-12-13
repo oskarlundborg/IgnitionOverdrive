@@ -25,7 +25,6 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	//set functions
-	UFUNCTION(BlueprintCallable)
 	void SetSwitchString(const FString& NewSwitchString);
 	void SetHasNewSplineBeenSetup(bool bValue);
 
@@ -177,7 +176,6 @@ private:
 	//driving behavior functions
 	void DrivePath();
 	void DriveAndShoot();
-	void ReactToGetShot();
 
 	//speed 
 	void ManageSpeed();
@@ -190,7 +188,6 @@ private:
 	void RandomlyRotateTurret();
 	void SetStartingRotation();
 	void AddNewTurretRotation();
-	void RotateTowardsShootingEnemy();
 
 	//shoot
 	void Shoot();

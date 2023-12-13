@@ -85,9 +85,8 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 	{
 		DrivePath();
 	}
-	else if (SwitchString == "ReactToGetShot")
+	else if (SwitchString == "Rush")
 	{
-		ReactToGetShot();
 		// Code for Case3
 	}
 	else
@@ -119,17 +118,6 @@ void AEnemyVehiclePawn::DriveAndShoot()
 	ManageSpeed();
 
 	CheckIfAtEndOfSpline();
-}
-
-void AEnemyVehiclePawn::ReactToGetShot()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Reacting to get shot"));
-
-	RotateTowardsShootingEnemy();
-	DriveAlongSpline();
-	ManageSpeed();
-	CheckIfAtEndOfSpline();
-	
 }
 
 void AEnemyVehiclePawn::Shoot()
@@ -277,27 +265,6 @@ void AEnemyVehiclePawn::AddNewTurretRotation()
 	TargetRotation.Yaw = CarRotation.Yaw - TurretRotation.Yaw + RotationIncrement.Yaw;
 
 	TimerIsActive = false;
-}
-
-void AEnemyVehiclePawn::RotateTowardsShootingEnemy()
-{
-	UObject* ShootingEnemy = BlackboardComp->GetValueAsObject("GotShotByEnemy");
-	AActor* ShootingEnemyActor = Cast<AActor>(ShootingEnemy);
-	if(ShootingEnemyActor == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("shootingenemyactor nullptr"));
-		return;
-	}
-	
-	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ShootingEnemyActor->GetActorLocation());
-
-	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-								   GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
-	if (Turret != nullptr)
-	{
-		Turret->SetActorRotation(NewRotation);
-	}
-
 }
 
 void AEnemyVehiclePawn::ManageSpeed()

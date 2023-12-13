@@ -103,18 +103,8 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 			//hitta en spline som är närmaste till mitt punkten, för att tvinga in Ai i mitten för mer fights. 
 			for (USplineComponent* Spline : EligibleSplineHits)
 			{
-				FVector SplineStart = Spline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
-				FVector SplineEnd = Spline->GetLocationAtSplinePoint(Spline->GetNumberOfSplinePoints() - 1,
-																	   ESplineCoordinateSpace::World);
-				// Calculate rotation to start and end pouint, choose the point that has less rotation, so that car smoothly transitions into new spline road.
-
-				// dubbel kolla dessa 
-				float DistanceToStart = FVector::Dist(AIPawn->GetActorLocation(), SplineStart);
-				float DistanceToEnd = FVector::Dist(AIPawn->GetActorLocation(), SplineEnd);
-				
-				
-			//	FVector SplineMidpoint = Spline->GetLocationAtSplineInputKey(Spline->GetNumberOfSplinePoints() / 2, ESplineCoordinateSpace::World);
-				float Distance = FVector::DistSquared( DistanceToEnd >= DistanceToStart ? SplineStart : SplineEnd, PointToDriveTo);
+				FVector SplineMidpoint = Spline->GetLocationAtSplineInputKey(Spline->GetNumberOfSplinePoints() / 2, ESplineCoordinateSpace::World);
+				float Distance = FVector::DistSquared(SplineMidpoint, PointToDriveTo);
 				Differences.Add(Distance);
 			}
 			

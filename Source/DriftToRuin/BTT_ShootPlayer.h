@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTT_SetBehaviorString.generated.h"
+#include "BTT_ShootPlayer.generated.h"
 /**
  * 
  */
