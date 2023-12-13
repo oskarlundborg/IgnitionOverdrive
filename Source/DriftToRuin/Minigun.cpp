@@ -84,7 +84,7 @@ void AMinigun::Fire()
 	//if sats, välj mellan AI adjust eller vanlig adjust.
 
 	bool IsAI = false;
-	if (Cast<AEnemyVehiclePawn>(GetOwner()))
+	if (GetOwner()->IsA(AEnemyVehiclePawn::StaticClass()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AI adjust projectile true"));
 		AIAdjustProjectileAimToCrosshair(SpawnLocation, ProjectileRotation);
