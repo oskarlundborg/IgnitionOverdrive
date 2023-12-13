@@ -54,6 +54,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeWeaponReferancesInBP(AMinigun* MinigunRef, AHomingMissileLauncher* MissileLauncherRef);
 
+	void GetLockOnBox(TArray<AActor*>& Overlapping);
+
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
 
@@ -147,11 +149,6 @@ private:
 	FTimerHandle SideSwipeTimer;
 
 	FTimerHandle AirRollTimer;
-	
-	UFUNCTION()
-	void OnLockOnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-	void OnLockOnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 	void ApplyThrottle(const struct FInputActionValue& Value);
 	void ApplyBraking(const  FInputActionValue& Value);
