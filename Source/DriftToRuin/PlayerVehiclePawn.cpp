@@ -154,12 +154,12 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.63);
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.33);
 			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftRearFriction);
 		}
 		else
 		{
-			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.86);
+			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.66);
 			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftFrontFriction);
 		}
 	}

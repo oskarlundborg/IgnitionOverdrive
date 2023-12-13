@@ -271,6 +271,7 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	
 	UpdateEngineSFX();
+	UpdateWheelSFX();
 	UpdateGravelVFX();
 	UpdateAirbornePhysics();
 	
@@ -471,6 +472,28 @@ void ABaseVehiclePawn::UpdateEngineSFX() const
 	EngineAudioComponent->SetFloatParameter(TEXT("EngineRPM"), MappedEngineRotationSpeed);
 }
 
+void ABaseVehiclePawn::UpdateWheelSFX() const
+{
+
+	WheelAudioComponent->SetPaused(!IsGrounded());
+	
+	const float MappedForwardSpeed = FMath::GetMappedRangeValueClamped(FVector2d(0, 100.0f),
+		FVector2d(0.0f, 2.0f),
+		VehicleMovementComp->GetForwardSpeedMPH());
+	WheelAudioComponent->SetFloatParameter(TEXT("ForwardSpeed"),  MappedForwardSpeed);
+	
+	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	{
+		if(VehicleMovementComp->GetWheelState(Wheel->WheelIndex).bIsSkidding || VehicleMovementComp->GetWheelState(Wheel->WheelIndex).bIsSlipping)
+		{
+			WheelAudioComponent->SetFloatParameter(TEXT("SlideModifier"), 2);
+			return;
+		}
+	}
+	WheelAudioComponent->SetFloatParameter(TEXT("SlideModifier"), 1);
+}	
+
+
 void ABaseVehiclePawn::InitVFX()
 {
 	if(BoostVfxNiagaraComponent)
@@ -538,7 +561,6 @@ void ABaseVehiclePawn::InitAudio()
 		WheelAudioComponent->SetSound(WheelAudioSound);
 		WheelAudioComponent->SetVolumeMultiplier(1);
 		WheelAudioComponent->SetActive(bPlayEngineSound);
-		WheelAudioComponent->Stop();
 	}
 }
 

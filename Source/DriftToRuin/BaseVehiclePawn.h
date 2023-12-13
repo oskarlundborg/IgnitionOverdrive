@@ -65,6 +65,7 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	void UpdateGravelVFX() const;
 	void UpdateAirbornePhysics() const;
 	void UpdateEngineSFX() const;
+	void UpdateWheelSFX() const;
 	
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
