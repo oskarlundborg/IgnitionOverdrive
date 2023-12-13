@@ -356,13 +356,13 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	if(CarOwner == nullptr) return;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
-	if(HoverTarget && CheckTargetLineOfSight(OwnerController, HoverTarget))
+	/*if(HoverTarget && CheckTargetLineOfSight(OwnerController, HoverTarget))
 	{
 		bCanStartSweep = true;
 	} else
 	{
 		bCanStartSweep = false;
-	}
+	}*/
 	
 	FHitResult HitResult;
     bool bHit = PerformTargetLockSweep(HitResult);
@@ -373,32 +373,41 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	} else
 	{
 		bCanLockOn = false;
+		bCanStartSweep = false;
 	}
 }
 
-void AHomingMissileLauncher::CheckTargetOverlapBegin(AActor* HoverActor)
+void AHomingMissileLauncher::CheckTargetOverlapBegin(AActor* OverlapActor)
 {
-	if(HoverTarget) return;
+	//if(HoverTarget) return;
 	if(CarOwner == nullptr) return;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
-	HoverTarget = HoverActor;
+	if(CheckTargetLineOfSight(OwnerController, OverlapActor))
+	{
+		bCanStartSweep = true;
+	}
+	/*else
+	{
+		bCanStartSweep = false;
+	}*/
+	//HoverTarget = HoverActor;
 }
 
 void AHomingMissileLauncher::CheckTargetOverlapEnd(AActor* HoverActor)
 {
-	if(HoverTarget && HoverTarget != HoverActor) return;
+	//if(HoverTarget && HoverTarget != HoverActor) return;
 	//bCanStartSweep = false;
-	HoverTarget = nullptr;
+	//HoverTarget = nullptr;
 }
 
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
 	if(!bCanStartSweep || bIsOnCooldown)
 	{
-		//UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		UE_LOG(LogTemp, Error, TEXT("NOTS"));
 		return false; 
 	} 
-	//UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
+	UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
 	if(CarOwner == nullptr) return false;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return false;
