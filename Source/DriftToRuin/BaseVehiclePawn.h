@@ -65,6 +65,7 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	void UpdateGravelVFX() const;
 	void UpdateAirbornePhysics() const;
 	void UpdateEngineSFX() const;
+	void UpdateWheelSFX() const;
 	
 	UPROPERTY(Category=DebugTools, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bPlayEngineSound = false;
@@ -95,32 +96,32 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	
 	//How often boost is consumed.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostConsumptionRate = 0.005f;
+	float BoostConsumptionRate = 0.1f;
 
 	//Amount of boost consumed per call (BoostConsumptionRate).
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostCost = 0.35f;
+	float BoostCost = 30.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float DefaultBoostCost = 0.35f;
+	float DefaultBoostCost = 30.0f;
 
 	//How often boost recharges.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostRechargeRate = 0.005f;
+	float BoostRechargeRate = 0.1f;
 
 	//Boost Recharge amount per tick.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostRechargeAmount = 0.06f;
+	float BoostRechargeAmount = 20.0f;
 	
 	//Max Torque when boosting.
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
 	float BoostMaxTorque = 10000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostFrontFrictionForce = 7.6f;
+	float BoostFrontFrictionForce = 9.6f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
-	float BoostRearFrictionForce = 8.0f;
+	float BoostRearFrictionForce = 10.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float DefaultCameraLagMaxDistance = 100.0f;
@@ -284,6 +285,9 @@ protected:
 	UAudioComponent* CrashAudioComponent;
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* WheelAudioComponent;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* ScrapLevelAudioComponent;
 
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
@@ -336,6 +340,9 @@ protected:
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* CrashAudioSound;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* WheelAudioSound;
 
 	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* SideThrusterL;
