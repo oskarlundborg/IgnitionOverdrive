@@ -53,7 +53,7 @@ void AHomingMissileLauncher::InitializeOwnerVariables()
 void AHomingMissileLauncher::PullTrigger()
 {
 	Super::PullTrigger();
-	if(ChargeAmount == 0)
+	if(ChargeAmount == 0 && !GetWorldTimerManager().IsTimerActive(ChargeHandle))
 	{
 		if(bIsOnCooldown) return;
 		//ChargeAmount = 0;
@@ -368,7 +368,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	bool bCanStartSweep = false;
 	for(AActor* Actor : Overlapping)
 	{
-		if(Actor && CheckTargetLineOfSight(OwnerController, Actor))
+		if(Actor && Actor != CarOwner && CheckTargetLineOfSight(OwnerController, Actor))
 		{
 			bCanStartSweep = true;
 			break;
