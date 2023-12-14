@@ -58,11 +58,11 @@ private:
 	TSubclassOf<AAITurret> AITurretClass;
 	UPROPERTY()
 	AAITurret* Turret;
-	
+
 	/*AMinigun* Minigun;
 	UPROPERTY()
 	AHomingMissileLauncher* HomingMissileLauncher;*/
-	
+
 	UPROPERTY()
 	AAIController* AIController;
 	UPROPERTY()
@@ -74,9 +74,9 @@ private:
 
 	//pathfinding
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float SplineEndPointDistanceThreshold = 800;
+	float SplineEndPointDistanceThreshold = 750;
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float NextPointOnSplineThreshold = 500;
+	float NextPointOnSplineThreshold = 700;
 
 	// car driving
 	UPROPERTY()
@@ -88,8 +88,13 @@ private:
 
 	//Speed
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float MaxSpeed = 1500.0f;
-
+	float DynamicMaxSpeed = 1500.0f;
+	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
+	float ClampedMaxSped = 3000.0f;
+	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
+	float ClampedMinSpeed = 500.0f;
+	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
+	float SpeedValueToDrasticallySlowDownInACurve = 1500.0f;
 	//Behavior //göra om till enumerator
 	FString SwitchString = "Drive";
 
@@ -115,11 +120,11 @@ private:
 	UPROPERTY()
 	FRotator NewRotation;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
-	float RotationInterpSpeed = 1;
+	float RotationInterpSpeed = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
 	int32 TurretDelayTimeMinRange = 1;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
-	int32 TurretDelayTimeMaxRange = 3;
+	int32 TurretDelayTimeMaxRange = 2;
 
 	//shoot
 
@@ -139,14 +144,14 @@ private:
 	UPROPERTY()
 	bool HasKilled = false;
 
-	
+
 	//timer // kan de göras om snyggare 
 	UPROPERTY()
 	bool TimerIsActive = false;
 	UPROPERTY()
 	bool TimerFirstTime = true;
 
-	
+
 	FTimerHandle MissileCooldownTimer;
 
 	//Sensors
@@ -197,7 +202,7 @@ private:
 
 	//missile
 	void FireLoadedMissile();
-	
+
 	//helper function
 	bool InitializeSensors();
 	bool InitializeSpline();
