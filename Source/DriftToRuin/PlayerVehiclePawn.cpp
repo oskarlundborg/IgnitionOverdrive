@@ -304,7 +304,7 @@ APlayerTurret* APlayerVehiclePawn::GetTurret() const
 	return Turret;
 }
 
-void APlayerVehiclePawn::GetLockOnBox(TArray<AActor*>& Overlapping)
+void APlayerVehiclePawn::GetLockOnBoxOverlappingActors(TArray<AActor*>& Overlapping)
 {
 	LockOnCheckCollision->GetOverlappingActors(Overlapping, ABaseVehiclePawn::StaticClass());
 }
