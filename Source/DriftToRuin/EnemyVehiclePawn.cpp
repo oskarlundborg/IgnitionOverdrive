@@ -15,6 +15,7 @@
 
 AEnemyVehiclePawn::AEnemyVehiclePawn()
 {
+	
 }
 
 void AEnemyVehiclePawn::BeginPlay()
@@ -534,4 +535,9 @@ void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)
 void AEnemyVehiclePawn::SetHasNewSplineBeenSetup(bool bValue)
 {
 	HasNewSplineBeenSetup = bValue;
+}
+
+void AEnemyVehiclePawn::SetTickEnabledAI(bool bTickEnabled)
+{
+	PrimaryActorTick.bCanEverTick = bTickEnabled;
 }
