@@ -21,7 +21,7 @@ EBTNodeResult::Type UBTT_FindSplineInWorld::ExecuteTask(UBehaviorTreeComponent& 
 	{
 		return EBTNodeResult::Failed;
 	}
-
+	
 	if (!ScanForSplines())
 	{
 		OwnerComp.RestartTree();
