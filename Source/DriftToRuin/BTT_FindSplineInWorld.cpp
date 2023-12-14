@@ -21,8 +21,12 @@ EBTNodeResult::Type UBTT_FindSplineInWorld::ExecuteTask(UBehaviorTreeComponent& 
 	{
 		return EBTNodeResult::Failed;
 	}
-	
-	ScanForSplines();
+
+	if (!ScanForSplines())
+	{
+		OwnerComp.RestartTree();
+		return EBTNodeResult::Failed;
+	}
 	return EBTNodeResult::Succeeded;
 }
 
@@ -74,10 +78,10 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	/*if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd, FQuat::Identity, ECC_Visibility,
 	                                            FCollisionShape::MakeSphere(ScanRadius), CollisionParams))*/
 
-	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd, FQuat::Identity, ECC_Visibility,
+	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd,
+	                                            AIPawn->GetActorLocation().Rotation().Quaternion(), ECC_Visibility,
 	                                            FCollisionShape::MakeBox(
 		                                            FVector(ScanRadius, ScanRadius, ScanRadius / 3)), CollisionParams))
-
 
 	{
 		// Array to store eligible spline hits
@@ -133,7 +137,7 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 				float DotStart = FVector::DotProduct(AIPawn->GetActorForwardVector(), ActorToStart.GetSafeNormal());
 				float DotEnd = FVector::DotProduct(AIPawn->GetActorForwardVector(), ActorToEnd.GetSafeNormal());
 
-				
+
 				if (DotStart >= 0.0f && DotEnd >= 0.0f)
 				{
 					// Spline is in front of or parallel to the actor
@@ -164,7 +168,7 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 			BlackboardComp->SetValueAsObject("RoadSpline",
 			                                 /*RandomChance >= 0.2f
 				                                 ?*/ ClosestSpline->GetOwner()
-				                                 /*: ChosenSpline->GetOwner()*/);
+			                                 /*: ChosenSpline->GetOwner()*/);
 			AEnemyVehiclePawn* AIEnemy = Cast<AEnemyVehiclePawn>(AIPawn);
 			ensureMsgf(AIEnemy != nullptr, TEXT("AI enemy was nyll, need it to set that new spline should be setup"));
 			AIEnemy->SetHasNewSplineBeenSetup(false);
