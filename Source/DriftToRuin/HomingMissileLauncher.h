@@ -81,6 +81,11 @@ private:
 	FTimerHandle ChargeHandle;
 	FTimerHandle FireTimer;
 	FTimerHandle CooldownTimer;
+	FTimerHandle LockOnSoundTimer;
+
+	UPROPERTY(Category = "Sound", EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* CanLockOnAudioComponent;
+	bool bCanPlayLockOn;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	int32 ChargeCap;
@@ -159,6 +164,9 @@ private:
 	float GetValidMagnitude(AActor* Target);
 	UFUNCTION()
 	void SetTarget(ABaseProjectile* Projectile, ABaseVehiclePawn* Target);
+
+	void PlayCanLockOnSound();
+	void ResetCanLockOnSoundCooldown();
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
