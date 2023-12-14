@@ -275,7 +275,7 @@ void AHomingMissileLauncher::PlayCanLockOnSound()
 	if(!bCanPlayLockOn) return;
 	CanLockOnAudioComponent->Play();
 	bCanPlayLockOn = false;
-	GetWorldTimerManager().SetTimer(LockOnSoundTimer, this, &AHomingMissileLauncher::ResetCanLockOnSoundCooldown, 1.5f, false, 1.5f);
+	GetWorldTimerManager().SetTimer(LockOnSoundTimer, this, &AHomingMissileLauncher::ResetCanLockOnSoundCooldown, 0.8f, false, 0.8f);
 }
 
 void AHomingMissileLauncher::ResetCanLockOnSoundCooldown()
