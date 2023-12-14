@@ -54,7 +54,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeWeaponReferancesInBP(AMinigun* MinigunRef, AHomingMissileLauncher* MissileLauncherRef);
 
-	void GetLockOnBox(TArray<AActor*>& Overlapping);
+	void GetLockOnBoxOverlappingActors(TArray<AActor*>& Overlapping);
 
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
