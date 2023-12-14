@@ -9,6 +9,7 @@
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "HomingMissileLauncher.h"
 #include "Minigun.h"
+#include "TimerManager.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SplineComponent.h"
 #include "Kismet/KismetMathLibrary.h"
