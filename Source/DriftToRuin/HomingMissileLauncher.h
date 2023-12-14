@@ -105,6 +105,9 @@ private:
 	float ChargeValue;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	float ChargeValueCap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float TargetingOffset;
 	
 	int32 ChargeAmount;
 	

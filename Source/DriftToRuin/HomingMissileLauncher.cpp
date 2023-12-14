@@ -8,6 +8,7 @@
 #include "EnemyVehiclePawn.h"
 #include "Minigun.h"
 #include "PlayerVehiclePawn.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AHomingMissileLauncher::AHomingMissileLauncher()
@@ -28,6 +29,7 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	CloseRangeMagnitude = 35000.f;
 	MidRangeMagnitude = 30000.f;
 	FarRangeMagnitude = 26000.f;
+	TargetingOffset = 878.f;
 	bIsCharging = false;
 	bIsOnCooldown = false;
 	bCanLockOn = false;
@@ -403,8 +405,8 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	FVector CameraLocation;
 	FRotator CameraRotation;
 	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
-	FVector TraceStart = CameraLocation;
-	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * TargetingRange);
+	FVector TraceStart = CameraLocation + (CameraRotation.Vector() * TargetingOffset);
+	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * (TargetingRange - TargetingOffset));
 	
 	TArray<AActor*> ToIgnore;
 	ToIgnore.Add(this);
@@ -416,7 +418,7 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	TraceParams.AddIgnoredActors(ToIgnore);
 	FCollisionShape SweepBox = FCollisionShape::MakeBox(FVector(60.f, 90.f ,60.f));
 	
-	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepBox, TraceParams);
+	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, CarOwner->GetCameraComponent()->GetComponentRotation().Quaternion(),ECC_Vehicle, SweepBox, TraceParams);
 	//DrawDebugBox(GetWorld(), TraceEnd, SweepBox.GetExtent(), FColor::Blue, true);
 	return bHit;
 }
