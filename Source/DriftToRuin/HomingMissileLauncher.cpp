@@ -9,6 +9,7 @@
 #include "Minigun.h"
 #include "PlayerVehiclePawn.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AHomingMissileLauncher::AHomingMissileLauncher()
@@ -34,6 +35,8 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	bIsOnCooldown = false;
 	bCanLockOn = false;
 	CurrentTarget = nullptr;
+	bCanPlayLockOn = true;
+	CanLockOnAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Can Lock On Audio Component"));
 }
 
 void AHomingMissileLauncher::BeginPlay()
@@ -267,6 +270,19 @@ void AHomingMissileLauncher::SetTarget(ABaseProjectile* Projectile, ABaseVehicle
 	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = Target->GetHomingTargetPoint();
 }
 
+void AHomingMissileLauncher::PlayCanLockOnSound()
+{
+	if(!bCanPlayLockOn) return;
+	CanLockOnAudioComponent->Play();
+	bCanPlayLockOn = false;
+	GetWorldTimerManager().SetTimer(LockOnSoundTimer, this, &AHomingMissileLauncher::ResetCanLockOnSoundCooldown, 1.5f, false, 1.5f);
+}
+
+void AHomingMissileLauncher::ResetCanLockOnSoundCooldown()
+{
+	bCanPlayLockOn = true;
+}
+
 float AHomingMissileLauncher::GetValidMagnitude(AActor* Target)
 {
 	float HomingMagnitude;
@@ -388,7 +404,11 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead() && !bIsOnCooldown && !bIsCharging)
 	{
-		bCanLockOn = true;
+		if(!bCanLockOn)
+		{
+			bCanLockOn = true;
+			PlayCanLockOnSound();
+		}
 	} else
 	{
 		bCanLockOn = false;
