@@ -246,7 +246,7 @@ void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator&
 	float RandomSpreadY = FMath::RandRange(-50, 50);
 	float RandomSpreadZ = FMath::RandRange(-50, 50);
 
-	EnemyLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
+	EnemyLocation += FVector(0.f, RandomSpreadY * 4, RandomSpreadZ * 4);
 	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, EnemyLocation);
 }
 

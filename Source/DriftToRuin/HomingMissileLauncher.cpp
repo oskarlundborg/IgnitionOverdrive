@@ -7,6 +7,8 @@
 #include "BaseVehiclePawn.h"
 #include "EnemyVehiclePawn.h"
 #include "Minigun.h"
+#include "PlayerVehiclePawn.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AHomingMissileLauncher::AHomingMissileLauncher()
@@ -27,6 +29,7 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	CloseRangeMagnitude = 35000.f;
 	MidRangeMagnitude = 30000.f;
 	FarRangeMagnitude = 26000.f;
+	TargetingOffset = 878.f;
 	bIsCharging = false;
 	bIsOnCooldown = false;
 	bCanLockOn = false;
@@ -42,6 +45,7 @@ void AHomingMissileLauncher::BeginPlay()
 void AHomingMissileLauncher::InitializeOwnerVariables()
 {
 	CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	CarOwnerPlayer = Cast<APlayerVehiclePawn>(GetOwner());
 	/*if(CarOwner == nullptr) return;
 	OwnerController = CarOwner->GetController();
 	if(OwnerController == nullptr) return;
@@ -51,7 +55,7 @@ void AHomingMissileLauncher::InitializeOwnerVariables()
 void AHomingMissileLauncher::PullTrigger()
 {
 	Super::PullTrigger();
-	if(ChargeAmount == 0)
+	if(ChargeAmount == 0 && !GetWorldTimerManager().IsTimerActive(ChargeHandle))
 	{
 		if(bIsOnCooldown) return;
 		//ChargeAmount = 0;
@@ -292,7 +296,6 @@ void AHomingMissileLauncher::CheckTargetStatus()
 	if(!CheckTargetLineOfSight(OwnerController, CurrentTarget) || !CheckTargetInScreenBounds(OwnerPlayerController) || !CheckTargetInRange(CarOwner) || CheckTargetIsDead(TargetVenchi))
 	{
 		CurrentTarget = nullptr;
-		//HoverTarget = nullptr;
 		ChargeAmount = 0;
 		bIsCharging = false;
 		ChargeValue = 0.f;
@@ -354,16 +357,32 @@ void AHomingMissileLauncher::FindTarget()
 void AHomingMissileLauncher::CheckCanLockOn()
 {
 	if(CarOwner == nullptr) return;
+	if(CarOwnerPlayer == nullptr) return;
+	TArray<AActor*> Overlapping;
+	CarOwnerPlayer->GetLockOnBoxOverlappingActors(Overlapping);
+	if(Overlapping.IsEmpty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		bCanLockOn = false;
+		return;
+	} 
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
-	/*if(HoverTarget && CheckTargetLineOfSight(OwnerController, HoverTarget))
+	bool bCanStartSweep = false;
+	for(AActor* Actor : Overlapping)
 	{
-		bCanStartSweep = true;
-	} else
+		if(Actor && Actor != CarOwner && CheckTargetLineOfSight(OwnerController, Actor))
+		{
+			bCanStartSweep = true;
+			break;
+		}
+	}
+	if(!bCanStartSweep)
 	{
-		bCanStartSweep = false;
-	}*/
-	
+		UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		bCanLockOn = false;
+		return;
+	} 
 	FHitResult HitResult;
     bool bHit = PerformTargetLockSweep(HitResult);
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
@@ -373,40 +392,12 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	} else
 	{
 		bCanLockOn = false;
-		bCanStartSweep = false;
 	}
-}
-
-void AHomingMissileLauncher::CheckTargetOverlapBegin(AActor* OverlapActor)
-{
-	//if(HoverTarget) return;
-	if(CarOwner == nullptr) return;
-	AController* OwnerController = Cast<AController>(CarOwner->GetController());
-	if(CheckTargetLineOfSight(OwnerController, OverlapActor))
-	{
-		bCanStartSweep = true;
-	}
-	/*else
-	{
-		bCanStartSweep = false;
-	}*/
-	//HoverTarget = HoverActor;
-}
-
-void AHomingMissileLauncher::CheckTargetOverlapEnd(AActor* HoverActor)
-{
-	//if(HoverTarget && HoverTarget != HoverActor) return;
-	//bCanStartSweep = false;
-	//HoverTarget = nullptr;
 }
 
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
-	if(!bCanStartSweep || bIsOnCooldown)
-	{
-		UE_LOG(LogTemp, Error, TEXT("NOTS"));
-		return false; 
-	} 
+	if(bIsOnCooldown || bIsCharging) return false;
 	UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
 	if(CarOwner == nullptr) return false;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
@@ -415,8 +406,8 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	FVector CameraLocation;
 	FRotator CameraRotation;
 	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
-	FVector TraceStart = CameraLocation;
-	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * TargetingRange);
+	FVector TraceStart = CameraLocation + (CameraRotation.Vector() * TargetingOffset);
+	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * (TargetingRange - TargetingOffset));
 	
 	TArray<AActor*> ToIgnore;
 	ToIgnore.Add(this);
@@ -426,11 +417,9 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	//FCollisionShape SweepSphere = FCollisionShape::MakeSphere(70.f);
 	FCollisionShape SweepBox = FCollisionShape::MakeBox(FVector(60.f, 90.f ,60.f));
 	
-	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity,ECC_Vehicle, SweepBox, TraceParams);
-	//DrawDebugSphere(GetWorld(), TraceEnd, SweepSphere.GetSphereRadius(), 20, FColor::Green, true);
+	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, CarOwner->GetCameraComponent()->GetComponentRotation().Quaternion(),ECC_Vehicle, SweepBox, TraceParams);
 	//DrawDebugBox(GetWorld(), TraceEnd, SweepBox.GetExtent(), FColor::Blue, true);
 	return bHit;
 }

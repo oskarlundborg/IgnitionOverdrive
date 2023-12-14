@@ -7,6 +7,7 @@
 #include "BaseWeapon.h"
 #include "HomingMissileLauncher.generated.h"
 
+class APlayerVehiclePawn;
 class ABaseVehiclePawn;
 /**
  * 
@@ -66,13 +67,12 @@ public:
 	FTimerHandle& GetFireTimer();
 	void SetChargeAmount(float NewChargeAmount);
 	void SetAICooldown();
-
-	void CheckTargetOverlapBegin(AActor* HoverActor);
-	void CheckTargetOverlapEnd(AActor* HoverActor);
 	
 private:
 	UPROPERTY()
 	const ABaseVehiclePawn* CarOwner;
+	UPROPERTY()
+	APlayerVehiclePawn* CarOwnerPlayer;
 	/*UPROPERTY()
 	const AController* OwnerController;
 	UPROPERTY()
@@ -105,13 +105,15 @@ private:
 	float ChargeValue;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	float ChargeValueCap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
+	float TargetingOffset;
 	
 	int32 ChargeAmount;
 	
 	bool bIsCharging;
 	bool bIsOnCooldown;
 	bool bCanLockOn;
-	bool bCanStartSweep;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting", meta = (AllowPrivateAccess = "true"))
 	float TargetingRange;
@@ -131,8 +133,6 @@ private:
 	AActor* CurrentTarget;
 	UPROPERTY()
 	AActor* LastTarget;
-	UPROPERTY()
-	AActor* HoverTarget;
 	
 protected:
 	virtual void BeginPlay() override;
