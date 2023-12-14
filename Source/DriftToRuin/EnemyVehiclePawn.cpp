@@ -129,7 +129,6 @@ void AEnemyVehiclePawn::ReactToGetShot()
 	DriveAlongSpline();
 	ManageSpeed();
 	CheckIfAtEndOfSpline();
-	
 }
 
 void AEnemyVehiclePawn::Shoot()
@@ -257,7 +256,7 @@ void AEnemyVehiclePawn::RandomlyRotateTurret()
 	}
 	//smooth rotation
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
+	                               GetWorld()->GetDeltaSeconds() * 20, RotationInterpSpeed);
 	Turret->SetActorRotation(NewRotation);
 }
 
@@ -271,10 +270,15 @@ void AEnemyVehiclePawn::AddNewTurretRotation()
 
 	// 70% chance to rotate towards car's rotation, 30% chance to rotate the other way
 	//this rotation does not go thorugh - and 0 + values. it cant rotate around the 0 point.
-	const FRotator RotationIncrement = (RandomValue < 0.7f)
-		                                   ? CarRotation - TurretRotation
-		                                   : TurretRotation - CarRotation;
-	TargetRotation.Yaw = CarRotation.Yaw - TurretRotation.Yaw + RotationIncrement.Yaw;
+	const bool random = FMath::RandBool();
+	const float RandomFloat = FMath::RandRange(0.0f,1.0f);
+	const float RandomYawFloatCar= FMath::RandRange(60, 70);
+	const float RandomYawFloatTurret= FMath::RandRange(60, 150);
+	
+	const float RotationIncrementCar = random ? CarRotation.Yaw - RandomYawFloatCar : CarRotation.Yaw + RandomYawFloatCar;
+	const float RotationIncrementTurret = random ? TurretRotation.Yaw + RandomYawFloatTurret : TurretRotation.Yaw - RandomYawFloatTurret;
+	
+	TargetRotation.Yaw = RandomFloat > 0.3f ? RotationIncrementCar : RotationIncrementTurret;
 
 	TimerIsActive = false;
 }
@@ -283,21 +287,20 @@ void AEnemyVehiclePawn::RotateTowardsShootingEnemy()
 {
 	UObject* ShootingEnemy = BlackboardComp->GetValueAsObject("GotShotByEnemy");
 	AActor* ShootingEnemyActor = Cast<AActor>(ShootingEnemy);
-	if(ShootingEnemyActor == nullptr)
+	if (ShootingEnemyActor == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("shootingenemyactor nullptr"));
 		return;
 	}
-	
+
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ShootingEnemyActor->GetActorLocation());
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-								   GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
+	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
 	if (Turret != nullptr)
 	{
 		Turret->SetActorRotation(NewRotation);
 	}
-
 }
 
 void AEnemyVehiclePawn::ManageSpeed()
@@ -315,22 +318,21 @@ void AEnemyVehiclePawn::ManageSpeed()
 	DeltaYaw = 3000 / DeltaYaw;
 
 	//slow down faster if max speed is bigger than delta yaw
-	const float DeltaTime = GetWorld()->GetDeltaSeconds() * MaxSpeed > DeltaYaw ? 20.0 : 0.1;
+	const float DeltaTime = GetWorld()->GetDeltaSeconds() * DynamicMaxSpeed > DeltaYaw ? 20.0 : 0.1;
 
-	MaxSpeed = FMath::Lerp(MaxSpeed, DeltaYaw, DeltaTime);
+	DynamicMaxSpeed = FMath::Lerp(DynamicMaxSpeed, DeltaYaw, DeltaTime);
 	//UE_LOG(LogTemp, Warning, TEXT("maxspeed %f"), MaxSpeed);
 
 	//clamp value betwwen low speed and maxspeed
-	MaxSpeed = FMath::Clamp(MaxSpeed, 50, 1500);
+	DynamicMaxSpeed = FMath::Clamp(DynamicMaxSpeed, ClampedMinSpeed, ClampedMaxSped);
 	//	UE_LOG(LogTemp, Warning, TEXT("maxspeed after clamp %f"), MaxSpeed);
-
 
 	const float Speed = VehicleMovementComp->GetForwardSpeed();
 	//UE_LOG(LogTemp, Warning, TEXT("forward speed %f"), VehicleMovementComponent->GetForwardSpeed());
 	float TempBrakeInput = VehicleMovementComp->GetBrakeInput();
 	//	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
 
-	if (ABSDeltaYaw > 5 && VehicleMovementComp->GetForwardSpeed() > 1000)
+	if (ABSDeltaYaw > 7 && VehicleMovementComp->GetForwardSpeed() > SpeedValueToDrasticallySlowDownInACurve)
 	{
 		VehicleMovementComp->SetThrottleInput(0);
 		//	UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));
@@ -344,7 +346,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 		VehicleMovementComp->SetBrakeInput(LerpValue);
 		//	UE_LOG(LogTemp, Warning, TEXT("lerp value brake input: %f"), LerpValue);
 	}
-	else if (Speed > MaxSpeed)
+	else if (Speed > DynamicMaxSpeed)
 	{
 		VehicleMovementComp->SetBrakeInput(0);
 		// be able to slow down very much faster in a curve
@@ -385,11 +387,13 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 		/*UE_LOG(LogTemp, Error, TEXT("RotationToEndPoint:  %s"), *RotationToEndPoint.ToString());
 		UE_LOG(LogTemp, Error, TEXT("RotationToStartPoint: %s"), *RotationToStartPoint.ToString());
 		UE_LOG(LogTemp, Error, TEXT("actor rotatation: %s"), *GetActorRotation().ToString());*/
-		
+
 		//float DifferenceYawStartPoint = FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToStartPoint.Yaw);
 		//float DifferenceYawEndPoint = FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToEndPoint.Yaw);
-		float DifferenceYawStartPoint = FMath::Abs(FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToStartPoint.Yaw));
-		float DifferenceYawEndPoint = FMath::Abs(FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToEndPoint.Yaw));
+		float DifferenceYawStartPoint = FMath::Abs(
+			FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToStartPoint.Yaw));
+		float DifferenceYawEndPoint = FMath::Abs(
+			FMath::Abs(GetActorRotation().Yaw) - FMath::Abs(RotationToEndPoint.Yaw));
 
 		if (DifferenceYawStartPoint >= DifferenceYawEndPoint)
 		{
@@ -457,7 +461,7 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 	SensorGapDifference = FVector::Dist(LeftSensor->GetComponentLocation(), SplineLocationPoint) - FVector::Dist(
 		RightSensor->GetComponentLocation(), SplineLocationPoint);
 	SensorGapDifference = FMath::Abs(SensorGapDifference);*/
-	
+
 	VehicleMovementComp->SetSteeringInput(SteeringValue);
 }
 
