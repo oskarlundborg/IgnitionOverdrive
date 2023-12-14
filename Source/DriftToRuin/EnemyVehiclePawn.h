@@ -51,7 +51,9 @@ public:
 	float SteeringInput;
 	UPROPERTY(EditAnywhere)
 	float MaxSpeed = 1500.0f;*/
-
+	UFUNCTION(BlueprintCallable)
+	void SetTickEnabledAI(bool bTickEnabled);
+	
 private:
 	//weapon components
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
