@@ -357,8 +357,9 @@ void AHomingMissileLauncher::FindTarget()
 void AHomingMissileLauncher::CheckCanLockOn()
 {
 	if(CarOwner == nullptr) return;
+	if(CarOwnerPlayer == nullptr) return;
 	TArray<AActor*> Overlapping;
-	CarOwnerPlayer->GetLockOnBox(Overlapping);
+	CarOwnerPlayer->GetLockOnBoxOverlappingActors(Overlapping);
 	if(Overlapping.IsEmpty())
 	{
 		UE_LOG(LogTemp, Error, TEXT("NOTS"));
