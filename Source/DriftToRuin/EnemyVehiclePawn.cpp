@@ -296,7 +296,7 @@ void AEnemyVehiclePawn::RotateTowardsShootingEnemy()
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ShootingEnemyActor->GetActorLocation());
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
+	                               GetWorld()->GetDeltaSeconds() * 20, RotationInterpSpeed);
 	if (Turret != nullptr)
 	{
 		Turret->SetActorRotation(NewRotation);

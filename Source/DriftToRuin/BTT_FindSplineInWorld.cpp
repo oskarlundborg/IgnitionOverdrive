@@ -21,10 +21,12 @@ EBTNodeResult::Type UBTT_FindSplineInWorld::ExecuteTask(UBehaviorTreeComponent& 
 	{
 		return EBTNodeResult::Failed;
 	}
-
-	//göras om till en bool för att sen köra om ifall den inte hitta och lägga i progress
-	ScanForSplines();
-
+	
+	if (!ScanForSplines())
+	{
+		OwnerComp.RestartTree();
+		return EBTNodeResult::Failed;
+	}
 	return EBTNodeResult::Succeeded;
 }
 
@@ -35,7 +37,7 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	//scan is not that pretty, leave for now and work on AI find opponent instead. 
 
 	// Parameters for the scan
-	float ScanRadius = 900.0f;
+	float ScanRadius = 1000.0f;
 	float TraceDistance = 100;
 	float Offset = 1200;
 	// Calculate the start and end points for the scan
@@ -63,6 +65,7 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	}
 
 	FVector PointToDriveTo = BlackboardComp->GetValueAsVector("LocationToDrive");
+	UE_LOG(LogTemp, Warning, TEXT("PointToDriveTo %s"), *PointToDriveTo.ToString());
 	FVector ScanStart = AIPawn->GetActorLocation() + FVector(0.0f, 0.0f, 130.0f) + ForwardVector * Offset;
 	// Adjust the Z component to start from the top of the box
 	FVector ScanEnd = ScanStart + ForwardVector * TraceDistance;
@@ -74,11 +77,11 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	// set spec trace channel for spline
 	/*if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd, FQuat::Identity, ECC_Visibility,
 	                                            FCollisionShape::MakeSphere(ScanRadius), CollisionParams))*/
-	
-	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd, FQuat::Identity, ECC_Visibility,
+
+	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd,
+	                                            AIPawn->GetActorLocation().Rotation().Quaternion(), ECC_Visibility,
 	                                            FCollisionShape::MakeBox(
 		                                            FVector(ScanRadius, ScanRadius, ScanRadius / 3)), CollisionParams))
-
 
 	{
 		// Array to store eligible spline hits
@@ -122,9 +125,10 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 
 
 				//	FVector SplineMidpoint = Spline->GetLocationAtSplineInputKey(Spline->GetNumberOfSplinePoints() / 2, ESplineCoordinateSpace::World);
-				float Distance = FVector::DistSquared(DistanceToEnd >= DistanceToStart ? SplineStart : SplineEnd,
+				float Distance = FVector::Dist(DistanceToEnd >= DistanceToStart ? SplineStart : SplineEnd,
 				                                      PointToDriveTo);
-				Differences.Add(Distance);*/
+				Differences.Add(Distance);
+				*/
 
 				FVector ActorToStart = SplineStart - AIPawn->GetActorLocation();
 				FVector ActorToEnd = SplineEnd - AIPawn->GetActorLocation();
@@ -133,13 +137,15 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 				float DotStart = FVector::DotProduct(AIPawn->GetActorForwardVector(), ActorToStart.GetSafeNormal());
 				float DotEnd = FVector::DotProduct(AIPawn->GetActorForwardVector(), ActorToEnd.GetSafeNormal());
 
-				if (DotStart >= 0.0f || DotEnd >= 0.0f)
+
+				if (DotStart >= 0.0f && DotEnd >= 0.0f)
 				{
 					// Spline is in front of or parallel to the actor
 					float DistanceToStart = FVector::Dist(AIPawn->GetActorLocation(), SplineStart);
 					float DistanceToEnd = FVector::Dist(AIPawn->GetActorLocation(), SplineEnd);
 
-					float Distance = FVector::DistSquared(DistanceToEnd >= DistanceToStart ? SplineStart : SplineEnd, PointToDriveTo);
+					float Distance = FVector::DistSquared(DistanceToEnd >= DistanceToStart ? SplineStart : SplineEnd,
+					                                      PointToDriveTo);
 					Differences.Add(Distance);
 				}
 			}
@@ -160,9 +166,9 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 			USplineComponent* ChosenSpline = EligibleSplineHits[FMath::RandRange(0, EligibleSplineHits.Num() - 1)];
 			// Set chosen spline in BB
 			BlackboardComp->SetValueAsObject("RoadSpline",
-			                                 RandomChance >= 0.2f
-				                                 ? ClosestSpline->GetOwner()
-				                                 : ChosenSpline->GetOwner());
+			                                 /*RandomChance >= 0.2f
+				                                 ?*/ ClosestSpline->GetOwner()
+			                                 /*: ChosenSpline->GetOwner()*/);
 			AEnemyVehiclePawn* AIEnemy = Cast<AEnemyVehiclePawn>(AIPawn);
 			ensureMsgf(AIEnemy != nullptr, TEXT("AI enemy was nyll, need it to set that new spline should be setup"));
 			AIEnemy->SetHasNewSplineBeenSetup(false);
