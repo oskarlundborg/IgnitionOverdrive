@@ -266,6 +266,11 @@ FVector ABaseVehiclePawn::GetCameraLocation() const
 	return CameraComponent->GetComponentLocation();
 }
 
+UCameraComponent* ABaseVehiclePawn::GetCameraComponent() const
+{
+	return CameraComponent;
+}
+
 void ABaseVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -330,7 +335,6 @@ void ABaseVehiclePawn::EnableBoost()
 		Booster.SetEnabled(true);
 		BoostVfxNiagaraComponent->Activate(true);
 		VehicleMovementComp->SetMaxEngineTorque(BoostMaxTorque);
-		VehicleMovementComp->SetDownforceCoefficient(4);
 		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 		{
 			if(Wheel->AxleType==EAxleType::Rear)
@@ -358,7 +362,6 @@ void ABaseVehiclePawn::DisableBoost()
 {
 	Booster.SetEnabled(false);
 	VehicleMovementComp->SetMaxEngineTorque(Booster.DefaultTorque);
-	VehicleMovementComp->SetDownforceCoefficient(2);
 	VehicleMovementComp->SetThrottleInput(0);
 	BoostVfxNiagaraComponent->Deactivate();
 	if(bCanFadeOutBoost)

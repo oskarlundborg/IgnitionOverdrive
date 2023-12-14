@@ -25,6 +25,7 @@
 #include "Components/CapsuleComponent.h"
 #include "BaseVehiclePawn.generated.h"
 
+class UCameraComponent;
 /*Maybe should be moved to player and AI classes, should work for first playable for now*/
 class APlayerTurret;
 class AHomingMissileLauncher;
@@ -154,6 +155,8 @@ public:
 	virtual void BeginPlay() override;
 
 	FVector GetCameraLocation() const;
+
+	UCameraComponent* GetCameraComponent() const;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void HitScrapLevelThree(bool bHitScrapLevelThree);
