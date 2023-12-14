@@ -266,6 +266,11 @@ FVector ABaseVehiclePawn::GetCameraLocation() const
 	return CameraComponent->GetComponentLocation();
 }
 
+UCameraComponent* ABaseVehiclePawn::GetCameraComponent() const
+{
+	return CameraComponent;
+}
+
 void ABaseVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
