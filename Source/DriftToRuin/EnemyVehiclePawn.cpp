@@ -9,12 +9,14 @@
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "HomingMissileLauncher.h"
 #include "Minigun.h"
+#include "TimerManager.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SplineComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AEnemyVehiclePawn::AEnemyVehiclePawn()
 {
+	
 }
 
 void AEnemyVehiclePawn::BeginPlay()
@@ -296,7 +298,7 @@ void AEnemyVehiclePawn::RotateTowardsShootingEnemy()
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ShootingEnemyActor->GetActorLocation());
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
+	                               GetWorld()->GetDeltaSeconds() * 20, RotationInterpSpeed);
 	if (Turret != nullptr)
 	{
 		Turret->SetActorRotation(NewRotation);
@@ -534,4 +536,9 @@ void AEnemyVehiclePawn::SetSwitchString(const FString& NewSwitchString)
 void AEnemyVehiclePawn::SetHasNewSplineBeenSetup(bool bValue)
 {
 	HasNewSplineBeenSetup = bValue;
+}
+
+void AEnemyVehiclePawn::SetTickEnabledAI(bool bTickEnabled)
+{
+	PrimaryActorTick.bCanEverTick = bTickEnabled;
 }
