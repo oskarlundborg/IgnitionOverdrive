@@ -16,7 +16,6 @@
 
 AEnemyVehiclePawn::AEnemyVehiclePawn()
 {
-	
 }
 
 void AEnemyVehiclePawn::BeginPlay()
@@ -112,7 +111,7 @@ void AEnemyVehiclePawn::DrivePath()
 
 void AEnemyVehiclePawn::DriveAndShoot()
 {
-	UE_LOG(LogTemp, Warning, TEXT("driving and shooting"));
+	//UE_LOG(LogTemp, Warning, TEXT("driving and shooting"));
 
 	DriveAlongSpline();
 
@@ -125,7 +124,7 @@ void AEnemyVehiclePawn::DriveAndShoot()
 
 void AEnemyVehiclePawn::ReactToGetShot()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Reacting to get shot"));
+	//UE_LOG(LogTemp, Warning, TEXT("Reacting to get shot"));
 
 	RotateTowardsShootingEnemy();
 	DriveAlongSpline();
@@ -138,6 +137,11 @@ void AEnemyVehiclePawn::Shoot()
 	//UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
 	const FVector EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLocation);
+
+	if (Minigun == nullptr || HomingLauncher == nullptr)
+	{
+		return;
+	}
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
 	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
@@ -155,7 +159,7 @@ void AEnemyVehiclePawn::Shoot()
 	}*/
 
 	// göra om behöver inte kolla varje tick
-	
+
 	/*TArray<AActor*> CarActors;
 	GetAttachedActors(CarActors);
 	for (AActor* ChildActor : CarActors)
@@ -178,27 +182,28 @@ void AEnemyVehiclePawn::Shoot()
 		}
 	}*/
 
-	if (Minigun && Minigun->GetIsOverheated())
+	/*if (Minigun->GetIsOverheated())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("minigun overheating, setting value"));
 		Overheating = true;
-	}
-	else if (Minigun->GetOverheatValue() < 0.2)
+	}*/
+	/*else if (Minigun->GetOverheatValue() < 0.2)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("minigun not overheating no more"));
 		Overheating = false;
-	}
+	}*/
 
-	if (Overheating)
+	if (Minigun->GetIsOverheated())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("minigun name is not shooting : , %s"), *Minigun->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("minigun overheating releasing trigger"));
 		Minigun->ReleaseTrigger();
 		MinigunPulledTrigger = false;
 	}
-	else if (!MinigunPulledTrigger)
+	else if(!MinigunPulledTrigger)
 	{
 		MinigunPulledTrigger = true;
-
 		Minigun->PullTrigger();
-		UE_LOG(LogTemp, Warning, TEXT("minigun name is shooting : , %s"), *Minigun->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("minigun not overheating, pulling trigger is shooting"));
 	}
 
 	//homin missiles
@@ -238,7 +243,7 @@ void AEnemyVehiclePawn::Shoot()
 void AEnemyVehiclePawn::FireLoadedMissile()
 {
 	HominIsActive = false;
-	UE_LOG(LogTemp, Error, TEXT("about to shoot homin"));
+	//UE_LOG(LogTemp, Error, TEXT("about to shoot homin"));
 	float DistToTarget = GetDistanceTo(AIEnemy);
 	if (DistToTarget < HomingLauncher->GetTargetRange())
 	{
@@ -275,13 +280,17 @@ void AEnemyVehiclePawn::AddNewTurretRotation()
 	// 70% chance to rotate towards car's rotation, 30% chance to rotate the other way
 	//this rotation does not go thorugh - and 0 + values. it cant rotate around the 0 point.
 	const bool random = FMath::RandBool();
-	const float RandomFloat = FMath::RandRange(0.0f,1.0f);
-	const float RandomYawFloatCar= FMath::RandRange(60, 70);
-	const float RandomYawFloatTurret= FMath::RandRange(60, 150);
-	
-	const float RotationIncrementCar = random ? CarRotation.Yaw - RandomYawFloatCar : CarRotation.Yaw + RandomYawFloatCar;
-	const float RotationIncrementTurret = random ? TurretRotation.Yaw + RandomYawFloatTurret : TurretRotation.Yaw - RandomYawFloatTurret;
-	
+	const float RandomFloat = FMath::RandRange(0.0f, 1.0f);
+	const float RandomYawFloatCar = FMath::RandRange(60, 70);
+	const float RandomYawFloatTurret = FMath::RandRange(60, 150);
+
+	const float RotationIncrementCar = random
+		                                   ? CarRotation.Yaw - RandomYawFloatCar
+		                                   : CarRotation.Yaw + RandomYawFloatCar;
+	const float RotationIncrementTurret = random
+		                                      ? TurretRotation.Yaw + RandomYawFloatTurret
+		                                      : TurretRotation.Yaw - RandomYawFloatTurret;
+
 	TargetRotation.Yaw = RandomFloat > 0.3f ? RotationIncrementCar : RotationIncrementTurret;
 
 	TimerIsActive = false;
@@ -293,7 +302,7 @@ void AEnemyVehiclePawn::RotateTowardsShootingEnemy()
 	AActor* ShootingEnemyActor = Cast<AActor>(ShootingEnemy);
 	if (ShootingEnemyActor == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("shootingenemyactor nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("shooting enemyactor nullptr"));
 		return;
 	}
 
@@ -336,7 +345,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 	float TempBrakeInput = VehicleMovementComp->GetBrakeInput();
 	//	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
 
-	if (ABSDeltaYaw > 7 && VehicleMovementComp->GetForwardSpeed() > SpeedValueToDrasticallySlowDownInACurve)
+	if (ABSDeltaYaw > 9 && VehicleMovementComp->GetForwardSpeed() > MinSpeedThatCarSlowsDownTo_WhileTurningALargerCurve)
 	{
 		VehicleMovementComp->SetThrottleInput(0);
 		//	UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));

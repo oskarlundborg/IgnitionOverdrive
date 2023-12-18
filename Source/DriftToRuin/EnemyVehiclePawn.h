@@ -97,7 +97,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
 	float ClampedMinSpeed = 500.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float SpeedValueToDrasticallySlowDownInACurve = 1500.0f;
+	float MinSpeedThatCarSlowsDownTo_WhileTurningALargerCurve = 1500.0f;
 	//Behavior //göra om till enumerator
 	FString SwitchString = "Drive";
 
