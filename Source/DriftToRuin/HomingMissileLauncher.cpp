@@ -396,7 +396,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	CarOwnerPlayer->GetLockOnBoxOverlappingActors(Overlapping);
 	if(Overlapping.IsEmpty())
 	{
-		UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		//UE_LOG(LogTemp, Error, TEXT("NOTS"));
 		bCanLockOn = false;
 		return;
 	} 
@@ -413,7 +413,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	}
 	if(!bCanStartSweep)
 	{
-		UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		//UE_LOG(LogTemp, Error, TEXT("NOTS"));
 		bCanLockOn = false;
 		return;
 	} 
@@ -436,7 +436,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
 	if(bIsOnCooldown || bIsCharging) return false;
-	UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
+	//UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
 	if(CarOwner == nullptr) return false;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return false;
