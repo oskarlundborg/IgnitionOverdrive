@@ -53,6 +53,7 @@ public:
 	float MaxSpeed = 1500.0f;*/
 	UFUNCTION(BlueprintCallable)
 	void SetTickEnabledAI(bool bTickEnabled);
+	FTimerHandle GetMissileTimerHandle();
 	
 private:
 	//weapon components
@@ -169,6 +170,10 @@ private:
 	int TimeElapsed;
 	UPROPERTY()
 	int TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
+	UPROPERTY()
+	float TurretChargeTime = 2.5f;
+	UPROPERTY()
+	FTimerHandle ChargeAndFireTimer;
 
 	UPROPERTY()
 	FTimerHandle TimerHandle_SetStartingRotation;

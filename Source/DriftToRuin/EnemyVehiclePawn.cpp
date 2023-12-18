@@ -147,12 +147,12 @@ void AEnemyVehiclePawn::Shoot()
 	}
 	ABaseVehiclePawn* Enemy = Cast<ABaseVehiclePawn>(BlackboardComp->GetValueAsObject("Enemy"));
 
-	if (Enemy && Enemy->GetIsDead())
+	/*if (Enemy && Enemy->GetIsDead())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("enemy is dead"));
 		HasKilled = true;
 		return;
-	}
+	}*/
 
 	TArray<AActor*> CarActors;
 	GetAttachedActors(CarActors);
@@ -216,12 +216,12 @@ void AEnemyVehiclePawn::Shoot()
 		HominIsActive = true;
 		MissileCharge = FMath::RandRange(1, 3);
 
-		FTimerHandle ChargeAndFireTimer;
+		//FTimerHandle ChargeAndFireTimer;
 		GetWorld()->GetTimerManager().SetTimer(
 			ChargeAndFireTimer,
 			this,
 			&AEnemyVehiclePawn::FireLoadedMissile,
-			1.5f, // Set this to the time you want for charging
+			TurretChargeTime, // Set this to the time you want for charging
 			false);
 
 		//HomingLauncher->OnFireAI(AIEnemy, MissileCharge);
@@ -540,5 +540,14 @@ void AEnemyVehiclePawn::SetHasNewSplineBeenSetup(bool bValue)
 
 void AEnemyVehiclePawn::SetTickEnabledAI(bool bTickEnabled)
 {
-	PrimaryActorTick.bCanEverTick = bTickEnabled;
+	// kanske inte behövs 
+	Minigun->ReleaseTrigger();
+	Minigun->SetActorTickEnabled(bTickEnabled);
+	HomingLauncher->SetActorTickEnabled(bTickEnabled);
+	SetActorTickEnabled(bTickEnabled);
+}
+
+FTimerHandle AEnemyVehiclePawn::GetMissileTimerHandle()
+{
+	return ChargeAndFireTimer;
 }
