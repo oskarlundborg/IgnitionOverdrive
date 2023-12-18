@@ -180,7 +180,7 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 void APlayerVehiclePawn::OnHandbrakeReleased()
 {
 	VehicleMovementComp->SetHandbrakeInput(false);
-	VehicleMovementComp->SetDownforceCoefficient(1);
+	VehicleMovementComp->SetDownforceCoefficient(4);
 	VehicleMovementComp->SetDifferentialFrontRearSplit(0.7f);
 	
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
@@ -188,12 +188,12 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultRearFriction);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 10.0f);
 		}
 		else
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DefaultFrontFriction);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 9.6f);
 		}
 	}
 	VehicleMovementComp->TargetRotationControl.Enabled = false;

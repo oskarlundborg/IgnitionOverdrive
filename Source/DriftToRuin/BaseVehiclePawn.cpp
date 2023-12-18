@@ -373,12 +373,12 @@ void ABaseVehiclePawn::DisableBoost()
 	{
 		if(Wheel->AxleType==EAxleType::Rear)
 		{
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 6.0f);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 10.0f);
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 		else
 		{
-			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 5.6f);
+			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 9.6f);
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 		}
 	}
@@ -447,7 +447,7 @@ void ABaseVehiclePawn::UpdateAirbornePhysics() const
 		{
 			GetMesh()->SetLinearDamping(0.2f);
 			GetMesh()->SetAngularDamping(0.3f);
-			VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+			//VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
 			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE NOT BOOSTING")));
 		}
 		else
@@ -462,7 +462,7 @@ void ABaseVehiclePawn::UpdateAirbornePhysics() const
 	{
 		GetMesh()->SetLinearDamping(0.01f);
 		GetMesh()->SetAngularDamping(0.0f);
-		VehicleMovementComp->SetDownforceCoefficient(VehicleMovementComp->DownforceCoefficient);
+		VehicleMovementComp->SetDownforceCoefficient(4.0);
 	}
 }
 
