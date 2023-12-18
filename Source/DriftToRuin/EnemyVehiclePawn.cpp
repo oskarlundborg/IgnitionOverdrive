@@ -154,7 +154,9 @@ void AEnemyVehiclePawn::Shoot()
 		return;
 	}*/
 
-	TArray<AActor*> CarActors;
+	// göra om behöver inte kolla varje tick
+	
+	/*TArray<AActor*> CarActors;
 	GetAttachedActors(CarActors);
 	for (AActor* ChildActor : CarActors)
 	{
@@ -174,7 +176,7 @@ void AEnemyVehiclePawn::Shoot()
 			UE_LOG(LogTemp, Warning, TEXT("child actor was playerturret: %s"), *ChildActor->GetName());
 			break; // Exit the loop since we found what we were looking for
 		}
-	}
+	}*/
 
 	if (Minigun && Minigun->GetIsOverheated())
 	{
@@ -316,7 +318,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 	float DeltaYaw = FMath::Abs(DeltaRotator.Yaw);
 	float ABSDeltaYaw = DeltaYaw;
 
-	//5000 värdet kan lekas runt med, mindre värde ger mindre speed, högre värde ger mer speed. 
+	//3000 värdet kan lekas runt med, mindre värde ger mindre speed, högre värde ger mer speed. 
 	DeltaYaw = 3000 / DeltaYaw;
 
 	//slow down faster if max speed is bigger than delta yaw
