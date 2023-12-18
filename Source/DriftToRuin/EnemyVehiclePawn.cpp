@@ -100,6 +100,7 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 
 void AEnemyVehiclePawn::DrivePath()
 {
+	UE_LOG(LogTemp, Warning, TEXT("just driving "));
 	RandomlyRotateTurret();
 
 	DriveAlongSpline();
@@ -111,7 +112,7 @@ void AEnemyVehiclePawn::DrivePath()
 
 void AEnemyVehiclePawn::DriveAndShoot()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("driving and shooting"));
+	UE_LOG(LogTemp, Warning, TEXT("driving and shooting"));
 
 	DriveAlongSpline();
 
@@ -137,9 +138,10 @@ void AEnemyVehiclePawn::Shoot()
 	//UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
 	const FVector EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLocation);
-
+	UE_LOG(LogTemp, Warning, TEXT("in shooting function"));
 	if (Minigun == nullptr || HomingLauncher == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("null minigun or homin, returning"));
 		return;
 	}
 
@@ -149,14 +151,8 @@ void AEnemyVehiclePawn::Shoot()
 	{
 		Turret->SetActorRotation(NewRotation);
 	}
-	ABaseVehiclePawn* Enemy = Cast<ABaseVehiclePawn>(BlackboardComp->GetValueAsObject("Enemy"));
+	//ABaseVehiclePawn* Enemy = Cast<ABaseVehiclePawn>(BlackboardComp->GetValueAsObject("Enemy"));
 
-	/*if (Enemy && Enemy->GetIsDead())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("enemy is dead"));
-		HasKilled = true;
-		return;
-	}*/
 
 	// göra om behöver inte kolla varje tick
 
@@ -192,27 +188,37 @@ void AEnemyVehiclePawn::Shoot()
 		UE_LOG(LogTemp, Warning, TEXT("minigun not overheating no more"));
 		Overheating = false;
 	}*/
-
-	if (Minigun->GetIsOverheated())
+	UObject* EnemyObject = BlackboardComp->GetValueAsObject("Enemy");
+	AIEnemy = Cast<ABaseVehiclePawn>(EnemyObject);
+	if (AIEnemy && AIEnemy->GetIsDead() && Minigun->GetIsFiring())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("enemy is dead"));
+		MinigunPulledTrigger = false;
+		Minigun->ReleaseTrigger();
+		return;
+		//return;
+	}
+	if (Minigun->GetIsOverheated() && MinigunPulledTrigger )
 	{
 		UE_LOG(LogTemp, Warning, TEXT("minigun overheating releasing trigger"));
 		Minigun->ReleaseTrigger();
 		MinigunPulledTrigger = false;
 	}
-	else if(!MinigunPulledTrigger)
+	if(Minigun->GetOverheatValue() < 0.1 && !MinigunPulledTrigger)
 	{
 		MinigunPulledTrigger = true;
 		Minigun->PullTrigger();
 		UE_LOG(LogTemp, Warning, TEXT("minigun not overheating, pulling trigger is shooting"));
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("Minigun pulleed trigger: %s"), MinigunPulledTrigger ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogTemp, Warning, TEXT("Minigun overheated ?: %s"), Minigun->GetIsOverheated() ? TEXT("True") : TEXT("False"));
+	
+	
 	//homin missiles
 
 	/*
 	AController* EnemyController = Cast<AController>(AIController);
 	ensureMsgf(EnemyController != nullptr, TEXT("Enemy controller was null"));*/
-	UObject* EnemyObject = BlackboardComp->GetValueAsObject("Enemy");
-	AIEnemy = Cast<AActor>(EnemyObject);
 	float DistToTarget = GetDistanceTo(AIEnemy);
 	//charge time needs to be done.
 
@@ -223,6 +229,7 @@ void AEnemyVehiclePawn::Shoot()
 		HominIsActive = true;
 		MissileCharge = FMath::RandRange(1, 3);
 
+		UE_LOG(LogTemp, Warning, TEXT("start homing timer:"));
 		//FTimerHandle ChargeAndFireTimer;
 		GetWorld()->GetTimerManager().SetTimer(
 			ChargeAndFireTimer,
@@ -562,3 +569,10 @@ FTimerHandle& AEnemyVehiclePawn::GetMissileTimerHandle()
 {
 	return ChargeAndFireTimer;
 }
+
+void AEnemyVehiclePawn::SetPulledTrigger(bool pulledTrigger)
+{
+	MinigunPulledTrigger = pulledTrigger;
+	Minigun->ReleaseTrigger();
+}
+

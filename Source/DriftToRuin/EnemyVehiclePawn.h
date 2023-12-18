@@ -55,6 +55,10 @@ public:
 	void SetTickEnabledAI(bool bTickEnabled);
 	FTimerHandle& GetMissileTimerHandle();
 	
+	UFUNCTION(BlueprintCallable)
+	void SetPulledTrigger(bool pulledTrigger);
+
+	
 private:
 	//weapon components
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
@@ -142,7 +146,7 @@ private:
 	UPROPERTY()
 	int32 MissileCharge;
 	UPROPERTY()
-	AActor* AIEnemy;
+	ABaseVehiclePawn* AIEnemy;
 
 	UPROPERTY()
 	bool HasKilled = false;
