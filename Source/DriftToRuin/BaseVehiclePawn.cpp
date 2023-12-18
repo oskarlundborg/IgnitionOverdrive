@@ -99,6 +99,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Audio component for wheel gravel and stuff.
 	WheelAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("WheelAudioSource"));
 
+	//Audio component for powerups.
+	PowerupAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PowerupAudioComponent"));
+
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
 	BoostVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
@@ -566,6 +569,13 @@ void ABaseVehiclePawn::InitAudio()
 		WheelAudioComponent->SetSound(WheelAudioSound);
 		WheelAudioComponent->SetVolumeMultiplier(1);
 		WheelAudioComponent->SetActive(bPlayEngineSound);
+	}
+	if(PowerupAudioComponent)
+	{
+		PowerupAudioComponent->SetSound(PowerupSound);
+		PowerupAudioComponent->SetVolumeMultiplier(1);
+		PowerupAudioComponent->SetActive(bPlayEngineSound);
+		PowerupAudioComponent->Stop();
 	}
 }
 
