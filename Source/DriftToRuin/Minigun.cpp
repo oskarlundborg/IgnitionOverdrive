@@ -125,7 +125,7 @@ void AMinigun::BuildUpOverheat()
 	if (OverheatValue == OverheatMax)
 	{
 		bIsOverheated = true;
-		MinigunFullOverheat();
+		MinigunDisableAudio();
 		ReleaseTrigger();
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::OverheatCooldown, OverheatCooldownDuration,
@@ -279,4 +279,23 @@ bool AMinigun::GetIsPoweredUp()
 bool AMinigun::GetIsFiring()
 {
 	return bIsFiring;
+}
+
+void AMinigun::DisableShooting()
+{
+	/*if (GetOwner()->IsA(AEnemyVehiclePawn::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("casting to AI pawn"));
+		AEnemyVehiclePawn* AI = Cast<AEnemyVehiclePawn>(GetOwner());
+		if (AI)
+		{
+			AI->SetPulledTrigger(false);
+		} else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("cast failed to AI pawn"));
+		}
+	}*/
+	MinigunDisableAudio();
+	bIsOverheated = false;
+	ReleaseTrigger();
 }

@@ -60,12 +60,12 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	USplineComponent* BBSpline = nullptr;
 	if (ActorRoadSpline != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ACTOR ROAD SPLINE WAS NOT NULL SETTING BB SPLINE: "));
+		//UE_LOG(LogTemp, Warning, TEXT("ACTOR ROAD SPLINE WAS NOT NULL SETTING BB SPLINE: "));
 		BBSpline = ActorRoadSpline->GetComponentByClass<USplineComponent>();
 	}
 
 	FVector PointToDriveTo = BlackboardComp->GetValueAsVector("LocationToDrive");
-	UE_LOG(LogTemp, Warning, TEXT("PointToDriveTo %s"), *PointToDriveTo.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("PointToDriveTo %s"), *PointToDriveTo.ToString());
 	FVector ScanStart = AIPawn->GetActorLocation() + FVector(0.0f, 0.0f, 130.0f) + ForwardVector * Offset;
 	// Adjust the Z component to start from the top of the box
 	FVector ScanEnd = ScanStart + ForwardVector * TraceDistance;
@@ -102,11 +102,11 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 			{
 				if (BBSpline)
 				{
-					UE_LOG(LogTemp, Error, TEXT("BBSPLINE: %s"), *BBSpline->GetName());
+					//UE_LOG(LogTemp, Error, TEXT("BBSPLINE: %s"), *BBSpline->GetName());
 				}
-				UE_LOG(LogTemp, Error, TEXT("splineComponent: %s"), *SplineComponent->GetName());
-				UE_LOG(LogTemp, Error, TEXT("actor being added as spline hit result: %s"),
-				       *HitResult.GetActor()->GetName());
+				//UE_LOG(LogTemp, Error, TEXT("splineComponent: %s"), *SplineComponent->GetName());
+				//UE_LOG(LogTemp, Error, TEXT("actor being added as spline hit result: %s"),
+				 //      *HitResult.GetActor()->GetName());
 				EligibleSplineHits.Add(SplineComponent);
 			}
 		}

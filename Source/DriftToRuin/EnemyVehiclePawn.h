@@ -53,6 +53,11 @@ public:
 	float MaxSpeed = 1500.0f;*/
 	UFUNCTION(BlueprintCallable)
 	void SetTickEnabledAI(bool bTickEnabled);
+	FTimerHandle& GetMissileTimerHandle();
+	
+	UFUNCTION(BlueprintCallable)
+	void SetPulledTrigger(bool pulledTrigger);
+
 	
 private:
 	//weapon components
@@ -96,7 +101,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
 	float ClampedMinSpeed = 500.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float SpeedValueToDrasticallySlowDownInACurve = 1500.0f;
+	float MinSpeedThatCarSlowsDownTo_WhileTurningALargerCurve = 1500.0f;
 	//Behavior //göra om till enumerator
 	FString SwitchString = "Drive";
 
@@ -141,7 +146,7 @@ private:
 	UPROPERTY()
 	int32 MissileCharge;
 	UPROPERTY()
-	AActor* AIEnemy;
+	ABaseVehiclePawn* AIEnemy;
 
 	UPROPERTY()
 	bool HasKilled = false;
@@ -169,6 +174,10 @@ private:
 	int TimeElapsed;
 	UPROPERTY()
 	int TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
+	UPROPERTY()
+	float TurretChargeTime = 2.5f;
+	UPROPERTY()
+	FTimerHandle ChargeAndFireTimer;
 
 	UPROPERTY()
 	FTimerHandle TimerHandle_SetStartingRotation;

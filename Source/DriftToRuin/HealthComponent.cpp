@@ -31,7 +31,9 @@ void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDa
 	if(Damage <= 0.f) return;
 	CurrentHealth -= Damage;
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
-
+	// Fixa Casten 
+	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	CarOwner -> ProjectileHit();
 	if (CurrentHealth <= 0 )
 	{
 		OnVehicleDeath(DamageCauser->GetOwner());
@@ -93,7 +95,8 @@ void UHealthComponent::OnVehicleDeath(AActor* DamageCauser)
 {
 	//Vad som ska hända vid vehicle death
 	OnVehicleDeathDelegate.Broadcast(DamageCauser);
-
+	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	CarOwner->OnDeathDisableAll();
 	//Respawnar via blueprint just nu (med denna delegate)
 
 }

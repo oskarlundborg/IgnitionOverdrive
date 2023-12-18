@@ -16,7 +16,6 @@
 
 AEnemyVehiclePawn::AEnemyVehiclePawn()
 {
-	
 }
 
 void AEnemyVehiclePawn::BeginPlay()
@@ -101,6 +100,7 @@ void AEnemyVehiclePawn::Tick(float DeltaSeconds)
 
 void AEnemyVehiclePawn::DrivePath()
 {
+	UE_LOG(LogTemp, Warning, TEXT("just driving "));
 	RandomlyRotateTurret();
 
 	DriveAlongSpline();
@@ -125,7 +125,7 @@ void AEnemyVehiclePawn::DriveAndShoot()
 
 void AEnemyVehiclePawn::ReactToGetShot()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Reacting to get shot"));
+	//UE_LOG(LogTemp, Warning, TEXT("Reacting to get shot"));
 
 	RotateTowardsShootingEnemy();
 	DriveAlongSpline();
@@ -138,6 +138,12 @@ void AEnemyVehiclePawn::Shoot()
 	//UE_LOG(LogTemp, Warning, TEXT("AI player shooting and rotating to turret, bullet now."));
 	const FVector EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLocation);
+	UE_LOG(LogTemp, Warning, TEXT("in shooting function"));
+	if (Minigun == nullptr || HomingLauncher == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("null minigun or homin, returning"));
+		return;
+	}
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
 	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
@@ -145,16 +151,12 @@ void AEnemyVehiclePawn::Shoot()
 	{
 		Turret->SetActorRotation(NewRotation);
 	}
-	ABaseVehiclePawn* Enemy = Cast<ABaseVehiclePawn>(BlackboardComp->GetValueAsObject("Enemy"));
+	//ABaseVehiclePawn* Enemy = Cast<ABaseVehiclePawn>(BlackboardComp->GetValueAsObject("Enemy"));
 
-	if (Enemy && Enemy->GetIsDead())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("enemy is dead"));
-		HasKilled = true;
-		return;
-	}
 
-	TArray<AActor*> CarActors;
+	// göra om behöver inte kolla varje tick
+
+	/*TArray<AActor*> CarActors;
 	GetAttachedActors(CarActors);
 	for (AActor* ChildActor : CarActors)
 	{
@@ -174,38 +176,49 @@ void AEnemyVehiclePawn::Shoot()
 			UE_LOG(LogTemp, Warning, TEXT("child actor was playerturret: %s"), *ChildActor->GetName());
 			break; // Exit the loop since we found what we were looking for
 		}
-	}
+	}*/
 
-	if (Minigun && Minigun->GetIsOverheated())
+	/*if (Minigun->GetIsOverheated())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("minigun overheating, setting value"));
 		Overheating = true;
-	}
-	else if (Minigun->GetOverheatValue() < 0.2)
+	}*/
+	/*else if (Minigun->GetOverheatValue() < 0.2)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("minigun not overheating no more"));
 		Overheating = false;
-	}
-
-	if (Overheating)
+	}*/
+	UObject* EnemyObject = BlackboardComp->GetValueAsObject("Enemy");
+	AIEnemy = Cast<ABaseVehiclePawn>(EnemyObject);
+	if (AIEnemy && AIEnemy->GetIsDead() && Minigun->GetIsFiring())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("minigun name is not shooting : , %s"), *Minigun->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("enemy is dead"));
+		MinigunPulledTrigger = false;
+		Minigun->ReleaseTrigger();
+		return;
+		//return;
+	}
+	if (Minigun->GetIsOverheated() && MinigunPulledTrigger )
+	{
+		UE_LOG(LogTemp, Warning, TEXT("minigun overheating releasing trigger"));
 		Minigun->ReleaseTrigger();
 		MinigunPulledTrigger = false;
 	}
-	else if (!MinigunPulledTrigger)
+	if(Minigun->GetOverheatValue() < 0.1 && !MinigunPulledTrigger)
 	{
 		MinigunPulledTrigger = true;
-
 		Minigun->PullTrigger();
-		UE_LOG(LogTemp, Warning, TEXT("minigun name is shooting : , %s"), *Minigun->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("minigun not overheating, pulling trigger is shooting"));
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("Minigun pulleed trigger: %s"), MinigunPulledTrigger ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogTemp, Warning, TEXT("Minigun overheated ?: %s"), Minigun->GetIsOverheated() ? TEXT("True") : TEXT("False"));
+	
+	
 	//homin missiles
 
 	/*
 	AController* EnemyController = Cast<AController>(AIController);
 	ensureMsgf(EnemyController != nullptr, TEXT("Enemy controller was null"));*/
-	UObject* EnemyObject = BlackboardComp->GetValueAsObject("Enemy");
-	AIEnemy = Cast<AActor>(EnemyObject);
 	float DistToTarget = GetDistanceTo(AIEnemy);
 	//charge time needs to be done.
 
@@ -216,12 +229,13 @@ void AEnemyVehiclePawn::Shoot()
 		HominIsActive = true;
 		MissileCharge = FMath::RandRange(1, 3);
 
-		FTimerHandle ChargeAndFireTimer;
+		UE_LOG(LogTemp, Warning, TEXT("start homing timer:"));
+		//FTimerHandle ChargeAndFireTimer;
 		GetWorld()->GetTimerManager().SetTimer(
 			ChargeAndFireTimer,
 			this,
 			&AEnemyVehiclePawn::FireLoadedMissile,
-			1.5f, // Set this to the time you want for charging
+			TurretChargeTime, // Set this to the time you want for charging
 			false);
 
 		//HomingLauncher->OnFireAI(AIEnemy, MissileCharge);
@@ -236,7 +250,7 @@ void AEnemyVehiclePawn::Shoot()
 void AEnemyVehiclePawn::FireLoadedMissile()
 {
 	HominIsActive = false;
-	UE_LOG(LogTemp, Error, TEXT("about to shoot homin"));
+	//UE_LOG(LogTemp, Error, TEXT("about to shoot homin"));
 	float DistToTarget = GetDistanceTo(AIEnemy);
 	if (DistToTarget < HomingLauncher->GetTargetRange())
 	{
@@ -273,13 +287,17 @@ void AEnemyVehiclePawn::AddNewTurretRotation()
 	// 70% chance to rotate towards car's rotation, 30% chance to rotate the other way
 	//this rotation does not go thorugh - and 0 + values. it cant rotate around the 0 point.
 	const bool random = FMath::RandBool();
-	const float RandomFloat = FMath::RandRange(0.0f,1.0f);
-	const float RandomYawFloatCar= FMath::RandRange(60, 70);
-	const float RandomYawFloatTurret= FMath::RandRange(60, 150);
-	
-	const float RotationIncrementCar = random ? CarRotation.Yaw - RandomYawFloatCar : CarRotation.Yaw + RandomYawFloatCar;
-	const float RotationIncrementTurret = random ? TurretRotation.Yaw + RandomYawFloatTurret : TurretRotation.Yaw - RandomYawFloatTurret;
-	
+	const float RandomFloat = FMath::RandRange(0.0f, 1.0f);
+	const float RandomYawFloatCar = FMath::RandRange(60, 70);
+	const float RandomYawFloatTurret = FMath::RandRange(60, 150);
+
+	const float RotationIncrementCar = random
+		                                   ? CarRotation.Yaw - RandomYawFloatCar
+		                                   : CarRotation.Yaw + RandomYawFloatCar;
+	const float RotationIncrementTurret = random
+		                                      ? TurretRotation.Yaw + RandomYawFloatTurret
+		                                      : TurretRotation.Yaw - RandomYawFloatTurret;
+
 	TargetRotation.Yaw = RandomFloat > 0.3f ? RotationIncrementCar : RotationIncrementTurret;
 
 	TimerIsActive = false;
@@ -291,7 +309,7 @@ void AEnemyVehiclePawn::RotateTowardsShootingEnemy()
 	AActor* ShootingEnemyActor = Cast<AActor>(ShootingEnemy);
 	if (ShootingEnemyActor == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("shootingenemyactor nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("shooting enemyactor nullptr"));
 		return;
 	}
 
@@ -316,7 +334,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 	float DeltaYaw = FMath::Abs(DeltaRotator.Yaw);
 	float ABSDeltaYaw = DeltaYaw;
 
-	//5000 värdet kan lekas runt med, mindre värde ger mindre speed, högre värde ger mer speed. 
+	//3000 värdet kan lekas runt med, mindre värde ger mindre speed, högre värde ger mer speed. 
 	DeltaYaw = 3000 / DeltaYaw;
 
 	//slow down faster if max speed is bigger than delta yaw
@@ -334,7 +352,7 @@ void AEnemyVehiclePawn::ManageSpeed()
 	float TempBrakeInput = VehicleMovementComp->GetBrakeInput();
 	//	UE_LOG(LogTemp, Warning, TEXT("delta yaw value: %f"), ABSDeltaYaw);
 
-	if (ABSDeltaYaw > 7 && VehicleMovementComp->GetForwardSpeed() > SpeedValueToDrasticallySlowDownInACurve)
+	if (ABSDeltaYaw > 9 && VehicleMovementComp->GetForwardSpeed() > MinSpeedThatCarSlowsDownTo_WhileTurningALargerCurve)
 	{
 		VehicleMovementComp->SetThrottleInput(0);
 		//	UE_LOG(LogTemp, Warning, TEXT("in slowing down function: "));
@@ -540,5 +558,21 @@ void AEnemyVehiclePawn::SetHasNewSplineBeenSetup(bool bValue)
 
 void AEnemyVehiclePawn::SetTickEnabledAI(bool bTickEnabled)
 {
-	PrimaryActorTick.bCanEverTick = bTickEnabled;
+	// kanske inte behövs 
+	Minigun->ReleaseTrigger();
+	Minigun->SetActorTickEnabled(bTickEnabled);
+	HomingLauncher->SetActorTickEnabled(bTickEnabled);
+	SetActorTickEnabled(bTickEnabled);
 }
+
+FTimerHandle& AEnemyVehiclePawn::GetMissileTimerHandle()
+{
+	return ChargeAndFireTimer;
+}
+
+void AEnemyVehiclePawn::SetPulledTrigger(bool pulledTrigger)
+{
+	MinigunPulledTrigger = pulledTrigger;
+	Minigun->ReleaseTrigger();
+}
+

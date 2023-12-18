@@ -189,6 +189,24 @@ void AHomingMissileLauncher::SetAICooldown()
 	GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, 10.0f, false, 10.0f);
 }
 
+void AHomingMissileLauncher::DisableShooting()
+{
+	CurrentTarget = nullptr;
+	ChargeAmount = 0;
+	bIsCharging = false;
+	ChargeValue = 0.f;
+	bCanLockOn = false;
+	GetWorldTimerManager().ClearTimer(FireTimer);
+	if(CarOwner->IsA(AEnemyVehiclePawn::StaticClass()))
+	{
+		AEnemyVehiclePawn* AIOwner = Cast<AEnemyVehiclePawn>(GetOwner());
+		GetWorld()->GetTimerManager().ClearTimer(AIOwner->GetMissileTimerHandle());
+	} else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
+	}
+}
+
 void AHomingMissileLauncher::ChargeFire()
 {
 	if(!CurrentTarget || ChargeAmount == ChargeCap)
@@ -378,7 +396,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	CarOwnerPlayer->GetLockOnBoxOverlappingActors(Overlapping);
 	if(Overlapping.IsEmpty())
 	{
-		UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		//UE_LOG(LogTemp, Error, TEXT("NOTS"));
 		bCanLockOn = false;
 		return;
 	} 
@@ -395,7 +413,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	}
 	if(!bCanStartSweep)
 	{
-		UE_LOG(LogTemp, Error, TEXT("NOTS"));
+		//UE_LOG(LogTemp, Error, TEXT("NOTS"));
 		bCanLockOn = false;
 		return;
 	} 
@@ -418,7 +436,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 {
 	if(bIsOnCooldown || bIsCharging) return false;
-	UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
+	//UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
 	if(CarOwner == nullptr) return false;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return false;
