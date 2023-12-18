@@ -283,5 +283,6 @@ bool AMinigun::GetIsFiring()
 
 void AMinigun::DisableShooting()
 {
+	MinigunDisableAudio();
 	ReleaseTrigger();
 }

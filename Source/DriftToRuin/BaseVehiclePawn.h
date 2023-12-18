@@ -182,6 +182,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool GetIsBoostEnabled() const;
 
+	void OnDeathDisableAll();
+
 	UFUNCTION()
 	bool IsGrounded() const;
 

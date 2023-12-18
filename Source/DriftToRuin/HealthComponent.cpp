@@ -3,8 +3,6 @@
 
 #include "HealthComponent.h"
 #include "BaseVehiclePawn.h"
-#include "HomingMissileLauncher.h"
-#include "Minigun.h"
 #include "PowerupComponent.h"
 
 // Sets default values for this component's properties
@@ -96,9 +94,7 @@ void UHealthComponent::OnVehicleDeath(AActor* DamageCauser)
 	//Vad som ska hända vid vehicle death
 	OnVehicleDeathDelegate.Broadcast(DamageCauser);
 	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-	CarOwner->GetMinigun()->DisableShooting();
-	CarOwner->GetMinigun()->MinigunDisableAudio();
-	CarOwner->GetHomingLauncher()->DisableShooting();
+	CarOwner->OnDeathDisableAll();
 	//Respawnar via blueprint just nu (med denna delegate)
 
 }

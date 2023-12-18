@@ -9,6 +9,8 @@
 #include "TimerManager.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
+#include "HomingMissileLauncher.h"
+#include "Minigun.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeBase.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -586,6 +588,15 @@ float ABaseVehiclePawn::GetBoostPercentage() const
 bool ABaseVehiclePawn::GetIsBoostEnabled() const
 {
 	return Booster.bEnabled;
+}
+
+void ABaseVehiclePawn::OnDeathDisableAll()
+{
+	DisableBoost();
+	GetWorldTimerManager().ClearTimer(BoostCooldownTimer);
+	GetWorldTimerManager().ClearTimer(Booster.BoostTimer);
+	Minigun->DisableShooting();
+	HomingLauncher->DisableShooting();
 }
 
 float ABaseVehiclePawn::GetMinigunDamage()
