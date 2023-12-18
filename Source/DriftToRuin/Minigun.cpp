@@ -283,6 +283,20 @@ bool AMinigun::GetIsFiring()
 
 void AMinigun::DisableShooting()
 {
+	/*if (GetOwner()->IsA(AEnemyVehiclePawn::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("casting to AI pawn"));
+		AEnemyVehiclePawn* AI = Cast<AEnemyVehiclePawn>(GetOwner());
+		if (AI)
+		{
+			AI->SetPulledTrigger(false);
+		} else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("cast failed to AI pawn"));
+		}
+	}*/
 	MinigunDisableAudio();
+	bIsOverheated = false;
+	OverheatValue = 0.f;
 	ReleaseTrigger();
 }

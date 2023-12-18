@@ -41,8 +41,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealth() const;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void ProjectileHit();
+	
 
 	UFUNCTION(BlueprintCallable)
 	float GetDefaultMaxHealth() const;

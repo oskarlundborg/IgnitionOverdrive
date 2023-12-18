@@ -25,7 +25,7 @@ EBTNodeResult::Type UBTT_ShootPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	
 	if (Enemy)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("setting behavior"));
+		//UE_LOG(LogTemp, Warning, TEXT("setting behavior"));
 		
 		Enemy->SetSwitchString(BlackboardComp->GetValueAsString("StringBehavior"));
 		return EBTNodeResult::Succeeded;
