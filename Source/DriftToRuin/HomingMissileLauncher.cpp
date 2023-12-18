@@ -189,6 +189,17 @@ void AHomingMissileLauncher::SetAICooldown()
 	GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, 10.0f, false, 10.0f);
 }
 
+void AHomingMissileLauncher::DisableShooting()
+{
+	CurrentTarget = nullptr;
+	ChargeAmount = 0;
+	bIsCharging = false;
+	ChargeValue = 0.f;
+	bCanLockOn = false;
+	GetWorldTimerManager().ClearTimer(FireTimer);
+	GetWorld()->GetTimerManager().ClearTimer(ChargeHandle);
+}
+
 void AHomingMissileLauncher::ChargeFire()
 {
 	if(!CurrentTarget || ChargeAmount == ChargeCap)
