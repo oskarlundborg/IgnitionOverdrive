@@ -197,6 +197,7 @@ void AHomingMissileLauncher::DisableShooting()
 	ChargeValue = 0.f;
 	bCanLockOn = false;
 	GetWorldTimerManager().ClearTimer(FireTimer);
+	ResetCooldown();
 	if(CarOwner->IsA(AEnemyVehiclePawn::StaticClass()))
 	{
 		AEnemyVehiclePawn* AIOwner = Cast<AEnemyVehiclePawn>(GetOwner());
