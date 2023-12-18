@@ -169,6 +169,8 @@ private:
 	int TimeElapsed;
 	UPROPERTY()
 	int TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
+	UPROPERTY()
+	float TurretChargeTime = 2.5f;
 
 	UPROPERTY()
 	FTimerHandle TimerHandle_SetStartingRotation;
