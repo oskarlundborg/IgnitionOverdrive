@@ -297,6 +297,5 @@ void AMinigun::DisableShooting()
 	}*/
 	bIsOverheated = false;
 	MinigunDisableAudio();
-	bIsOverheated = false;
 	ReleaseTrigger();
 }
