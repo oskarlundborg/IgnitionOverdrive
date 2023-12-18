@@ -216,7 +216,7 @@ void AEnemyVehiclePawn::Shoot()
 		HominIsActive = true;
 		MissileCharge = FMath::RandRange(1, 3);
 
-		FTimerHandle ChargeAndFireTimer;
+		//FTimerHandle ChargeAndFireTimer;
 		GetWorld()->GetTimerManager().SetTimer(
 			ChargeAndFireTimer,
 			this,
@@ -545,4 +545,9 @@ void AEnemyVehiclePawn::SetTickEnabledAI(bool bTickEnabled)
 	Minigun->SetActorTickEnabled(bTickEnabled);
 	HomingLauncher->SetActorTickEnabled(bTickEnabled);
 	SetActorTickEnabled(bTickEnabled);
+}
+
+FTimerHandle AEnemyVehiclePawn::GetMissileTimerHandle()
+{
+	return ChargeAndFireTimer;
 }
