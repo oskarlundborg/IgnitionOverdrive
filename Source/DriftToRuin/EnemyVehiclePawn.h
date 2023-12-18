@@ -53,7 +53,7 @@ public:
 	float MaxSpeed = 1500.0f;*/
 	UFUNCTION(BlueprintCallable)
 	void SetTickEnabledAI(bool bTickEnabled);
-	FTimerHandle GetMissileTimerHandle();
+	FTimerHandle& GetMissileTimerHandle();
 	
 private:
 	//weapon components
