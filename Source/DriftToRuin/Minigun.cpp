@@ -284,5 +284,6 @@ bool AMinigun::GetIsFiring()
 void AMinigun::DisableShooting()
 {
 	MinigunDisableAudio();
+	bIsOverheated = false;
 	ReleaseTrigger();
 }
