@@ -729,8 +729,6 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	Hide(HudCapFR, true);
 	Hide(HudCapFL, true);
 
-	Hide(ExhaustL, true);
-	Hide(ExhaustR, true);
 	Hide(FuelTank, true);
 
 	Hide(Plow, true);

@@ -148,9 +148,6 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	int HeldPowerup = 0;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void ProjectileHit();
-
 	UFUNCTION()
 	virtual void Tick(float DeltaSeconds) override;
 
