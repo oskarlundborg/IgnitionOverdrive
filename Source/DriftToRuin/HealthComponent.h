@@ -41,6 +41,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealth() const;
 
+	
+
 	UFUNCTION(BlueprintCallable)
 	float GetDefaultMaxHealth() const;
 	
