@@ -444,6 +444,8 @@ private:
 	UPROPERTY()
 	bool bAllowHit = true;
 
+	void DeactivateMovementComponent();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<AHomingMissileLauncher> HomingLauncherClass;

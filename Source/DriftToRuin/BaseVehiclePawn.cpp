@@ -601,6 +601,8 @@ bool ABaseVehiclePawn::GetIsBoostEnabled() const
 
 void ABaseVehiclePawn::OnDeathDisableAll()
 {
+	FTimerHandle DeactivateMovementComp;
+	GetWorldTimerManager().SetTimer(DeactivateMovementComp, this,&ABaseVehiclePawn::DeactivateMovementComponent , 1.f, false, 1.f);
 	DisableBoost();
 	GetWorldTimerManager().ClearTimer(BoostCooldownTimer);
 	GetWorldTimerManager().ClearTimer(Booster.BoostTimer);
@@ -917,4 +919,9 @@ void ABaseVehiclePawn::Hide(UPrimitiveComponent *Component, bool bHide)
 		Component->SetGenerateOverlapEvents(true);
 		//Component->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
+}
+
+void ABaseVehiclePawn::DeactivateMovementComponent()
+{
+	VehicleMovementComp->Deactivate();
 }
