@@ -295,8 +295,7 @@ void AMinigun::DisableShooting()
 			UE_LOG(LogTemp, Warning, TEXT("cast failed to AI pawn"));
 		}
 	}*/
-	MinigunDisableAudio();
 	bIsOverheated = false;
-	OverheatValue = 0.f;
+	MinigunDisableAudio();
 	ReleaseTrigger();
 }
