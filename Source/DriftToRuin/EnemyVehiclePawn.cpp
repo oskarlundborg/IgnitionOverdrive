@@ -549,7 +549,7 @@ void AEnemyVehiclePawn::SetTickEnabledAI(bool bTickEnabled)
 	SetActorTickEnabled(bTickEnabled);
 }
 
-FTimerHandle AEnemyVehiclePawn::GetMissileTimerHandle()
+FTimerHandle& AEnemyVehiclePawn::GetMissileTimerHandle()
 {
 	return ChargeAndFireTimer;
 }

@@ -125,7 +125,7 @@ void AMinigun::BuildUpOverheat()
 	if (OverheatValue == OverheatMax)
 	{
 		bIsOverheated = true;
-		MinigunFullOverheat();
+		MinigunDisableAudio();
 		ReleaseTrigger();
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::OverheatCooldown, OverheatCooldownDuration,
@@ -279,4 +279,9 @@ bool AMinigun::GetIsPoweredUp()
 bool AMinigun::GetIsFiring()
 {
 	return bIsFiring;
+}
+
+void AMinigun::DisableShooting()
+{
+	ReleaseTrigger();
 }
