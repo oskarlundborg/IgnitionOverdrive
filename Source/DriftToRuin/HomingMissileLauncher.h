@@ -67,6 +67,8 @@ public:
 	FTimerHandle& GetFireTimer();
 	void SetChargeAmount(float NewChargeAmount);
 	void SetAICooldown();
+
+	void DisableShooting();
 	
 private:
 	UPROPERTY()

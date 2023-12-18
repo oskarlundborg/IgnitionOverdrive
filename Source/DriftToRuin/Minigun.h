@@ -23,7 +23,7 @@ public:
 	virtual void ReleaseTrigger() override;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void MinigunFullOverheat();
+	void MinigunDisableAudio();
 	UFUNCTION(BlueprintCallable)
 	bool GetIsOverheated();
 
@@ -95,6 +95,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsFiring();
+
+	void DisableShooting();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Overheat")
 	bool PoweredUp = false;
