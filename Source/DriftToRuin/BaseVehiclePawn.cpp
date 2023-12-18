@@ -575,7 +575,6 @@ void ABaseVehiclePawn::InitAudio()
 		PowerupAudioComponent->SetSound(PowerupSound);
 		PowerupAudioComponent->SetVolumeMultiplier(1);
 		PowerupAudioComponent->SetActive(bPlayEngineSound);
-		PowerupAudioComponent->Stop();
 	}
 }
 
@@ -749,18 +748,22 @@ void ABaseVehiclePawn::ActivatePowerup()
 	{
 	case 1:
 		PowerupComponent->HealthPowerup(); //Pickup.HealthPowerup(); //Regenerate Health
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Repair"));
 		SetHeldPowerup(0);
 		break;
 	case 2:
 		PowerupComponent->BoostPowerup(); //Pickup.BoostPowerup(); //Infinite boost
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Boost"));
 		SetHeldPowerup(0);
 		break;
 	case 3:
 		PowerupComponent->OverheatPowerup(); //Pickup.OverheatPowerup(); //No overheat
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Damage"));
 		SetHeldPowerup(0);
 		break;
 	case 4:
 		PowerupComponent->ShieldPowerup(); //Pickup.ShieldPowerup(); //skapar shield
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Shield"));
 		SetHeldPowerup(0);
 		break;
 	default:
