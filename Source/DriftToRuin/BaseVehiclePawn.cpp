@@ -99,6 +99,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Audio component for wheel gravel and stuff.
 	WheelAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("WheelAudioSource"));
 
+	//Audio component for powerups.
+	PowerupAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PowerupAudioComponent"));
+
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
 	BoostVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
@@ -567,6 +570,12 @@ void ABaseVehiclePawn::InitAudio()
 		WheelAudioComponent->SetVolumeMultiplier(1);
 		WheelAudioComponent->SetActive(bPlayEngineSound);
 	}
+	if(PowerupAudioComponent)
+	{
+		PowerupAudioComponent->SetSound(PowerupSound);
+		PowerupAudioComponent->SetVolumeMultiplier(1);
+		PowerupAudioComponent->SetActive(bPlayEngineSound);
+	}
 }
 
 
@@ -739,18 +748,22 @@ void ABaseVehiclePawn::ActivatePowerup()
 	{
 	case 1:
 		PowerupComponent->HealthPowerup(); //Pickup.HealthPowerup(); //Regenerate Health
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Repair"));
 		SetHeldPowerup(0);
 		break;
 	case 2:
 		PowerupComponent->BoostPowerup(); //Pickup.BoostPowerup(); //Infinite boost
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Boost"));
 		SetHeldPowerup(0);
 		break;
 	case 3:
 		PowerupComponent->OverheatPowerup(); //Pickup.OverheatPowerup(); //No overheat
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Damage"));
 		SetHeldPowerup(0);
 		break;
 	case 4:
 		PowerupComponent->ShieldPowerup(); //Pickup.ShieldPowerup(); //skapar shield
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Shield"));
 		SetHeldPowerup(0);
 		break;
 	default:

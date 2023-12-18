@@ -298,6 +298,9 @@ protected:
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* ScrapLevelAudioComponent;
 
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* PowerupAudioComponent;
+
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraComponent* BoostVfxNiagaraComponent;
 
@@ -354,6 +357,9 @@ protected:
 	
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* SideswipeSound;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* PowerupSound;
 
 	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* SideThrusterL;
