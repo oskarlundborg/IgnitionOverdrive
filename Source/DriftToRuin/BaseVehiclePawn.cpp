@@ -9,6 +9,8 @@
 #include "TimerManager.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
+#include "HomingMissileLauncher.h"
+#include "Minigun.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeBase.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -96,6 +98,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Audio component for wheel gravel and stuff.
 	WheelAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("WheelAudioSource"));
+
+	//Audio component for powerups.
+	PowerupAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PowerupAudioComponent"));
 
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
@@ -565,6 +570,12 @@ void ABaseVehiclePawn::InitAudio()
 		WheelAudioComponent->SetVolumeMultiplier(1);
 		WheelAudioComponent->SetActive(bPlayEngineSound);
 	}
+	if(PowerupAudioComponent)
+	{
+		PowerupAudioComponent->SetSound(PowerupSound);
+		PowerupAudioComponent->SetVolumeMultiplier(1);
+		PowerupAudioComponent->SetActive(bPlayEngineSound);
+	}
 }
 
 
@@ -586,6 +597,17 @@ float ABaseVehiclePawn::GetBoostPercentage() const
 bool ABaseVehiclePawn::GetIsBoostEnabled() const
 {
 	return Booster.bEnabled;
+}
+
+void ABaseVehiclePawn::OnDeathDisableAll()
+{
+	FTimerHandle DeactivateMovementComp;
+	GetWorldTimerManager().SetTimer(DeactivateMovementComp, this,&ABaseVehiclePawn::DeactivateMovementComponent , 1.f, false, 1.f);
+	DisableBoost();
+	GetWorldTimerManager().ClearTimer(BoostCooldownTimer);
+	GetWorldTimerManager().ClearTimer(Booster.BoostTimer);
+	Minigun->DisableShooting();
+	HomingLauncher->DisableShooting();
 }
 
 float ABaseVehiclePawn::GetMinigunDamage()
@@ -728,18 +750,22 @@ void ABaseVehiclePawn::ActivatePowerup()
 	{
 	case 1:
 		PowerupComponent->HealthPowerup(); //Pickup.HealthPowerup(); //Regenerate Health
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Repair"));
 		SetHeldPowerup(0);
 		break;
 	case 2:
 		PowerupComponent->BoostPowerup(); //Pickup.BoostPowerup(); //Infinite boost
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Boost"));
 		SetHeldPowerup(0);
 		break;
 	case 3:
 		PowerupComponent->OverheatPowerup(); //Pickup.OverheatPowerup(); //No overheat
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Damage"));
 		SetHeldPowerup(0);
 		break;
 	case 4:
 		PowerupComponent->ShieldPowerup(); //Pickup.ShieldPowerup(); //skapar shield
+		PowerupAudioComponent->SetTriggerParameter(TEXT("Shield"));
 		SetHeldPowerup(0);
 		break;
 	default:
@@ -893,4 +919,9 @@ void ABaseVehiclePawn::Hide(UPrimitiveComponent *Component, bool bHide)
 		Component->SetGenerateOverlapEvents(true);
 		//Component->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
+}
+
+void ABaseVehiclePawn::DeactivateMovementComponent()
+{
+	VehicleMovementComp->Deactivate();
 }
