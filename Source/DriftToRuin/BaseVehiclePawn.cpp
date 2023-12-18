@@ -96,6 +96,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Audio Component for level up sound
 	ScrapLevelAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ScrapLevelAudioSource"));
 
+	//Audio Component for picking up scrap
+	ScrapPickupAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ScrapPickupAudioSource"));
+
 	//Audio component for wheel gravel and stuff.
 	WheelAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("WheelAudioSource"));
 
@@ -548,7 +551,7 @@ void ABaseVehiclePawn::InitAudio()
 	{
 		EngineAudioComponent->SetSound(EngineAudioSound);
 		EngineAudioComponent->SetVolumeMultiplier(1);
-		EngineAudioComponent->SetActive(bPlayEngineSound);
+		EngineAudioComponent->SetActive(bPlaySound);
 	}
 	if(CrashAudioComponent)
 	{
@@ -561,20 +564,26 @@ void ABaseVehiclePawn::InitAudio()
 	{
 		BoostAudioComponent->SetSound(BoostAudioSound);
 		BoostAudioComponent->SetVolumeMultiplier(1);
-		BoostAudioComponent->SetActive(bPlayEngineSound);
+		BoostAudioComponent->SetActive(bPlaySound);
 		BoostAudioComponent->Stop();
 	}
 	if(WheelAudioComponent)
 	{
 		WheelAudioComponent->SetSound(WheelAudioSound);
 		WheelAudioComponent->SetVolumeMultiplier(1);
-		WheelAudioComponent->SetActive(bPlayEngineSound);
+		WheelAudioComponent->SetActive(bPlaySound);
 	}
 	if(PowerupAudioComponent)
 	{
 		PowerupAudioComponent->SetSound(PowerupSound);
 		PowerupAudioComponent->SetVolumeMultiplier(1);
-		PowerupAudioComponent->SetActive(bPlayEngineSound);
+		PowerupAudioComponent->SetActive(bPlaySound);
+	}
+	if(ScrapPickupAudioComponent)
+	{
+		ScrapPickupAudioComponent->SetSound(ScrapPickupSound);
+		ScrapPickupAudioComponent->SetVolumeMultiplier(1);
+		ScrapPickupAudioComponent->SetActive(bPlaySound);
 	}
 }
 
@@ -729,8 +738,6 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	Hide(HudCapFR, true);
 	Hide(HudCapFL, true);
 
-	Hide(ExhaustL, true);
-	Hide(ExhaustR, true);
 	Hide(FuelTank, true);
 
 	Hide(Plow, true);
