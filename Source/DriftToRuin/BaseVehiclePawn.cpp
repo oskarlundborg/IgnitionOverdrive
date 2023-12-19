@@ -722,6 +722,11 @@ float ABaseVehiclePawn::GetScrapToDrop()
     return ScrapToDrop;
 }
 
+int ABaseVehiclePawn::GetScrapLevel()
+{
+    return ScrapLevel;
+}
+
 int ABaseVehiclePawn::GetKillpointWorth()
 {
     return KillpointWorth;
@@ -729,6 +734,7 @@ int ABaseVehiclePawn::GetKillpointWorth()
 
 void ABaseVehiclePawn::ResetScrapLevel()
 {
+	ScrapLevel = 0;
 	MinigunDamage = DefaultMinigunDamage;
 	HomingDamage = DefaultHomingDamage;
 	HealthComponent->ResetMaxHealth();
@@ -800,12 +806,14 @@ void ABaseVehiclePawn::CheckScrapLevel()
 {
 	if (ScrapAmount < 20)
 	{
+		ScrapLevel = 0;
 		KillpointWorth = 1;
 		ScrapToDrop = 10;
 	}
 	
 	if (ScrapAmount >= 20 && ScrapAmount < 50 && !bHitLevelOne)
 	{
+		ScrapLevel = 1;
 		KillpointWorth = 2;
 		ScrapToDrop = 15;
 		MinigunDamage = MinigunDamage * 1.1;
@@ -826,6 +834,7 @@ void ABaseVehiclePawn::CheckScrapLevel()
 
 	if (ScrapAmount >= 50 && ScrapAmount < 100 && !bHitLevelTwo)
 	{	
+		ScrapLevel = 2;
 		KillpointWorth = 3;
 		ScrapToDrop = 25;
 		MinigunDamage = MinigunDamage * 1.25;
@@ -843,6 +852,7 @@ void ABaseVehiclePawn::CheckScrapLevel()
 	{
 		//Aktivera en marker som visar vart spelaren är (light pillar)
 
+		ScrapLevel = 3;
 		KillpointWorth = 5;
 		ScrapToDrop = 40;
 		MinigunDamage = MinigunDamage * 1.5;
