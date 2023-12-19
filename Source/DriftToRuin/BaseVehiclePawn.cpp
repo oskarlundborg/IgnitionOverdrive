@@ -225,9 +225,8 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	ScrapIntroNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_ScrapLast"));
 	ScrapIntroNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Root"));
 	
-
-
 	GetMesh()->OnComponentHit.AddDynamic(this, &ABaseVehiclePawn::OnHit);
+
 	MeshDeformer = CreateDefaultSubobject<UDeformationComponent>(TEXT("Mesh Deformer"));
 	MeshDeformer->AddMesh(GetMesh());
 	MeshDeformer->AddMesh(SideThrusterL);
@@ -626,6 +625,7 @@ void ABaseVehiclePawn::OnDeathDisableAll()
 	GetWorldTimerManager().ClearTimer(Booster.BoostTimer);
 	Minigun->DisableShooting();
 	HomingLauncher->DisableShooting();
+	MeshDeformer->ResetMesh();
 }
 
 float ABaseVehiclePawn::GetMinigunDamage()
