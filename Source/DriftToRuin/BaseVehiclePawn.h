@@ -142,6 +142,9 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float BoostEndCameraInterpSpeed = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Air", meta = (AllowPrivateAccess = "true"))
+	float AirForceDownMultiplier = 1000.0f;
+
 public:
 	ABaseVehiclePawn();
 
