@@ -44,7 +44,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Differential value defaults
 	VehicleMovementComp->DifferentialSetup.DifferentialType = EVehicleDifferential::AllWheelDrive;
-	VehicleMovementComp->DifferentialSetup.FrontRearSplit = 0.7f;
+	VehicleMovementComp->DifferentialSetup.FrontRearSplit = 0.5f;
 
 	//Gearbox value defaults
 	VehicleMovementComp->TransmissionSetup.bUseAutomaticGears = true;
