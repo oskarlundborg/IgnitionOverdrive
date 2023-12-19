@@ -105,6 +105,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Audio component for powerups.
 	PowerupAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PowerupAudioComponent"));
 
+	//Audio component for shoutout system.
+	ShoutoutAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ShoutoutAudioComponent"));
+
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
 	BoostVfxNiagaraComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform, TEXT("Boost_Point"));
@@ -584,6 +587,12 @@ void ABaseVehiclePawn::InitAudio()
 		ScrapPickupAudioComponent->SetSound(ScrapPickupSound);
 		ScrapPickupAudioComponent->SetVolumeMultiplier(1);
 		ScrapPickupAudioComponent->SetActive(bPlaySound);
+	}
+	if(ShoutoutAudioComponent)
+	{
+		ShoutoutAudioComponent->SetSound(ShoutoutSound);
+		ShoutoutAudioComponent->SetVolumeMultiplier(1);
+		ShoutoutAudioComponent->SetActive(bPlaySound);
 	}
 }
 
