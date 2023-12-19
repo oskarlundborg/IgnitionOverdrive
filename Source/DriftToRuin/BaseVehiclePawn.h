@@ -151,6 +151,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ProjectileHit();
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void HealthRestored();
+
 	UFUNCTION()
 	virtual void Tick(float DeltaSeconds) override;
 
