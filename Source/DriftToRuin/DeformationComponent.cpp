@@ -32,7 +32,7 @@ void UDeformationComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 		for (FPoint Point : Grid)
 		{
 			GetWorld()->LineBatcher.Get()->DrawSphere(
-				GetOwner()->GetTransform().TransformPosition(Point.InitialPosition + Point.ActivePosition),
+				GetOwner()->GetTransform().TransformPosition(FVector(Point.Position.Initial) + FVector(Point.Position.Active)),
 				10,
 				3,
 				FColor::Cyan,
@@ -62,9 +62,10 @@ void UDeformationComponent::OnHit(AActor* Self, AActor* Other, FVector NormalImp
 
 void UDeformationComponent::BuildGrid()
 {
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, TEXT("Build Grid"));
 	if (SkeletalMeshComponents.IsEmpty()) { return; }
 	
-	FBoxSphereBounds Bounds = FBoxSphereBounds(FVector::ZeroVector, FVector::ZeroVector, 0.f);
+	FBoxSphereBounds Bounds;
 	for (const USkeletalMeshComponent* Mesh : SkeletalMeshComponents)
 	{
 		Bounds = Bounds + Mesh->GetSkeletalMeshAsset()->GetImportedBounds();
@@ -87,7 +88,8 @@ void UDeformationComponent::BuildGrid()
 		{
 			for (int32 z = 0; z < Points.Z; z++)
 			{
-				Grid.Add(FPoint(BoundsStart + FVector(x * Distance.X, y * Distance.Y, z * Distance.Z)));
+				//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, TEXT("Add Point"));
+				Grid.Add(FPoint({UE::Math::TVector<float>(BoundsStart) + UE::Math::TVector<float>(x * Distance.X, y * Distance.Y, z * Distance.Z)}));
 			}
 		}
 	}
@@ -101,6 +103,25 @@ void UDeformationComponent::SetupInfluences()
 	// Add Skeletal Meshes.
 	for (const auto& Mesh : SkeletalMeshComponents)
 	{
+		if(Mesh->GetNumBones() <= 0)
+		{
+			TMap<int32, float> InfluencePoints;
+			for (int32 Index = 0; Index < Grid.Num(); ++Index)
+			{
+				const float DistanceSquared = FVector::DistSquared(GetOwner()->GetTransform().InverseTransformPosition(Mesh->GetComponentLocation()), FVector(Grid[Index].Position.Initial));
+				if (DistanceSquared < 15.f)
+				{
+					InfluencePoints.Add(Index, DistanceSquared);
+				}
+			}
+			InfluencePoints.ValueSort([](const float& A, const float& B) {return A < B; });
+			for (int32 Index = 0; const TTuple<int32, float> InfluenceAnchor : InfluencePoints)
+			{
+				Grid[InfluenceAnchor.Key].ComponentInfluences.Add(Mesh, 1 - FMath::Sqrt(InfluenceAnchor.Value) / 15.f);
+				Index++;
+			}
+			continue;
+		}
 		USkeletalMesh* NewMesh = Mesh->GetSkeletalMeshAsset();
 		NewMesh->GetLODInfo(0)->bAllowCPUAccess = true;
 
@@ -145,21 +166,21 @@ void UDeformationComponent::SetupInfluences()
 			TMap<int32, float> InfluencePoints;
 			for (int32 PointID = 0; PointID < Grid.Num(); ++PointID)
 			{
-				const float PointDistSquared = FVector::DistSquared(FVector(Positions.VertexPosition(i)), Grid[PointID].InitialPosition);
+				const float PointDistSquared = FVector::DistSquared(FVector(Positions.VertexPosition(i)), FVector(Grid[PointID].Position.Initial));
 				if (PointDistSquared < PointInfluenceMaxDistSquared)
 				{
 					InfluencePoints.Add(PointID, PointDistSquared);
 				}
 			}
-			InfluencePoints.ValueSort([](const float& A, const float& B)
-			{
-				return A < B;
-			});
+			InfluencePoints.ValueSort([](const float& A, const float& B) { return A < B; });
 			for (int32 InfPointID = 0; const TTuple<int32, float> InfluencePoint : InfluencePoints)
 			{
-				Grid[InfluencePoint.Key].SkeletalVertexInfluences.FindOrAdd(Mesh).Add( FPoint::Vertex {
-					.Id = i,
-					.Influence = 1 - FMath::Sqrt(InfluencePoint.Value) / PointInfluenceMaxDistance}
+				Grid[InfluencePoint.Key].SkeletalVertexInfluences.FindOrAdd(Mesh).Add(
+					FPoint::Vertex {
+						.Id = i,
+						.Influence = 1 - FMath::Sqrt(InfluencePoint.Value) / PointInfluenceMaxDistance,
+						.InitialPosition = LODRenderData.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(i)
+					}
 				);
 				InfPointID++;
 				if (InfPointID >= PointInfluenceMaxNum) break;
@@ -263,17 +284,6 @@ void UDeformationComponent::SetupInfluences()
 		// Set Bone data.
 		LODMeshRenderData->RequiredBones = SourceLODRenderData.RequiredBones;
 		LODMeshRenderData->ActiveBoneIndices = SourceLODRenderData.ActiveBoneIndices;
-
-		// __________________
-		// TODO: Figure out how to use UMirrorDataTable for this as that is the new way.
-
-		// May not be needed at all
-		
-		//MirrorDataTable->EmptyTable();
-		//MirrorDataTable->MirrorAxis = EAxis::Type::None;
-		//TargetSkeletalMesh->SkelMirrorTable.Empty();
-		//TargetSkeletalMesh->SkelMirrorAxis = EAxis::Type::None;
-		//TargetSkeletalMesh->SkelMirrorFlipAxis = EAxis::Type::None;
 		
 		TargetSkeletalMesh->GetRefBasesInvMatrix().Empty();
 		TargetSkeletalMesh->CalculateInvRefMatrices();
@@ -294,27 +304,26 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 
 	for (FPoint& Point : Grid)
 	{
-		const float DistSquared = FVector::DistSquared(Point.InitialPosition + Point.ActivePosition, Location);
+		const float DistSquared = FVector::DistSquared(FVector(Point.Position.Initial) + FVector(Point.Position.Active), Location);
 		if (DistSquared > SizeSquared) { continue; }
 
 		const float Percent = 1 - FMath::Clamp(FMath::Sqrt(DistSquared) / Size, 0.f, 1.f);
-		const FVector PreviousPos = Point.ActivePosition;
-		Point.ActivePosition = (Point.ActivePosition + Normal * FVector(Percent)).GetClampedToMaxSize(MaxDeform);
-		const FVector Movement = Point.ActivePosition - PreviousPos;
+		const FVector PreviousPos = FVector(Point.Position.Active);
+		Point.Position.Active = (Point.Position.Active + UE::Math::TVector<float>(Normal) * Percent).GetClampedToMaxSize(MaxDeform);
+		const FVector Movement = FVector(Point.Position.Active) - PreviousPos;
 
 		// __________________
 		// Move Vertices.
 		for (const auto& SkeletalVertexInfluence : Point.SkeletalVertexInfluences)
 		{
 			if (!SkeletalVertexInfluence.Key) { continue; }
-
-			FPositionVertexBuffer& Positions = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
+			FPositionVertexBuffer& PositionVertexBuffer = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
 			FColorVertexBuffer& ColorVertexBuffer = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.ColorVertexBuffer;
 
 			for (const FPoint::Vertex& Vertex : SkeletalVertexInfluence.Value)
 			{
 				const FVector VertexDelta = Movement * FVector(Vertex.Influence);
-				Positions.VertexPosition(Vertex.Id) += FVector3f(VertexDelta);
+				PositionVertexBuffer.VertexPosition(Vertex.Id) += FVector3f(VertexDelta);
 
 				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
 				{
@@ -326,14 +335,13 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 		{
 			if (!StaticVertexInfluence.Key) { continue; }
 			
-			FStaticMeshLODResources& LODResources = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0];
-			FPositionVertexBuffer& Positions = LODResources.VertexBuffers.PositionVertexBuffer;
-			FColorVertexBuffer& ColorVertexBuffer = LODResources.VertexBuffers.ColorVertexBuffer;
+			FPositionVertexBuffer& PositionVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
+			FColorVertexBuffer& ColorVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.ColorVertexBuffer;
 
 			for (const FPoint::Vertex& Vertex : StaticVertexInfluence.Value)
 			{
 				const FVector VertexDelta = Movement * FVector(Vertex.Influence);
-				Positions.VertexPosition(Vertex.Id) += FVector3f(VertexDelta);
+				PositionVertexBuffer.VertexPosition(Vertex.Id) += FVector3f(VertexDelta);
 				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
 				{
 					ColorVertexBuffer.VertexColor(Vertex.Id).R = FMath::Min(255 - VertexDelta.Size() / MaxDeform * 255, ColorVertexBuffer.VertexColor(Vertex.Id).R);
@@ -347,8 +355,56 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 			InfluenceComponent.Key->AddLocalOffset(Movement * FVector(InfluenceComponent.Value));
 		}
 	}
+	UpdateRenderData();
+}
+
+void UDeformationComponent::ResetMesh()
+{
+	for (FPoint& Point : Grid)
+	{
+		for (const auto& SkeletalVertexInfluence : Point.SkeletalVertexInfluences)
+		{
+			if (!SkeletalVertexInfluence.Key) { continue; }
+			FPositionVertexBuffer& PositionVertexBuffer = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
+			FColorVertexBuffer& ColorVertexBuffer = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.ColorVertexBuffer;
+
+			for (const FPoint::Vertex& Vertex : SkeletalVertexInfluence.Value)
+			{
+				PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitialPosition;
+				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
+				{
+					ColorVertexBuffer.VertexColor(Vertex.Id).R = 255;
+				}
+			}
+		}
+		for (const auto& StaticVertexInfluence : Point.StaticVertexInfluences)
+		{
+			if (!StaticVertexInfluence.Key) { continue; }
+			FPositionVertexBuffer& PositionVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
+			FColorVertexBuffer& ColorVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.ColorVertexBuffer;
+
+			for (const FPoint::Vertex& Vertex : StaticVertexInfluence.Value)
+			{
+				PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitialPosition;
+				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
+				{
+					ColorVertexBuffer.VertexColor(Vertex.Id).R = 255;
+				}
+			}
+		}
+		for (const TTuple<USceneComponent*, float> InfluenceComponent : Point.ComponentInfluences)
+		{
+			InfluenceComponent.Key->AddLocalOffset(FVector(Point.Position.Initial));
+		}
+		Point.Position.Active = Point.Position.Initial;
+	}
+	UpdateRenderData();
+}
+
+void UDeformationComponent::UpdateRenderData()
+{
 	// __________________
-	// Update the render data.
+	// Enqueue update of the render data to the gpu.
 	ENQUEUE_RENDER_COMMAND(UpdateSkeletalMeshRenderData)([&](FRHICommandListImmediate& RHICmdList)
 	{
 		for (const auto& Mesh : SkeletalMeshComponents)
@@ -369,9 +425,4 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 			Mesh->MarkRenderDynamicDataDirty();
 		}
 	}
-}
-
-void UDeformationComponent::ResetMesh()
-{
-	// @TODO
 }
