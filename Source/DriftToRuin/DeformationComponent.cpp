@@ -54,18 +54,10 @@ void UDeformationComponent::BeginPlay()
 
 void UDeformationComponent::OnHit(AActor* Self, AActor* Other, FVector NormalImpulse, const FHitResult& Hit)
 {
-	const FVector RelativeLocation = GetOwner()->GetActorTransform().InverseTransformPosition(Hit.Location);
-	FVector RelativeNormal = GetOwner()->GetActorTransform().InverseTransformVector(NormalImpulse)
-		* -FMath::Sign(FVector::DotProduct(RelativeNormal.GetSafeNormal(), RelativeLocation.GetSafeNormal()));
-
-	float Mass = 100.f;
-	if (Hit.Component->Mobility == EComponentMobility::Movable)
-	{
-		Mass = Hit.Component->GetMass();
-	}
-	const float ImpactForce = ((Other->GetVelocity() + Self->GetVelocity()).Size() * Mass) / 100;
-	
-	DeformMesh(RelativeLocation, (RelativeNormal * 0.1).GetClampedToMaxSize(MaxDeform));
+	DeformMesh(
+		GetOwner()->GetActorTransform().InverseTransformPosition(Hit.Location),
+		GetOwner()->GetActorTransform().InverseTransformVector(NormalImpulse).GetClampedToMaxSize(MaxDeform)
+	);
 }
 
 void UDeformationComponent::BuildGrid()
