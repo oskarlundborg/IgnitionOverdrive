@@ -627,7 +627,7 @@ void ABaseVehiclePawn::OnDeathDisableAll()
 	GetWorldTimerManager().ClearTimer(Booster.BoostTimer);
 	Minigun->DisableShooting();
 	HomingLauncher->DisableShooting();
-	MeshDeformer->ResetMesh();
+	//MeshDeformer->ResetMesh();
 }
 
 float ABaseVehiclePawn::GetMinigunDamage()
