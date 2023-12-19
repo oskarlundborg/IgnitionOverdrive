@@ -70,7 +70,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->ChassisWidth = 246.0f;
 	VehicleMovementComp->ChassisHeight = 254.0f;
 	VehicleMovementComp->DragCoefficient = 0.5f;
-	VehicleMovementComp->DownforceCoefficient = 2.0f;
+	VehicleMovementComp->DownforceCoefficient = 4.0f;
 
 	//WINGS?
 	VehicleMovementComp->TorqueControl.Enabled = true;
@@ -454,17 +454,19 @@ void ABaseVehiclePawn::UpdateAirbornePhysics() const
 {
 	if(!IsGrounded())
 	{
+		VehicleMovementComp->UpdatedPrimitive->AddForce(FVector::DownVector*AirForceDownMultiplier, TEXT("Root"), true);
 		if(!Booster.bEnabled)
 		{
 			GetMesh()->SetLinearDamping(0.2f);
 			GetMesh()->SetAngularDamping(0.3f);
-			//VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+			VehicleMovementComp->SetDownforceCoefficient(0);
 			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE NOT BOOSTING")));
 		}
 		else
 		{
 			GetMesh()->SetLinearDamping(0.05f);
 			GetMesh()->SetAngularDamping(0.3f);
+			VehicleMovementComp->SetDownforceCoefficient(0);
 			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE BOOSTING")));
 		}
 		
@@ -473,7 +475,7 @@ void ABaseVehiclePawn::UpdateAirbornePhysics() const
 	{
 		GetMesh()->SetLinearDamping(0.01f);
 		GetMesh()->SetAngularDamping(0.0f);
-		VehicleMovementComp->SetDownforceCoefficient(4.0);
+		if(VehicleMovementComp->DownforceCoefficient != 0.3f) VehicleMovementComp->SetDownforceCoefficient(4.0);
 	}
 }
 

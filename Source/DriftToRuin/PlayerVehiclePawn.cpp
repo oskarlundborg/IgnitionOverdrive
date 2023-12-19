@@ -146,7 +146,7 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 void APlayerVehiclePawn::OnHandbrakePressed()
 {
 	VehicleMovementComp->SetHandbrakeInput(true);
-	VehicleMovementComp->SetDownforceCoefficient(0.3);
+	VehicleMovementComp->SetDownforceCoefficient(0.3f);
 	VehicleMovementComp->SetDifferentialFrontRearSplit(1);
 	
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
