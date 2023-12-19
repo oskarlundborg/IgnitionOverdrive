@@ -58,6 +58,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetPulledTrigger(bool pulledTrigger);
 
+	UFUNCTION(BlueprintCallable)
+	AAITurret* GetAITurret() const;
 	
 private:
 	//weapon components
