@@ -52,9 +52,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
+private:
 	void BuildGrid();
 
 	void SetupInfluences();
+
+	void UpdateRenderData();
 
 	struct FPoint
 	{
@@ -62,10 +65,13 @@ protected:
 		{
 			uint32 Id;
 			float Influence;
+			FVector3f InitialPosition;
 		};
-
-		FVector InitialPosition;
-		FVector ActivePosition;
+		struct
+		{
+			UE::Math::TVector<float> Initial;
+			UE::Math::TVector<float> Active;
+		} Position;
 	
 		TMap<USkeletalMeshComponent*, TArray<Vertex>> SkeletalVertexInfluences;
 		TMap<UStaticMeshComponent*, TArray<Vertex>> StaticVertexInfluences;
