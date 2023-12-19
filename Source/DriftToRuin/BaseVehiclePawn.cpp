@@ -834,7 +834,7 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		ScrapLevelAudioComponent->Play();
 
 		Hide(FuelTank, false);
-		//fuel tank, exhausts
+		//fuel tank
 	}
 
 	if (ScrapAmount >= 100 && !bHitLevelThree)
