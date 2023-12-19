@@ -577,3 +577,8 @@ void AEnemyVehiclePawn::SetPulledTrigger(bool pulledTrigger)
 	HominIsActive = false;
 }
 
+AAITurret* AEnemyVehiclePawn::GetAITurret() const
+{
+	return Turret;
+}
+
