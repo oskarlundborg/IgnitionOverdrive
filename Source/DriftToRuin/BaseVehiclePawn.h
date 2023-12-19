@@ -233,6 +233,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetScrapToDrop();
 	UFUNCTION(BlueprintCallable)
+	int GetScrapLevel();
+	UFUNCTION(BlueprintCallable)
 	int GetKillpointWorth();
 	UFUNCTION(BlueprintCallable)
 	void ResetScrapLevel();
@@ -432,6 +434,7 @@ protected:
 
 	float ScrapAmount = 0;
 	float ScrapToDrop = 10;
+	int ScrapLevel = 0;
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxScrap = 100;
