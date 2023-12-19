@@ -35,6 +35,7 @@ AHomingMissileLauncher::AHomingMissileLauncher()
 	bIsOnCooldown = false;
 	bCanLockOn = false;
 	CurrentTarget = nullptr;
+	LastTarget = nullptr;
 	bCanPlayLockOn = true;
 	CanLockOnAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Can Lock On Audio Component"));
 }
@@ -279,6 +280,7 @@ void AHomingMissileLauncher::OnFireAI(AActor* Target, int32 Charge)
 {
 	FTimerDelegate FireDelegate;
 	ChargeAmount = Charge;
+	LastTarget = Target;
 	FireDelegate.BindUFunction(this, FName("Fire"), Target);
 	GetWorldTimerManager().SetTimer(FireTimer, FireDelegate, 0.5f, true, 0.f);
 	//GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::FireAI, 0.5f, true, 0.f);

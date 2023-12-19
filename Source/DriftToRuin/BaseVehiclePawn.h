@@ -142,6 +142,9 @@ class DRIFTTORUIN_API ABaseVehiclePawn : public AWheeledVehiclePawn
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float BoostEndCameraInterpSpeed = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Air", meta = (AllowPrivateAccess = "true"))
+	float AirForceDownMultiplier = 1000.0f;
+
 public:
 	ABaseVehiclePawn();
 
@@ -151,6 +154,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ProjectileHit();
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void HealthRestored();
+
 	UFUNCTION()
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -307,6 +313,9 @@ protected:
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* ScrapPickupAudioComponent;
 
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* ShoutoutAudioComponent;
+
 	UPROPERTY(Category=Boost, EditDefaultsOnly, BlueprintReadOnly)
 	class UNiagaraComponent* BoostVfxNiagaraComponent;
 
@@ -369,6 +378,9 @@ protected:
 
 	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* ScrapPickupSound;
+
+	UPROPERTY(Category=Sound, EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* ShoutoutSound;
 
 	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* SideThrusterL;

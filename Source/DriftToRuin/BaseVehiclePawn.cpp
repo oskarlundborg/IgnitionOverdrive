@@ -70,7 +70,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->ChassisWidth = 246.0f;
 	VehicleMovementComp->ChassisHeight = 254.0f;
 	VehicleMovementComp->DragCoefficient = 0.5f;
-	VehicleMovementComp->DownforceCoefficient = 2.0f;
+	VehicleMovementComp->DownforceCoefficient = 4.0f;
 
 	//WINGS?
 	VehicleMovementComp->TorqueControl.Enabled = true;
@@ -104,6 +104,9 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	//Audio component for powerups.
 	PowerupAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PowerupAudioComponent"));
+
+	//Audio component for shoutout system.
+	ShoutoutAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ShoutoutAudioComponent"));
 
 	//Creates Niagara system for boost vfx
 	BoostVfxNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BoostNiagaraComponent"));
@@ -451,17 +454,19 @@ void ABaseVehiclePawn::UpdateAirbornePhysics() const
 {
 	if(!IsGrounded())
 	{
+		VehicleMovementComp->UpdatedPrimitive->AddForce(FVector::DownVector*AirForceDownMultiplier, TEXT("Root"), true);
 		if(!Booster.bEnabled)
 		{
 			GetMesh()->SetLinearDamping(0.2f);
 			GetMesh()->SetAngularDamping(0.3f);
-			//VehicleMovementComp->SetDownforceCoefficient(AirborneDownforceCoefficient);
+			VehicleMovementComp->SetDownforceCoefficient(0);
 			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE NOT BOOSTING")));
 		}
 		else
 		{
 			GetMesh()->SetLinearDamping(0.05f);
 			GetMesh()->SetAngularDamping(0.3f);
+			VehicleMovementComp->SetDownforceCoefficient(0);
 			//GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("AIRBORNE BOOSTING")));
 		}
 		
@@ -470,7 +475,7 @@ void ABaseVehiclePawn::UpdateAirbornePhysics() const
 	{
 		GetMesh()->SetLinearDamping(0.01f);
 		GetMesh()->SetAngularDamping(0.0f);
-		VehicleMovementComp->SetDownforceCoefficient(4.0);
+		if(VehicleMovementComp->DownforceCoefficient != 0.3f) VehicleMovementComp->SetDownforceCoefficient(4.0);
 	}
 }
 
@@ -584,6 +589,12 @@ void ABaseVehiclePawn::InitAudio()
 		ScrapPickupAudioComponent->SetSound(ScrapPickupSound);
 		ScrapPickupAudioComponent->SetVolumeMultiplier(1);
 		ScrapPickupAudioComponent->SetActive(bPlaySound);
+	}
+	if(ShoutoutAudioComponent)
+	{
+		ShoutoutAudioComponent->SetSound(ShoutoutSound);
+		ShoutoutAudioComponent->SetVolumeMultiplier(1);
+		ShoutoutAudioComponent->SetActive(bPlaySound);
 	}
 }
 
@@ -825,7 +836,7 @@ void ABaseVehiclePawn::CheckScrapLevel()
 		ScrapLevelAudioComponent->Play();
 
 		Hide(FuelTank, false);
-		//fuel tank, exhausts
+		//fuel tank
 	}
 
 	if (ScrapAmount >= 100 && !bHitLevelThree)

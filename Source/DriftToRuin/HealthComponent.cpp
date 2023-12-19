@@ -73,6 +73,9 @@ float UHealthComponent::GetHealthPercent() const
 void UHealthComponent::SetHealth(float NewHealth)
 {
 	CurrentHealth = FMath::Min(MaxHealth, FMath::Max(0, NewHealth));
+
+	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
+	CarOwner->HealthRestored();
 }
 
 void UHealthComponent::AddHealth(float HealthAmount)
