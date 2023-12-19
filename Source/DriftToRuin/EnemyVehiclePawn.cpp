@@ -574,5 +574,6 @@ void AEnemyVehiclePawn::SetPulledTrigger(bool pulledTrigger)
 {
 	MinigunPulledTrigger = pulledTrigger;
 	Minigun->ReleaseTrigger();
+	HominIsActive = false;
 }
 
