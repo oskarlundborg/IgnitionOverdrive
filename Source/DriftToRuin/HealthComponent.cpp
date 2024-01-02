@@ -36,7 +36,8 @@ void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDa
 	CarOwner -> ProjectileHit();
 	if (CurrentHealth <= 0 )
 	{
-		OnVehicleDeath(DamageCauser->GetOwner());
+		//OnVehicleDeath(DamageCauser->GetOwner());
+		OnVehicleDeath(Instigator->GetPawn());
 	}
 	
 	//if(IsDead()) GetOwner()->Destroy();
