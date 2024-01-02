@@ -26,7 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category=Deformation)
 	void AddMesh(USkeletalMeshComponent* Mesh);
 
+#if WITH_EDITOR
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+#endif
 	
 	UFUNCTION()
 	void OnHit(AActor* Self, AActor* Other, FVector NormalImpulse, const FHitResult& Hit);
@@ -63,9 +65,9 @@ private:
 	{
 		struct Vertex
 		{
-			uint32 Id;
-			float Influence;
-			FVector3f InitialPosition;
+			uint32		Id;
+			float		Influence;
+			FVector3f	InitPosition;
 		};
 		struct
 		{
@@ -73,8 +75,8 @@ private:
 			UE::Math::TVector<float> Active;
 		} Position;
 	
-		TMap<USkeletalMeshComponent*, TArray<Vertex>> SkeletalVertexInfluences;
-		TMap<UStaticMeshComponent*, TArray<Vertex>> StaticVertexInfluences;
+		TMap<USkeletalMeshComponent*, TArray<Vertex>>	SkeletalVertexInfluences;
+		TMap<UStaticMeshComponent*,   TArray<Vertex>>	StaticVertexInfluences;
 	
 		TMap<USceneComponent*, float> ComponentInfluences;
 	};

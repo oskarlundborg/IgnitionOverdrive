@@ -10,14 +10,17 @@
 #include "StaticMeshResources.h"
 #include "Components/LineBatchComponent.h"
 #include "Engine/SkinnedAssetCommon.h"
-#include "Animation/MirrorDataTable.h"
 #if WITH_EDITOR
-#include "DrawDebugHelpers.h"
+	#include "DrawDebugHelpers.h"
 #endif
 
 UDeformationComponent::UDeformationComponent()
 {
+#if WITH_EDITOR
 	PrimaryComponentTick.bCanEverTick = true;
+#else
+	PrimaryComponentTick.bCanEverTick = false;
+#endif
 }
 
 void UDeformationComponent::AddMesh(USkeletalMeshComponent* Mesh)
@@ -25,6 +28,7 @@ void UDeformationComponent::AddMesh(USkeletalMeshComponent* Mesh)
 	SkeletalMeshComponents.Add(Mesh);
 }
 
+#if WITH_EDITOR
 void UDeformationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* TickFunction)
 {
 	if (bDrawDebug)
@@ -43,6 +47,7 @@ void UDeformationComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 		}
 	}
 }
+#endif
 
 void UDeformationComponent::BeginPlay()
 {
@@ -62,9 +67,8 @@ void UDeformationComponent::OnHit(AActor* Self, AActor* Other, FVector NormalImp
 
 void UDeformationComponent::BuildGrid()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, TEXT("Build Grid"));
 	if (SkeletalMeshComponents.IsEmpty()) { return; }
-	
+
 	FBoxSphereBounds Bounds;
 	for (const USkeletalMeshComponent* Mesh : SkeletalMeshComponents)
 	{
@@ -88,7 +92,6 @@ void UDeformationComponent::BuildGrid()
 		{
 			for (int32 z = 0; z < Points.Z; z++)
 			{
-				//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, TEXT("Add Point"));
 				Grid.Add(FPoint({UE::Math::TVector<float>(BoundsStart) + UE::Math::TVector<float>(x * Distance.X, y * Distance.Y, z * Distance.Z)}));
 			}
 		}
@@ -97,8 +100,6 @@ void UDeformationComponent::BuildGrid()
 
 void UDeformationComponent::SetupInfluences()
 {
-	const float PointInfluenceMaxDistSquared = FMath::Square(PointInfluenceMaxDistance);
-
 	// __________________
 	// Add Skeletal Meshes.
 	for (const auto& Mesh : SkeletalMeshComponents)
@@ -131,7 +132,7 @@ void UDeformationComponent::SetupInfluences()
 		TArray<int32> IgnoredBones;
 		TArray<FName> BoneNames;
 		Mesh->GetBoneNames(BoneNames);
-		for ( int Index = 0; FName Name : BoneNames)
+		for (int Index = 0; FName Name : BoneNames)
 		{
 			if( BoneIgnoreFilter.Contains(Name) )
 			{
@@ -167,7 +168,7 @@ void UDeformationComponent::SetupInfluences()
 			for (int32 PointID = 0; PointID < Grid.Num(); ++PointID)
 			{
 				const float PointDistSquared = FVector::DistSquared(FVector(Positions.VertexPosition(i)), FVector(Grid[PointID].Position.Initial));
-				if (PointDistSquared < PointInfluenceMaxDistSquared)
+				if (PointDistSquared < FMath::Square(PointInfluenceMaxDistance))
 				{
 					InfluencePoints.Add(PointID, PointDistSquared);
 				}
@@ -177,9 +178,9 @@ void UDeformationComponent::SetupInfluences()
 			{
 				Grid[InfluencePoint.Key].SkeletalVertexInfluences.FindOrAdd(Mesh).Add(
 					FPoint::Vertex {
-						.Id = i,
-						.Influence = 1 - FMath::Sqrt(InfluencePoint.Value) / PointInfluenceMaxDistance,
-						.InitialPosition = LODRenderData.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(i)
+						.Id				= i,
+						.Influence		= 1 - FMath::Sqrt(InfluencePoint.Value) / PointInfluenceMaxDistance,
+						.InitPosition	= LODRenderData.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(i)
 					}
 				);
 				InfPointID++;
@@ -331,23 +332,23 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 				}
 			}
 		}
-		for (const auto& StaticVertexInfluence : Point.StaticVertexInfluences)
-		{
-			if (!StaticVertexInfluence.Key) { continue; }
-			
-			FPositionVertexBuffer& PositionVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
-			FColorVertexBuffer& ColorVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.ColorVertexBuffer;
+		//for (const auto& StaticVertexInfluence : Point.StaticVertexInfluences)
+		//{
+		//	if (!StaticVertexInfluence.Key) { continue; }
+		//	
+		//	FPositionVertexBuffer& PositionVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
+		//	FColorVertexBuffer& ColorVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.ColorVertexBuffer;
 
-			for (const FPoint::Vertex& Vertex : StaticVertexInfluence.Value)
-			{
-				const FVector VertexDelta = Movement * FVector(Vertex.Influence);
-				PositionVertexBuffer.VertexPosition(Vertex.Id) += FVector3f(VertexDelta);
-				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
-				{
-					ColorVertexBuffer.VertexColor(Vertex.Id).R = FMath::Min(255 - VertexDelta.Size() / MaxDeform * 255, ColorVertexBuffer.VertexColor(Vertex.Id).R);
-				}
-			}
-		}
+		//	for (const FPoint::Vertex& Vertex : StaticVertexInfluence.Value)
+		//	{
+		//		const FVector VertexDelta = Movement * FVector(Vertex.Influence);
+		//		PositionVertexBuffer.VertexPosition(Vertex.Id) += FVector3f(VertexDelta);
+		//		if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
+		//		{
+		//			ColorVertexBuffer.VertexColor(Vertex.Id).R = FMath::Min(255 - VertexDelta.Size() / MaxDeform * 255, ColorVertexBuffer.VertexColor(Vertex.Id).R);
+		//		}
+		//	}
+		//}
 		// __________________
 		// Move Attached Components.
 		for (const TTuple<USceneComponent*, float> InfluenceComponent : Point.ComponentInfluences)
@@ -366,32 +367,22 @@ void UDeformationComponent::ResetMesh()
 		{
 			if (!SkeletalVertexInfluence.Key) { continue; }
 			FPositionVertexBuffer& PositionVertexBuffer = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
-			FColorVertexBuffer& ColorVertexBuffer = SkeletalVertexInfluence.Key->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0].StaticVertexBuffers.ColorVertexBuffer;
 
 			for (const FPoint::Vertex& Vertex : SkeletalVertexInfluence.Value)
 			{
-				PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitialPosition;
-				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
-				{
-					ColorVertexBuffer.VertexColor(Vertex.Id).R = 255;
-				}
+				PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitPosition;
 			}
 		}
-		for (const auto& StaticVertexInfluence : Point.StaticVertexInfluences)
-		{
-			if (!StaticVertexInfluence.Key) { continue; }
-			FPositionVertexBuffer& PositionVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
-			FColorVertexBuffer& ColorVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.ColorVertexBuffer;
+		//for (const auto& StaticVertexInfluence : Point.StaticVertexInfluences)
+		//{
+		//	if (!StaticVertexInfluence.Key) { continue; }
+		//	FPositionVertexBuffer& PositionVertexBuffer = StaticVertexInfluence.Key->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
 
-			for (const FPoint::Vertex& Vertex : StaticVertexInfluence.Value)
-			{
-				PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitialPosition;
-				if (ColorVertexBuffer.GetNumVertices() > Vertex.Id)
-				{
-					ColorVertexBuffer.VertexColor(Vertex.Id).R = 255;
-				}
-			}
-		}
+		//	for (const FPoint::Vertex& Vertex : StaticVertexInfluence.Value)
+		//	{
+		//		PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitPosition;
+		//	}
+		//}
 		for (const TTuple<USceneComponent*, float> InfluenceComponent : Point.ComponentInfluences)
 		{
 			InfluenceComponent.Key->AddLocalOffset(FVector(Point.Position.Initial));
@@ -412,9 +403,9 @@ void UDeformationComponent::UpdateRenderData()
 			FSkeletalMeshLODRenderData& LODRenderData = Mesh->GetSkeletalMeshAsset()->GetResourceForRendering()->LODRenderData[0];
 			LODRenderData.StaticVertexBuffers.PositionVertexBuffer.UpdateRHI(RHICmdList);
 			LODRenderData.StaticVertexBuffers.StaticMeshVertexBuffer.UpdateRHI(RHICmdList);
-			LODRenderData.StaticVertexBuffers.ColorVertexBuffer.UpdateRHI(RHICmdList);
 		}
 	});
+	
 	// __________________
 	// Notify change in render data to apply update.
 	for (const auto& Mesh : SkeletalMeshComponents)
