@@ -13,6 +13,7 @@
 #include "Minigun.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeBase.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -162,8 +163,10 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 
 	HomingTargetPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Homing Targeting Point"));
 	HomingTargetPoint->SetupAttachment(RootComponent);
-	
 
+	LockOnCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LockOnCollision"));
+	LockOnCollision->SetupAttachment(RootComponent);
+	
 	//Create shield powerup mesh (hidden and ignored unless powerup active)
 	ShieldMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMesh"));
 	ShieldMesh->SetupAttachment(CameraComponent);
