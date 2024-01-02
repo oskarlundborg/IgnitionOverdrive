@@ -12,17 +12,13 @@
 #include "Minigun.h"
 #include "PlayerTurret.h"
 #include "Camera/CameraComponent.h"
-#include "Components/BoxComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
 #include "Kismet/GameplayStatics.h"
 
 APlayerVehiclePawn::APlayerVehiclePawn()
 {
-	LockOnCheckCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LockOnCheckBox"));
-	LockOnCheckCollision->SetupAttachment(CameraComponent, FName("LockOnBoxSocket"));
-	LockOnCheckCollision->SetRelativeLocation({7500.f, 0.f, 0.f});
-	LockOnCheckCollision->InitBoxExtent({7500.f, 180.f, 120.f});
+
 }
 
 void APlayerVehiclePawn::BeginPlay()
@@ -302,9 +298,4 @@ int32 APlayerVehiclePawn::GetHomingChargeAmount() const
 APlayerTurret* APlayerVehiclePawn::GetTurret() const
 {
 	return Turret;
-}
-
-void APlayerVehiclePawn::GetLockOnBoxOverlappingActors(TArray<AActor*>& Overlapping)
-{
-	LockOnCheckCollision->GetOverlappingActors(Overlapping, ABaseVehiclePawn::StaticClass());
 }

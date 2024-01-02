@@ -394,36 +394,14 @@ void AHomingMissileLauncher::FindTarget()
 void AHomingMissileLauncher::CheckCanLockOn()
 {
 	if(CarOwner == nullptr) return;
-	if(CarOwnerPlayer == nullptr) return;
-	TArray<AActor*> Overlapping;
-	CarOwnerPlayer->GetLockOnBoxOverlappingActors(Overlapping);
-	if(Overlapping.IsEmpty())
-	{
-		//UE_LOG(LogTemp, Error, TEXT("NOTS"));
-		bCanLockOn = false;
-		return;
-	} 
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
-	bool bCanStartSweep = false;
-	for(AActor* Actor : Overlapping)
-	{
-		if(Actor && Actor != CarOwner && CheckTargetLineOfSight(OwnerController, Actor))
-		{
-			bCanStartSweep = true;
-			break;
-		}
-	}
-	if(!bCanStartSweep)
-	{
-		//UE_LOG(LogTemp, Error, TEXT("NOTS"));
-		bCanLockOn = false;
-		return;
-	} 
+
 	FHitResult HitResult;
     bool bHit = PerformTargetLockSweep(HitResult);
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
-	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")) && TargetVenchi && !TargetVenchi->GetIsDead() && !bIsOnCooldown && !bIsCharging)
+	if(bHit && TargetVenchi && HitResult.GetActor()->ActorHasTag(FName("Targetable")) &&
+		CheckTargetLineOfSight(OwnerController, HitResult.GetActor()) && !TargetVenchi->GetIsDead() && !bIsOnCooldown && !bIsCharging)
 	{
 		if(!bCanLockOn)
 		{
@@ -458,12 +436,9 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
-	/*FCollisionShape SweepBox = FCollisionShape::MakeBox(FVector(60.f, 90.f ,60.f));
 	
-	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, CarOwner->GetCameraComponent()->GetComponentRotation().Quaternion(),ECC_GameTraceChannel14, SweepBox, TraceParams);*/
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_GameTraceChannel4, TraceParams);
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Orange, true);
-	//DrawDebugBox(GetWorld(), TraceEnd, SweepBox.GetExtent(), FColor::Blue, true);
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Orange, true);
 	return bHit;
 }
 
