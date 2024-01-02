@@ -54,7 +54,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeWeaponReferancesInBP(AMinigun* MinigunRef, AHomingMissileLauncher* MissileLauncherRef);
 
-	void GetLockOnBoxOverlappingActors(TArray<AActor*>& Overlapping);
+	//void GetLockOnBoxOverlappingActors(TArray<AActor*>& Overlapping);
 
 	UPROPERTY(BlueprintReadWrite)
 	float Sensitivity;
@@ -108,9 +108,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* FireHomingMissilesAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="LockOn", meta=(AllowPrivateAccess = "true"))
-	UBoxComponent* LockOnCheckCollision;
 
 	//How fast air rolls can be done
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AirRoll, meta=(AllowPrivateAccess = "true"))

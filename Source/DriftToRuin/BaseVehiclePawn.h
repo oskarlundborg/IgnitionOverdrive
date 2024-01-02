@@ -25,6 +25,7 @@
 #include "Components/CapsuleComponent.h"
 #include "BaseVehiclePawn.generated.h"
 
+class UBoxComponent;
 class UCameraComponent;
 /*Maybe should be moved to player and AI classes, should work for first playable for now*/
 class APlayerTurret;
@@ -426,6 +427,8 @@ protected:
 	UPROPERTY(Category=Mesh, EditDefaultsOnly, BlueprintReadOnly)
 	class USkeletalMeshComponent* Windshield;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="LockOn")
+	UBoxComponent* LockOnCollision;
 	
 	/*UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
