@@ -885,9 +885,9 @@ void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 		UGameplayStatics::ApplyDamage(
 			OtherActor,
 			FMath::Clamp(FMath::Clamp(Speed, 1.f, Speed) / BumperDamageDividedBy, 0.f, MaxBumperDamage),
-			GetController(),
+			GetInstigatorController(),
 			this,
-			nullptr
+			UDamageType::StaticClass()
 		);
 	}
 }
