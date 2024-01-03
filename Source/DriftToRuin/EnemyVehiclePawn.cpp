@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-//Daniel Olsson AI engineer, behaviors i en switch form. beingplay setup är samma för player, dvs  (mihaljos weapon kod)
+//Daniel Olsson 
+//Mihaljo Radotic
 
 
 #include "EnemyVehiclePawn.h"
@@ -27,7 +27,6 @@ void AEnemyVehiclePawn::BeginPlay()
 	Turret = GetWorld()->SpawnActor<AAITurret>(AITurretClass);
 	Turret->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("TurretRefrencJoint"));
 	Turret->SetOwner(this);
-
 
 	Minigun = GetWorld()->SpawnActor<AMinigun>(MinigunClass);
 	Minigun->AttachToComponent(Turret->GetTurretMesh(), FAttachmentTransformRules::KeepRelativeTransform,

@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-//Daniel Olsson AI engineer, behaviors i en switch form. beingplay setup är samma för player, dvs  (mihaljos weapon kod)
+//Daniel Olsson - all kod för AI
+//Mihajlo Radotic - Weapon setup in beginplay
 
 #pragma once
 #include "CoreMinimal.h"
