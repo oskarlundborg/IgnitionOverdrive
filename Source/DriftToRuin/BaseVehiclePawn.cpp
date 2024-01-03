@@ -418,11 +418,14 @@ void ABaseVehiclePawn::RechargeBoost()
 
 bool ABaseVehiclePawn::IsGrounded() const
 {
-	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	if(VehicleMovementComp)
 	{
-		if(!Wheel->IsInAir())
+		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 		{
-			return true;
+			if(!Wheel->IsInAir())
+			{
+				return true;
+			}
 		}
 	}
 	return false;
@@ -430,26 +433,30 @@ bool ABaseVehiclePawn::IsGrounded() const
 
 void ABaseVehiclePawn::UpdateGravelVFX() const
 {
-	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	if(VehicleMovementComp)
 	{
-		switch(Wheel->WheelIndex)
+		for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 		{
-		case 0: 
-			DirtVfxNiagaraComponentFLWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
-			break;
-		case 1: 
-			DirtVfxNiagaraComponentFRWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
-			break;
-		case 2: 
-			DirtVfxNiagaraComponentBLWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
-			break;
-		case 3: 
-			DirtVfxNiagaraComponentBRWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
-			break;
-		default:
-			break;
+			switch(Wheel->WheelIndex)
+			{
+			case 0: 
+				DirtVfxNiagaraComponentFLWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
+				break;
+			case 1: 
+				DirtVfxNiagaraComponentFRWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
+				break;
+			case 2: 
+				DirtVfxNiagaraComponentBLWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
+				break;
+			case 3: 
+				DirtVfxNiagaraComponentBRWheel->SetActive(!Wheel->IsInAir() && Wheel->GetContactSurfaceMaterial()->SurfaceType == SurfaceType2);
+				break;
+			default:
+				break;
+			}
 		}
 	}
+	
 }
 
 void ABaseVehiclePawn::UpdateAirbornePhysics() const
