@@ -255,7 +255,7 @@ void AHomingMissileLauncher::Fire(AActor* Target)
 	FTimerHandle TargetHandle;
 	FTimerDelegate TargetDelegate;
 	TargetDelegate.BindUFunction(this, FName("SetTarget"), Projectile, CarTarget);
-	GetWorldTimerManager().SetTimer(TargetHandle, TargetDelegate, 0.45f, false);
+	GetWorldTimerManager().SetTimer(TargetHandle, TargetDelegate, 0.4f, false);
 	
 	if(--ChargeAmount <= 0)
 	{
