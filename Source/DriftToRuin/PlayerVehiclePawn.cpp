@@ -108,9 +108,6 @@ void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	bCanAirRoll = !IsGrounded();
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Camera Lock: %d"), CameraLock));
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Moving Camera X: %d"), IsMovingCameraX));
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Moving Camera Y: %d"), IsMovingCameraY));
 
 	if(CameraLock && !IsMovingCameraX && !IsMovingCameraY) GetController()->SetControlRotation(FMath::RInterpTo(GetControlRotation(), GetActorForwardVector().Rotation(), DeltaSeconds, CameraLockSpeed));
 	
@@ -136,14 +133,12 @@ void APlayerVehiclePawn::LookAround(const FInputActionValue& Value)
 	// möjligtvis fixa olika sensitivity för upp/ner och vänster/höger för mus och kontroller
 	
 	AddControllerYawInput(Value.Get<float>()*Sensitivity);
-	GEngine->AddOnScreenDebugMessage(-1, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), FColor::Green, FString::Printf(TEXT("CameraX: %f"), Value.Get<float>()));
 	IsMovingCameraX = Value.Get<float>() > 0.5f || Value.Get<float>() < -0.5f;
 }
 
 void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 {
 	AddControllerPitchInput(Value.Get<float>()*Sensitivity);
-	GEngine->AddOnScreenDebugMessage(-1, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), FColor::Green, FString::Printf(TEXT("CameraY: %f"), Value.Get<float>()));
 	IsMovingCameraY = Value.Get<float>() > 0.5f || Value.Get<float>() < -0.5f;
 	
 }
