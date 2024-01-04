@@ -1,6 +1,4 @@
 
-//Daniel Olsson - AIAdjustProjectileAimToCrosshair metod
-
 #include "Minigun.h"
 
 #include "AIController.h"
@@ -10,11 +8,9 @@
 #include "EnemyVehiclePawn.h"
 #include "PlayerTurret.h"
 #include "HomingMissileLauncher.h"
-#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "PlayerVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "PowerupComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -47,8 +43,6 @@ void AMinigun::PullTrigger()
 {
 	if (bIsOverheated) return;
 	Super::PullTrigger();
-	//bIsFiring = true;
-	//OverheatValue += 4.5f;
 	OnPullTrigger();
 }
 
@@ -60,29 +54,20 @@ void AMinigun::ReleaseTrigger()
 	GetWorld()->GetTimerManager().ClearTimer(FireRateTimer);
 }
 
-bool AMinigun::GetIsOverheated()
-{
-	return bIsOverheated;
-}
-
 void AMinigun::InitializeOwnerVariables()
 {
 	CarOwner = Cast<APlayerVehiclePawn>(GetOwner());
-	//if (CarOwner == nullptr) return;
-	//OwnerController = CarOwner->GetController();
 }
 
-/*Handles firing logic, meaning spawning projectiles*/
+/*Handles firing logic, spawning of projectiles and adjusting their rotation, as well as playing muzzle flash VFX*/
 void AMinigun::Fire()
 {
-	//MuzzleFlashNiagaraComponent->Activate();
 	bIsFiring = true;
 
 	FVector SpawnLocation = GetProjectileSpawnPoint()->GetComponentLocation();
 	FRotator ProjectileRotation;
 
-	//if sats, välj mellan AI adjust eller vanlig adjust.
-
+	/*Choses aim adjust function based on if the owner is a player or an AI*/
 	bool IsAI = false;
 	if (GetOwner()->IsA(AEnemyVehiclePawn::StaticClass()))
 	{
@@ -109,11 +94,9 @@ void AMinigun::Fire()
 	Projectile->SetOwner(GetOwner());
 }
 
-/*Handles logic after input action is started*/
+/*Handles logic after input action is started. Calls Fire function on a timer based on the fire rate.*/
 void AMinigun::OnPullTrigger()
 {
-	//if(!bIsFiring) return;
-	//Fire();
 	GetWorld()->GetTimerManager().SetTimer(FireRateTimer, this, &AMinigun::Fire, FireRate, true, 0.8f);
 }
 
@@ -147,7 +130,7 @@ void AMinigun::OverheatCooldown()
 	bIsOverheated = false;
 }
 
-/*Updates overheat every tick if the gun is firing or not firing and is not at 0*/
+/*Updates overheat every tick. Builds up overheat if the weapon is firing, and cools it down if not*/
 void AMinigun::UpdateOverheat()
 {
 	if (bIsFiring && !PoweredUp)
@@ -160,20 +143,19 @@ void AMinigun::UpdateOverheat()
 		FTimerHandle THandle;
 		GetWorld()->GetTimerManager().SetTimer(THandle, this, &AMinigun::CoolDownWeapon, 0.15f, false);
 	}
-	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Overheat Value: %f"), OverheatValue));
 }
 
-/*Adjusts projectile rotation on spawn to aim towards the crosshair*/
+/*Adjusts projectile rotation on spawn to aim towards the direction that the crosshair is pointing to.*/
 void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
 {
 	if (CarOwner == nullptr) return;
-	//if (OwnerController == nullptr) return;
-	AController* Bajs = Cast<AController>(CarOwner->GetController());
-
+	AController* OwnerController = Cast<AController>(CarOwner->GetController());
+	if (OwnerController == nullptr) return;
+	
 	FVector CameraLocation;
 	FRotator CameraRotation;
 
-	Bajs->GetPlayerViewPoint(CameraLocation, CameraRotation);
+	OwnerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
 	FVector OffsetVector = CarOwner->GetTurret()->GetActorLocation() - CameraLocation;
 	float OffsetLenght = OffsetVector.Length();
 	FVector TraceStart = CameraLocation + (CameraRotation.Vector() * OffsetLenght);
@@ -189,12 +171,11 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 
 	FHitResult HitResult;
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Green, true);
+	
 	FVector HitEndLocation;
 	if (bHit)
 	{
 		HitEndLocation = HitResult.ImpactPoint;
-		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("HIT %s"), *HitResult.GetActor()->GetName()));
 	}
 	else
 	{
@@ -205,13 +186,11 @@ void AMinigun::AdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& P
 	float RandomSpreadZ = FMath::RandRange(ProjSpreadMinZ, ProjSpreadMaxZ);
 
 	HitEndLocation += FVector(0.f, RandomSpreadY, RandomSpreadZ);
-	//FVector SpawnSpread = SpawnLocation + FVector(0.f, RandomSpawnSpreadY, RandomSpawnSpreadZ);
 
 	ProjectileRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, HitEndLocation);
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
 }
 
-//projectile transform adjust for AI firing
+/*Adjusts projectile rotation on spawn to aim towards the direction of the AIs target.*/
 void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator& ProjectileRotation)
 {
 	const AEnemyVehiclePawn* AIOwner = Cast<AEnemyVehiclePawn>(GetOwner());
@@ -228,7 +207,6 @@ void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator&
 			if (EnemyVehicle != nullptr)
 			{
 				EnemyLocation = EnemyVehicle->GetHomingTargetPoint()->GetComponentLocation();
-				UE_LOG(LogTemp, Warning, TEXT("Using homin target point"));
 			}
 			else
 			{
@@ -236,13 +214,8 @@ void AMinigun::AIAdjustProjectileAimToCrosshair(FVector SpawnLocation, FRotator&
 				EnemyLocation += FVector(0, 0, 200);
 			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("BlackboardComponent is nullptr"));
-		}
 	}
-
-	//göras om till AI spread ifall vi ska ha nivåer 
+	
 	float RandomSpreadY = FMath::RandRange(-50, 50);
 	float RandomSpreadZ = FMath::RandRange(-50, 50);
 
@@ -254,6 +227,11 @@ void AMinigun::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	UpdateOverheat();
+}
+
+bool AMinigun::GetIsOverheated()
+{
+	return bIsOverheated;
 }
 
 float AMinigun::GetOverheatValue() const
@@ -281,20 +259,9 @@ bool AMinigun::GetIsFiring()
 	return bIsFiring;
 }
 
+/*Called when a player dies, disabling shooting and reseting minigun values to their defaults*/
 void AMinigun::DisableShooting()
 {
-	/*if (GetOwner()->IsA(AEnemyVehiclePawn::StaticClass()))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("casting to AI pawn"));
-		AEnemyVehiclePawn* AI = Cast<AEnemyVehiclePawn>(GetOwner());
-		if (AI)
-		{
-			AI->SetPulledTrigger(false);
-		} else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("cast failed to AI pawn"));
-		}
-	}*/
 	bIsOverheated = false;
 	OverheatValue = 0.f;
 	MinigunDisableAudio();

@@ -1,5 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+/**
+* @author Mihajlo Radotic
+*   Child projectile class for projectiles used by the secondary weapon (missile launcher).
+*   Includes missile launcher specific functionality, mostly the homing target logic (projectile following a specified target). 
+**/
 #pragma once
 
 #include "CoreMinimal.h"

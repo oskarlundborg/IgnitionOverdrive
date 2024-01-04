@@ -1,5 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+/**
+* @author Mihajlo Radotic
+*   Child weapon class used for the secondary weapon, homing missile launcher. 
+*   Includes missile launcher specific components and functionality. 
+*
+* @author Daniel Olsson
+*   Responsible for AI related code
+**/
 #pragma once
 
 #include "CoreMinimal.h"
@@ -38,6 +45,7 @@ public:
 	
 	void OnFireAI(AActor* Target, int32 Charge);
 
+	/*Blueprint implementable event for playing missile SFX when it spawns*/
 	UFUNCTION(BlueprintImplementableEvent)
 	void MissileFired(int32 ChargeNumber);
 	
@@ -46,15 +54,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsOnCooldown();
-	
-	UFUNCTION(BlueprintCallable)
-	void ResetAmmo();
-	
-	UFUNCTION(BlueprintCallable)
-	void SetAmmo(int32 Amount);
-	
-	UFUNCTION(BlueprintCallable)
-	int32 GetAmmo();
 
 	UFUNCTION(BlueprintCallable)
 	bool GetCanLockOnTarget();
@@ -91,9 +90,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge", meta = (AllowPrivateAccess = "true"))
 	int32 ChargeCap;
-	
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
-	//int32 AmmoAmount;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge", meta = (AllowPrivateAccess = "true"))
     float ChargeTime;
@@ -149,7 +145,7 @@ private:
 	
 	void FindTarget();
 	void CheckCanLockOn();
-	bool PerformTargetLockSweep(FHitResult& HitResult);
+	bool PerformTargetLockLineTrace(FHitResult& HitResult);
 	
 	void ChargeFire();
 	void OnChargeFire();

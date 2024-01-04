@@ -1,5 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+/**
+* @author Mihajlo Radotic
+*   Child turret class used for players.
+*   Empty as the rotation logic was moved to an animation blueprint (check ABP_ArmoredVehicle Event Graph for rotation logic)
+**/
 #pragma once
 
 #include "CoreMinimal.h"

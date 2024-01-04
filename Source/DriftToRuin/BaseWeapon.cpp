@@ -20,11 +20,13 @@ ABaseWeapon::ABaseWeapon()
 	MuzzleFlashNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Muzzle Flash Component"));
 }
 
+/*Getter for the weapon mesh component*/
 USkeletalMeshComponent* ABaseWeapon::GetWeaponMesh() const
 {
 	return WeaponMesh;
 }
 
+/*Getter for a USceneComponent that represents a spawn point for projectiles*/
 USceneComponent* ABaseWeapon::GetProjectileSpawnPoint() const
 {
 	return ProjectileSpawnPoint;
@@ -36,7 +38,6 @@ void ABaseWeapon::BeginPlay()
 
 	if(MuzzleFlashNiagaraComponent)
 	{
-		//MuzzleFlashNiagaraComponent->AttachToComponent(WeaponMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("MuzzleFlashSocket"));
 		MuzzleFlashNiagaraComponent->SetAsset(MuzzleFlashNiagaraSystem);
 		MuzzleFlashNiagaraComponent->Deactivate();
 	}

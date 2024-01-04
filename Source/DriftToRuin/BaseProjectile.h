@@ -1,5 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+/**
+* @author Mihajlo Radotic
+*   Base class of all projectile types in the game.
+*   Includes generic components and functionality of all projectile types. 
+**/
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,14 +23,15 @@ public:
 
 	UProjectileMovementComponent* GetProjectileMovementComponent();
 
+	/*Blueprint implementable event that runs in blueprints when OnOverlap callback function is executed. Used for setting up e.g VFX and SFX*/
 	UFUNCTION(BlueprintImplementableEvent)
 	void ProjectileImpactSweepResult(const FHitResult& SweepResult);
-	
+
+	/*Blueprint implementable event that runs in blueprints when OnHit callback function is executed. Used for setting up e.g VFX and SFX*/
 	UFUNCTION(BlueprintImplementableEvent)
 	void ProjectileImpactHitResult(const FHitResult& HitResult);
 
 protected:
-	/*Projectile callback function for collision*/
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpusle, const FHitResult& Hit);
 	UFUNCTION()

@@ -1,11 +1,20 @@
-
-//Daniel Olsson - AIAdjustProjectileAimToCrosshair method which adjust aims for the AI
+/**
+* @author Mihajlo Radotic
+*   Child weapon class used for the primary weapon, minigun. 
+*   Includes minigun specific components and functionality. 
+*
+* @author Daniel Olsson
+*   Responsible for AI related code
+*   AIAdjustProjectileAimToCrosshair method
+*
+* @author Hugo Westgren
+*   Responsible for powerup related code
+**/
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "BaseWeapon.h"
-#include "Components/PoseableMeshComponent.h"
 #include "Minigun.generated.h"
 
 class APlayerVehiclePawn;
@@ -23,13 +32,16 @@ public:
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
 
+	/*Blueprint implementable event that stops shooting audio when called*/
 	UFUNCTION(BlueprintImplementableEvent)
 	void MinigunDisableAudio();
+	
 	UFUNCTION(BlueprintCallable)
 	bool GetIsOverheated();
 
 	void InitializeOwnerVariables();
-
+	
+	/*Blueprint implementable event for attaching trace VFX on projectiles, called when a projectile is spawned. Uses GetIsPoweredUp to attach the appropriate VFX type*/
 	UFUNCTION(BlueprintImplementableEvent)
 	void ProjectileSpawned(ABaseProjectile* Projectile);
 
@@ -67,6 +79,7 @@ private:
 
 	UPROPERTY()
 	TArray<AActor*> ToIgnore;
+	
 	/*Controlls weapons FireRate*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	float FireRate;

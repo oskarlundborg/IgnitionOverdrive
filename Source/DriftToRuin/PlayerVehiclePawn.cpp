@@ -265,30 +265,35 @@ void APlayerVehiclePawn::FireHomingMissilesCompleted()
 	HomingLauncher->ReleaseTrigger();
 }
 
+/*Blueprint callable implemented for use in HUD logic. Returns the percent of current overheat value of the minigun.*/
 float APlayerVehiclePawn::GetMinigunOverheatPercent() const
 {
 	if(MinigunClass == nullptr || Minigun == nullptr) return 0;
 	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
 }
 
+/*Blueprint callable implemented for use in HUD logic. Returns if minigun is overheated or not*/
 bool APlayerVehiclePawn::GetMinigunIsOverheated() const
 {
 	if(MinigunClass == nullptr || Minigun == nullptr) return false;
 	return Minigun->GetIsOverheated();
 }
 
+/*Blueprint callable implemented for use in HUD logic. Returns the current percent of a singe missile charge.*/
 float APlayerVehiclePawn::GetMissileChargePercent() const
 {
 	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
 	return HomingLauncher->GetChargeValue() / HomingLauncher->GetChargeCapValue();
 }
 
+/*Blueprint callable implemented for use in HUD logic. Returns if the missile launcher is charging or not*/
 bool APlayerVehiclePawn::GetHomingIsCharging() const
 {
 	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return false;
 	return HomingLauncher->IsCharging();
 }
 
+/*Blueprint callable implemented for use in HUD logic. Returns the amount of missiles charged.*/
 int32 APlayerVehiclePawn::GetHomingChargeAmount() const
 {
 	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;

@@ -8,7 +8,6 @@
 #include "EnemyVehiclePawn.h"
 #include "Minigun.h"
 #include "PlayerVehiclePawn.h"
-#include "Camera/CameraComponent.h"
 #include "Components/AudioComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -50,19 +49,17 @@ void AHomingMissileLauncher::InitializeOwnerVariables()
 {
 	CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
 	CarOwnerPlayer = Cast<APlayerVehiclePawn>(GetOwner());
-	/*if(CarOwner == nullptr) return;
-	OwnerController = CarOwner->GetController();
-	if(OwnerController == nullptr) return;
-	OwnerPlayerController = Cast<APlayerController>(OwnerController);*/
 }
 
+/*  Called when input action is started.
+ *  Has two use cases, it either starts missile charging or shoots missiles,
+ *  based on if the player has charged at least 1 missile or not. */
 void AHomingMissileLauncher::PullTrigger()
 {
 	Super::PullTrigger();
 	if(ChargeAmount == 0 && !GetWorldTimerManager().IsTimerActive(ChargeHandle))
 	{
 		if(bIsOnCooldown) return;
-		//ChargeAmount = 0;
 		CurrentTarget = nullptr;
 		LastTarget = nullptr;
 		FindTarget();
@@ -110,6 +107,7 @@ void AHomingMissileLauncher::ResetCooldown()
 	GetWorldTimerManager().ClearTimer(CooldownTimer);
 }
 
+/*Sets a cooldown duration on missiles, based on the charged amount when the weapon is fired*/
 void AHomingMissileLauncher::SetCooldownDuration()
 {
 	switch (ChargeAmount)
@@ -121,12 +119,14 @@ void AHomingMissileLauncher::SetCooldownDuration()
 	}
 }
 
+/*Getter for cooldown time used in HUD widget*/
 float AHomingMissileLauncher::GetCooldownTime()
 {
 	if(GetWorldTimerManager().IsTimerActive(CooldownTimer)) return FMath::Floor(GetWorldTimerManager().GetTimerRemaining(CooldownTimer));
 	return FMath::Floor(CooldownDuration);
 }
 
+/*Getter used in HUD widget, checks if the weapon in on cooldown*/
 bool AHomingMissileLauncher::GetIsOnCooldown()
 {
 	return bIsOnCooldown;
@@ -142,23 +142,7 @@ float AHomingMissileLauncher::GetChargeCapValue()
 	return ChargeValueCap;
 }
 
-void AHomingMissileLauncher::ResetAmmo()
-{
-	//AmmoAmount = ChargeCap; // here
-}
-
-void AHomingMissileLauncher::SetAmmo(int32 Amount)
-{
-	//if(Amount > ChargeCap) return; // here
-	//AmmoAmount = Amount;
-}
-	
-int32 AHomingMissileLauncher::GetAmmo()
-{
-	//return AmmoAmount; // here
-	return 0;
-}
-
+/*Getter used in HUD widget, checks if a player can lock on a target*/
 bool AHomingMissileLauncher::GetCanLockOnTarget()
 {
 	return bCanLockOn;
@@ -184,12 +168,14 @@ void AHomingMissileLauncher::SetChargeAmount(const float NewChargeAmount)
 	ChargeAmount = NewChargeAmount;
 }
 
+/*Sets the weapon on cooldown. Used for AIs*/
 void AHomingMissileLauncher::SetAICooldown()
 {
 	bIsOnCooldown = true;
 	GetWorldTimerManager().SetTimer(CooldownTimer, this, &AHomingMissileLauncher::ResetCooldown, 10.0f, false, 10.0f);
 }
 
+/*Called when a player dies, disabling shooting and reseting class values to their defaults*/
 void AHomingMissileLauncher::DisableShooting()
 {
 	CurrentTarget = nullptr;
@@ -209,6 +195,7 @@ void AHomingMissileLauncher::DisableShooting()
 	}
 }
 
+/*Charges missiles by accumulating ChargeValue and increments the amount of charged missiles. Stops charging when the charge value cap is hit.*/
 void AHomingMissileLauncher::ChargeFire()
 {
 	if(!CurrentTarget || ChargeAmount == ChargeCap)
@@ -224,16 +211,17 @@ void AHomingMissileLauncher::ChargeFire()
 		ChargeAmount++;
 		ChargeValue = 0.f;
 	}
-	//if(ChargeValue == ChargeCap) GetWorldTimerManager().ClearTimer(ChargeHandle); //ChargeValue = 0.f;
-	//if(!CurrentTarget || ++ChargeAmount == ChargeCap) GetWorldTimerManager().ClearTimer(ChargeHandle);
 }
-	
+
+/*Called after input action, if FindTarget line trace has a hit actor. Calls ChargeFire on a looping timer, starting the missile charging process*/
 void AHomingMissileLauncher::OnChargeFire()
 {
 	bIsCharging = true;
 	GetWorldTimerManager().SetTimer(ChargeHandle, this, &AHomingMissileLauncher::ChargeFire, ChargeTime / 100, true);
 }
 
+/*Fires a missile by spawning it and assigning the current target as its homing target after a brief delay
+ *A valid acceleration magnitude is set on the projectiles movement component too (See GetValidMagnitude function)*/
 void AHomingMissileLauncher::Fire(AActor* Target)
 {
 	if(!GetOwner()) return;
@@ -268,14 +256,17 @@ void AHomingMissileLauncher::Fire(AActor* Target)
 	}
 }
 
+/*Called after input action if the weapon has at least 1 charged missile.
+ *Calls Fire on a timer based on the fire rate.*/
 void AHomingMissileLauncher::OnFire()
 {
 	FTimerDelegate FireDelegate;
 	FireDelegate.BindUFunction(this, FName("Fire"), CurrentTarget);
 	GetWorldTimerManager().SetTimer(FireTimer, FireDelegate, 0.5f, true, 0.f);
-	//GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::Fire, 0.5f, true, 0.f);
 }
 
+/*Called when an AI receives a target and is ready to fire
+ *Calls Fire on a timer based on the fire rate.*/
 void AHomingMissileLauncher::OnFireAI(AActor* Target, int32 Charge)
 {
 	FTimerDelegate FireDelegate;
@@ -283,9 +274,9 @@ void AHomingMissileLauncher::OnFireAI(AActor* Target, int32 Charge)
 	LastTarget = Target;
 	FireDelegate.BindUFunction(this, FName("Fire"), Target);
 	GetWorldTimerManager().SetTimer(FireTimer, FireDelegate, 0.5f, true, 0.f);
-	//GetWorldTimerManager().SetTimer(FireTimer, this, &AHomingMissileLauncher::FireAI, 0.5f, true, 0.f);
 }
 
+/*Used for setting a projectiles homing target*/
 void AHomingMissileLauncher::SetTarget(ABaseProjectile* Projectile, ABaseVehiclePawn* Target)
 {
 	Projectile->GetProjectileMovementComponent()->HomingTargetComponent = Target->GetHomingTargetPoint();
@@ -304,6 +295,9 @@ void AHomingMissileLauncher::ResetCanLockOnSoundCooldown()
 	bCanPlayLockOn = true;
 }
 
+/*Calculates a valid acceleration magnitude value to be set
+ * on the projectile movement component based on the distance
+ * to the current target player.*/
 float AHomingMissileLauncher::GetValidMagnitude(AActor* Target)
 {
 	float HomingMagnitude;
@@ -320,7 +314,9 @@ float AHomingMissileLauncher::GetValidMagnitude(AActor* Target)
 	}
 	return HomingMagnitude;
 }
-	
+
+/*Performs a series of checks when the weapon is charging
+ * and resets to default class values if one of those checks is violated*/
 void AHomingMissileLauncher::CheckTargetStatus()
 {
 	if(!CurrentTarget) return;
@@ -343,11 +339,13 @@ void AHomingMissileLauncher::CheckTargetStatus()
 	}
 }
 
+/*Checks if a player has a line of sight to a target*/
 bool AHomingMissileLauncher::CheckTargetLineOfSight(const AController* Controller, const AActor* Target) const
 {
 	return Controller->LineOfSightTo(Target, {CarOwner->GetCameraLocation().X, CarOwner->GetCameraLocation().Y, CarOwner->GetCameraLocation().Z + 300.f});
 }
 
+/*Checks if a target is in players screen bounds*/
 bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* PlayerController) const
 {
 	int32 ViewportSizeX;
@@ -362,6 +360,7 @@ bool AHomingMissileLauncher::CheckTargetInScreenBounds(const APlayerController* 
 	return false;
 }
 
+/*Checks if a target is in range*/
 bool AHomingMissileLauncher::CheckTargetInRange(const ABaseVehiclePawn* VehicleOwner) const
 {
 	float CurrentDistance = VehicleOwner->GetDistanceTo(CurrentTarget);
@@ -369,11 +368,13 @@ bool AHomingMissileLauncher::CheckTargetInRange(const ABaseVehiclePawn* VehicleO
 	return false;
 }
 
+/*Checks if a target is dead*/
 bool AHomingMissileLauncher::CheckTargetIsDead(ABaseVehiclePawn* TargetVenchi) const
 {
 	return TargetVenchi->GetIsDead();
 }
 
+/*Performs a line trace and sets the current target to trace hit result if the hit actor is an opponent vehicle*/
 void AHomingMissileLauncher::FindTarget()
 {
 	if(CarOwner == nullptr) return;
@@ -381,16 +382,16 @@ void AHomingMissileLauncher::FindTarget()
 	if(OwnerController == nullptr) return;
 	
 	FHitResult HitResult;
-	bool bHit = PerformTargetLockSweep(HitResult);
+	bool bHit = PerformTargetLockLineTrace(HitResult);
 	
 	if(bHit && HitResult.GetActor()->ActorHasTag(FName("Targetable")))
 	{
 		CurrentTarget = HitResult.GetActor();
 		LastTarget = CurrentTarget;
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitResult.GetActor()->GetName())
 }
 
+/*Constantly performs a line trace to check if a player can target lock an opponent*/
 void AHomingMissileLauncher::CheckCanLockOn()
 {
 	if(CarOwner == nullptr) return;
@@ -398,7 +399,7 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	if(OwnerController == nullptr) return;
 
 	FHitResult HitResult;
-    bool bHit = PerformTargetLockSweep(HitResult);
+    bool bHit = PerformTargetLockLineTrace(HitResult);
 	ABaseVehiclePawn* TargetVenchi = Cast<ABaseVehiclePawn>(HitResult.GetActor());
 	if(bHit && TargetVenchi && HitResult.GetActor()->ActorHasTag(FName("Targetable")) &&
 		CheckTargetLineOfSight(OwnerController, HitResult.GetActor()) && !TargetVenchi->GetIsDead() && !bIsOnCooldown && !bIsCharging)
@@ -414,10 +415,10 @@ void AHomingMissileLauncher::CheckCanLockOn()
 	}
 }
 
-bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
+/*Performs a line trace in the direction that the player is aiming towards*/
+bool AHomingMissileLauncher::PerformTargetLockLineTrace(FHitResult& HitResult)
 {
 	if(bIsOnCooldown || bIsCharging) return false;
-	//UE_LOG(LogTemp, Error, TEXT("ISSWEEPIN"));
 	if(CarOwner == nullptr) return false;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return false;
@@ -431,14 +432,12 @@ bool AHomingMissileLauncher::PerformTargetLockSweep(FHitResult& HitResult)
 	TArray<AActor*> ToIgnore;
 	ToIgnore.Add(this);
 	ToIgnore.Add(GetOwner());
-	//ToIgnore.Add(CarOwner->GetTurret()); KOMENTERAT EFTER TURRET FLYTT
 	ToIgnore.Add(CarOwner->GetMinigun());
 	
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(ToIgnore);
 	
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_GameTraceChannel4, TraceParams);
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Orange, true);
 	return bHit;
 }
 
@@ -447,9 +446,6 @@ void AHomingMissileLauncher::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	CheckTargetStatus();
 	CheckCanLockOn();
-	//if(GetOwner() && CurrentTarget) GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%f"), GetOwner()->GetDistanceTo(CurrentTarget)));
-	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCooldownTime());
-	//UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeValue/ChargeCap);
 }
 
 
