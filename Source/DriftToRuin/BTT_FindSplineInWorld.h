@@ -21,8 +21,11 @@ public:
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 
 private:
+	UPROPERTY()
 	AAIController* AIController;
+	UPROPERTY()
 	APawn* AIPawn;
+	UPROPERTY()
 	UBlackboardComponent* BlackboardComp;
 	
 	bool ScanForSplines() const;
