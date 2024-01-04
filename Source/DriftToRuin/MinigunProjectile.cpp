@@ -11,6 +11,7 @@ AMinigunProjectile::AMinigunProjectile()
 	
 }
 
+/*Overrided callback function for overlap collision from base class. Bound to OnComponentBeginOverlap delegate. Holds logic executed when projectiles hit vehicles (applying damage)*/
 void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -42,7 +43,7 @@ void AMinigunProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	}
 }
 
-/*Projectile callback function for collision*/
+/*Overrided callback function for block collision. Bound to OnComponentHit delegate. Holds logic executed when projectiles hit all non-vehicle objects*/
 void AMinigunProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpusle, const FHitResult& Hit)
 {

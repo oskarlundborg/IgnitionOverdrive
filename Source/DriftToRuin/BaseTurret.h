@@ -1,5 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+/**
+* @author Mihajlo Radotic
+*   Base class of all turret types in the game.
+*   Holds all generic components and functionality. 
+**/
 #pragma once
 
 #include "CoreMinimal.h"

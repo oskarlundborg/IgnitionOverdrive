@@ -16,6 +16,7 @@ AHomingProjectile::AHomingProjectile()
 	DestructionTime = 0.8f;
 }
 
+/*Overrided callback function for overlap collision from base class. Bound to OnComponentBeginOverlap delegate. Holds logic executed when projectiles hit vehicles (applying damage)*/
 void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -47,6 +48,7 @@ void AHomingProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	}
 }
 
+/*A tick-run method that checks if a missiles homing target has died, and if so sets to no target*/
 void AHomingProjectile::CheckIfTargetDied()
 {
 	if(GetProjectileMovementComponent()->HomingTargetComponent == nullptr) return;
@@ -54,16 +56,13 @@ void AHomingProjectile::CheckIfTargetDied()
 	if(!OwnerPawn) return;
 	auto Target = Cast<ABaseVehiclePawn>(OwnerPawn->GetHomingLauncher()->GetLastTarget());
 	if(!Target) return;
-	//UE_LOG(LogTemp, Warning, TEXT("Dead"));
 	if(Target->GetIsDead())
 	{
 		GetProjectileMovementComponent()->HomingTargetComponent = nullptr;
-		//GetProjectileMovementComponent()->ProjectileGravityScale(1.0);
-		//Destroy();
-		//UE_LOG(LogTemp, Warning, TEXT("Dead"));
 	}
 }
 
+/*Handles destruction logic of the projectile. Fires radial force, detaches VFX and destroys the projectile after a timer as to let missile trail VFX play.*/
 void AHomingProjectile::OnDestroy()
 {
 	RadialForceComponent->FireImpulse();
@@ -73,6 +72,7 @@ void AHomingProjectile::OnDestroy()
 	SetActorEnableCollision(false);
 }
 
+/*Overrided callback function for block collision. Bound to OnComponentHit delegate. Holds logic executed when projectiles hit all non-vehicle objects*/
 void AHomingProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                               FVector NormalImpusle, const FHitResult& Hit)
 {

@@ -1,5 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+/**
+* @author Mihajlo Radotic
+*   Base class of all weapon types in the game.
+*   Includes generic components and functionality of all weapon types. 
+**/
 #pragma once
 
 #include "CoreMinimal.h"

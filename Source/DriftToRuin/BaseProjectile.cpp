@@ -29,17 +29,20 @@ ABaseProjectile::ABaseProjectile()
 	ProjectileMovementComponent->InitialSpeed = 8000.f;
 }
 
+/*Getter for the projectile movement component*/
 UProjectileMovementComponent* ABaseProjectile::GetProjectileMovementComponent()
 {
 	return ProjectileMovementComponent;
 }
 
+/*Virtual callback function for block collision. Bound to OnComponentHit delegate. Holds logic executed when projectiles hit all non-vehicle objects*/
 void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpusle, const FHitResult& Hit)
 {
 	ProjectileImpactHitResult(Hit);
 }
 
+/*Virtual callback function for overlap collision. Bound to OnComponentBeginOverlap delegate. Holds logic executed when projectiles hit vehicles (applying damage)*/
 void ABaseProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                 int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -62,6 +65,7 @@ void ABaseProjectile::BeginPlay()
 	}
 }
 
+/*Initializes projectile whizzing audio*/
 void ABaseProjectile::InitializeAudio()
 {
 	if(WhizzingAudioComponent)

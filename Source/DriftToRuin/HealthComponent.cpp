@@ -25,22 +25,18 @@ void UHealthComponent::BeginPlay()
 	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::DamageTaken);
 }
 
+/*Callback function for OnTakeAnyDamage delegate. Executed when ApplyDamage is called on a player*/
 void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 	AController* Instigator, AActor* DamageCauser)
 {
 	if(Damage <= 0.f) return;
 	CurrentHealth -= Damage;
-	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
-	// Fixa Casten 
 	ABaseVehiclePawn* CarOwner = Cast<ABaseVehiclePawn>(GetOwner());
-	CarOwner -> ProjectileHit();
+	CarOwner-> ProjectileHit();
 	if (CurrentHealth <= 0 )
 	{
-		//OnVehicleDeath(DamageCauser->GetOwner());
 		OnVehicleDeath(Instigator->GetPawn());
 	}
-	
-	//if(IsDead()) GetOwner()->Destroy();
 }
 
 // Called every frame

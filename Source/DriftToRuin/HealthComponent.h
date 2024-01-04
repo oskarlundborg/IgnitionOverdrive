@@ -6,6 +6,9 @@
 *
 * @author Hugo Westgren
 *	Developed to work correctly with other gameplay systems.
+*
+* @author Mihajlo Radotic
+*   Responsible for setting up damage system. 
 **/
 
 #pragma once
