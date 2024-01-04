@@ -49,6 +49,9 @@ public:
 	int32 GetHomingChargeAmount() const;
 
 	UFUNCTION(BlueprintCallable)
+	bool GetCameraLockMode() const;
+
+	UFUNCTION(BlueprintCallable)
 	APlayerTurret* GetTurret() const;
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -69,6 +72,15 @@ private:
 	TSubclassOf<APlayerTurret> PlayerTurretClass;
 	UPROPERTY()
 	APlayerTurret* Turret;
+
+	UPROPERTY()
+	bool CameraLock = false;
+	
+	UPROPERTY()
+	bool IsMovingCameraX = false;
+	
+	UPROPERTY()
+	bool IsMovingCameraY = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* ThrottleAction;
@@ -109,9 +121,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* FireHomingMissilesAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* CameraModeToggleAction;
+
 	//How fast air rolls can be done
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AirRoll, meta=(AllowPrivateAccess = "true"))
 	float AirRollSensitivity = 0.7f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AirRoll, meta=(AllowPrivateAccess = "true"))
+	float CameraLockSpeed = 4.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=SideSwipe, meta=(AllowPrivateAccess = "true"))
 	float SideSwipeCooldown = 1.0f;
@@ -159,6 +177,8 @@ private:
 
 	void SideSwipeLeft();
 	void SideSwipeRight();
+
+	void CameraModeToggle();
 
 	void ApplyAirRollYaw(const FInputActionValue& Value);
 	void ApplyAirRollPitch(const FInputActionValue& Value);
