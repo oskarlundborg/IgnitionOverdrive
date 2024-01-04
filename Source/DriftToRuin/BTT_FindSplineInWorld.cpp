@@ -68,7 +68,8 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 		// Filter hits to only include spline components with starting points in front of the AI
 		FindSplineHitResults(HitResults, BBSpline, EligibleSplineHits);
 		bool bValue;
-		if (bCanSetSpline(EligibleSplineHits, bValue)) return bValue;
+		//if (bCanSetSpline(EligibleSplineHits, bValue)) ;
+		return bValue;
 	}
 	return false;
 }
@@ -95,8 +96,8 @@ bool UBTT_FindSplineInWorld::bCanSetSpline(TArray<USplineComponent*>& EligibleSp
 	{
 		UE_LOG(LogTemp, Warning, TEXT("splines found"));
 		//hitta splines framför bilen
-		ChooseAdequiteSpline(EligibleSplineHits);
-		if (EligibleSplineHits.Num() > 0)
+		//ChooseAdequiteSpline(EligibleSplineHits);
+		if (EligibleSplineHits.IsEmpty())
 		{
 			return false;
 		}
@@ -117,6 +118,11 @@ bool UBTT_FindSplineInWorld::bCanSetSpline(TArray<USplineComponent*>& EligibleSp
 
 void UBTT_FindSplineInWorld::ChooseAdequiteSpline(TArray<USplineComponent*>& EligibleSplineHits) const
 {
+	if(EligibleSplineHits.IsEmpty())
+	{
+		return;
+	}
+	
 	for (USplineComponent* Spline : EligibleSplineHits)
 	{
 		FVector SplineStart = Spline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
