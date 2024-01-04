@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//Daniel Olsson
 
 
 #include "BTT_CreateSpline.h"
@@ -32,7 +32,6 @@ EBTNodeResult::Type UBTT_CreateSpline::ExecuteTask(UBehaviorTreeComponent& Owner
 //göra om detta till A* pathfinding spline creating. ! 
 
 //göra om så att den tar en annan spline, ka nej ta custom defined spline och göra om de
-
 
 
 void UBTT_CreateSpline::CreateSpline()
