@@ -67,8 +67,12 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 		TArray<USplineComponent*> EligibleSplineHits;
 		// Filter hits to only include spline components with starting points in front of the AI
 		FindSplineHitResults(HitResults, BBSpline, EligibleSplineHits);
+		TArray<USplineComponent*> SplinesInFront;
 		bool bValue;
-		if (bCanSetSpline(EligibleSplineHits, bValue)) return bValue;
+		if (bCanSetSpline(EligibleSplineHits, bValue, SplinesInFront))
+		{
+			return true;
+		}
 	}
 	return false;
 }
@@ -89,19 +93,23 @@ void UBTT_FindSplineInWorld::FindSplineHitResults(TArray<FHitResult>& HitResults
 }
 
 
-bool UBTT_FindSplineInWorld::bCanSetSpline(TArray<USplineComponent*>& EligibleSplineHits, bool& bValue) const
+bool UBTT_FindSplineInWorld::bCanSetSpline(TArray<USplineComponent*>& EligibleSplineHits, bool& bValue,
+                                           TArray<USplineComponent*>& SplinesInFront) const
 {
 	if (EligibleSplineHits.Num() > 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("splines found"));
 		//hitta splines framför bilen
-		ChooseAdequiteSpline(EligibleSplineHits);
-		if (EligibleSplineHits.Num() > 0)
+		ChooseAdequiteSpline(EligibleSplineHits, SplinesInFront);
+		USplineComponent* ChosenSpline;
+		if (SplinesInFront.IsEmpty())
 		{
-			return false;
+			ChosenSpline = EligibleSplineHits[FMath::RandRange(0, EligibleSplineHits.Num() - 1)];
 		}
-		TArray<USplineComponent*> SplinesInFront;
-		USplineComponent* ChosenSpline = EligibleSplineHits[FMath::RandRange(0, EligibleSplineHits.Num() - 1)];
+		else
+		{
+			ChosenSpline = SplinesInFront[FMath::RandRange(0, SplinesInFront.Num() - 1)];
+		}
 		// Set chosen spline in BB
 		BlackboardComp->SetValueAsObject("RoadSpline", ChosenSpline->GetOwner());
 		AEnemyVehiclePawn* AIEnemy = Cast<AEnemyVehiclePawn>(AIPawn);
@@ -115,8 +123,14 @@ bool UBTT_FindSplineInWorld::bCanSetSpline(TArray<USplineComponent*>& EligibleSp
 	return false;
 }
 
-void UBTT_FindSplineInWorld::ChooseAdequiteSpline(TArray<USplineComponent*>& EligibleSplineHits) const
+void UBTT_FindSplineInWorld::ChooseAdequiteSpline(TArray<USplineComponent*>& EligibleSplineHits,
+                                                  TArray<USplineComponent*>& SplinesInFront) const
 {
+	if (EligibleSplineHits.IsEmpty())
+	{
+		return;
+	}
+
 	for (USplineComponent* Spline : EligibleSplineHits)
 	{
 		FVector SplineStart = Spline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
@@ -131,10 +145,9 @@ void UBTT_FindSplineInWorld::ChooseAdequiteSpline(TArray<USplineComponent*>& Eli
 		float DotEnd = FVector::DotProduct(AIPawn->GetActorForwardVector(), ActorToEnd.GetSafeNormal());
 
 
-		if (!(DotStart >= 0.0f && DotEnd >= 0.0f))
+		if ((DotStart >= 0.0f && DotEnd >= 0.0f))
 		{
-			// Spline is not front of or parallel to the actor
-			EligibleSplineHits.Remove(Spline);
+			SplinesInFront.Add(Spline);
 		}
 	}
 }

@@ -1,7 +1,6 @@
 //Daniel Olsson 
 //Mihaljo Radotic
 
-
 #include "EnemyVehiclePawn.h"
 #include "AITurret.h"
 #include "AIController.h"
@@ -211,7 +210,6 @@ void AEnemyVehiclePawn::AdjustSpeedBasedOnLargerTurnCurve(float ABSDeltaYaw, con
 	}
 }
 
-
 void AEnemyVehiclePawn::DriveAlongSpline()
 {
 	if (!InitializeSpline() || LeftSensor == nullptr || RightSensor == nullptr || VehicleMovementComp == nullptr ||
@@ -261,7 +259,6 @@ void AEnemyVehiclePawn::DriveAlongSpline()
 
 	VehicleMovementComp->SetSteeringInput(SteeringValue);
 }
-
 
 void AEnemyVehiclePawn::SetUpNewSpline()
 {
@@ -332,7 +329,7 @@ void AEnemyVehiclePawn::RandomlyRotateTurret()
 	}
 	//smooth rotation
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds() * 20, RotationInterpSpeed);
+	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
 	Turret->SetActorRotation(NewRotation);
 }
 
@@ -381,15 +378,12 @@ void AEnemyVehiclePawn::RotateTowardsShootingEnemy()
 	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ShootingEnemyActor->GetActorLocation());
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
-	                               GetWorld()->GetDeltaSeconds() * 20, RotationInterpSpeed);
+	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
 	if (Turret != nullptr)
 	{
 		Turret->SetActorRotation(NewRotation);
 	}
 }
-
-
-
 
 void AEnemyVehiclePawn::ShootMinigun()
 {

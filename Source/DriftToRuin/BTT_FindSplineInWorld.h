@@ -27,8 +27,8 @@ private:
 	
 	bool ScanForSplines() const;
 	void FindSplineHitResults(TArray<FHitResult>& HitResults, USplineComponent* BBSpline, TArray<USplineComponent*>& EligibleSplineHits) const;
-	void ChooseAdequiteSpline(TArray<USplineComponent*>&) const;
-	auto bCanSetSpline(TArray<USplineComponent*>&, bool& bValue) const -> bool;
+	void ChooseAdequiteSpline(TArray<USplineComponent*>& SplineHits, TArray<USplineComponent*>& SplinesInFront) const;
+	auto bCanSetSpline(TArray<USplineComponent*>&, bool& bValue, TArray<USplineComponent*>& SplinesInFront) const -> bool;
 	
 	bool InitializeAIComponents(UBehaviorTreeComponent& OwnerComp);
 };
