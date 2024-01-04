@@ -111,7 +111,7 @@ private:
 	UPROPERTY()
 	FRotator NewRotation;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
-	float RotationInterpSpeed = 0.2f;
+	float RotationInterpSpeed = 100.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
 	int32 TurretDelayTimeMinRange = 1;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
