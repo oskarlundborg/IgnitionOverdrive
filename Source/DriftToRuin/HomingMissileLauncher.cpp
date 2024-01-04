@@ -315,11 +315,12 @@ float AHomingMissileLauncher::GetValidMagnitude(AActor* Target)
 	return HomingMagnitude;
 }
 
-/*Performs a series of checks when the weapon is charging
+/* Performs a series of checks when the weapon is charging missiles
  * and resets to default class values if one of those checks is violated*/
 void AHomingMissileLauncher::CheckTargetStatus()
 {
 	if(!CurrentTarget) return;
+	if(!bIsCharging) return;
 	if(CarOwner == nullptr) return;
 	AController* OwnerController = Cast<AController>(CarOwner->GetController());
 	if(OwnerController == nullptr) return;
@@ -333,9 +334,7 @@ void AHomingMissileLauncher::CheckTargetStatus()
 		bIsCharging = false;
 		ChargeValue = 0.f;
 		bCanLockOn = false;
-		GetWorldTimerManager().ClearTimer(FireTimer);
-		//GetWorldTimerManager().ClearTimer(ChargeHandle);
-		//GetWorldTimerManager().ClearTimer(FireTimer);
+		GetWorldTimerManager().ClearTimer(ChargeHandle);
 	}
 }
 
