@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//Daniel Olsson - set a behavoir for the AI to use in their tick
+
 
 #pragma once
 

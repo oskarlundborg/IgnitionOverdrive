@@ -77,6 +77,8 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//Camera control axis
 		EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::LookUp);
 		EnhancedInputComponent->BindAction(LookAroundAction, ETriggerEvent::Triggered, this, &APlayerVehiclePawn::LookAround);
+		EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::LookUp);
+		EnhancedInputComponent->BindAction(LookAroundAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::LookAround);
 
 		EnhancedInputComponent->BindAction(HandbrakeAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::OnHandbrakePressed);
 		EnhancedInputComponent->BindAction(HandbrakeAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::OnHandbrakeReleased);
@@ -96,6 +98,8 @@ void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		EnhancedInputComponent->BindAction(FireHomingMissilesAction, ETriggerEvent::Started, this, &APlayerVehiclePawn::FireHomingMissiles);
 		EnhancedInputComponent->BindAction(FireHomingMissilesAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::FireHomingMissilesCompleted);
+
+		EnhancedInputComponent->BindAction(CameraModeToggleAction, ETriggerEvent::Completed, this, &APlayerVehiclePawn::CameraModeToggle);
 	}
 }
 
@@ -104,6 +108,12 @@ void APlayerVehiclePawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	bCanAirRoll = !IsGrounded();
+	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Camera Lock: %d"), CameraLock));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Moving Camera X: %d"), IsMovingCameraX));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Green, FString::Printf(TEXT("Is Moving Camera Y: %d"), IsMovingCameraY));
+
+	if(CameraLock && !IsMovingCameraX && !IsMovingCameraY) GetController()->SetControlRotation(FMath::RInterpTo(GetControlRotation(), GetActorForwardVector().Rotation(), DeltaSeconds, CameraLockSpeed));
+	
 }
 
 void APlayerVehiclePawn::ApplyThrottle(const FInputActionValue& Value)
@@ -125,18 +135,17 @@ void APlayerVehiclePawn::LookAround(const FInputActionValue& Value)
 {
 	// möjligtvis fixa olika sensitivity för upp/ner och vänster/höger för mus och kontroller
 	
-	if(Value.Get<float>() != 0.f)
-	{
-		AddControllerYawInput(Value.Get<float>()*Sensitivity);
-	}
+	AddControllerYawInput(Value.Get<float>()*Sensitivity);
+	GEngine->AddOnScreenDebugMessage(-1, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), FColor::Green, FString::Printf(TEXT("CameraX: %f"), Value.Get<float>()));
+	IsMovingCameraX = Value.Get<float>() > 0.5f || Value.Get<float>() < -0.5f;
 }
 
 void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 {
-	if(Value.Get<float>() != 0.f)
-	{
-		AddControllerPitchInput(Value.Get<float>()*Sensitivity);
-	}
+	AddControllerPitchInput(Value.Get<float>()*Sensitivity);
+	GEngine->AddOnScreenDebugMessage(-1, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), FColor::Green, FString::Printf(TEXT("CameraY: %f"), Value.Get<float>()));
+	IsMovingCameraY = Value.Get<float>() > 0.5f || Value.Get<float>() < -0.5f;
+	
 }
 
 void APlayerVehiclePawn::OnHandbrakePressed()
@@ -158,19 +167,6 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftFrontFriction);
 		}
 	}
-
-	//Det här inställningarna ska försöka ge spelaren mer kontroll av drifts.
-	
-	VehicleMovementComp->TargetRotationControl.Enabled = true;
-	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = true;
-	VehicleMovementComp->TargetRotationControl.RotationDamping = 10.0f;
-	VehicleMovementComp->TargetRotationControl.AutoCentreYawStrength = 200.0f;
-	VehicleMovementComp->TargetRotationControl.RotationStiffness = 10.0f;
-	VehicleMovementComp->TargetRotationControl.MaxAccel = 5000.0f;
-	
-	
-	
-	
 }
 
 void APlayerVehiclePawn::OnHandbrakeReleased()
@@ -192,8 +188,6 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 9.6f);
 		}
 	}
-	VehicleMovementComp->TargetRotationControl.Enabled = false;
-	VehicleMovementComp->TargetRotationControl.bRollVsSpeedEnabled = false;
 }
 
 void APlayerVehiclePawn::SideSwipeLeft()
@@ -299,3 +293,14 @@ APlayerTurret* APlayerVehiclePawn::GetTurret() const
 {
 	return Turret;
 }
+
+bool APlayerVehiclePawn::GetCameraLockMode() const
+{
+	return CameraLock;
+}
+
+void APlayerVehiclePawn::CameraModeToggle()
+{
+	CameraLock ^= true;
+}
+

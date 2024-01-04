@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+
+//Daniel Olsson - AIAdjustProjectileAimToCrosshair method which adjust aims for the AI
 
 #pragma once
 

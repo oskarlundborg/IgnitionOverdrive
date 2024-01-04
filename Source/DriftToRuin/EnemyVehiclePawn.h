@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-//Daniel Olsson AI engineer, behaviors i en switch form. beingplay setup är samma för player, dvs  (mihaljos weapon kod)
+//Daniel Olsson - all kod för AI
+//Mihajlo Radotic - Weapon setup in beginplay
 
 #pragma once
 #include "CoreMinimal.h"
@@ -21,46 +21,22 @@ class DRIFTTORUIN_API AEnemyVehiclePawn : public ABaseVehiclePawn
 public:
 	AEnemyVehiclePawn();
 	virtual void BeginPlay() override;
-
 	virtual void Tick(float DeltaSeconds) override;
 
 	//set functions
 	UFUNCTION(BlueprintCallable)
 	void SetSwitchString(const FString& NewSwitchString);
-	void SetHasNewSplineBeenSetup(bool bValue);
-
-	/*void RandomlyRotateTurret();
-	void ManageSpeed();
-	void DriveAlongSpline();
-	void CheckIfAtEndOfSpline();
-
-
-	//pathfinding
-	UPROPERTY(EditAnywhere)
-	float SplineEndPointDistanceThreshold = 800;
-	UPROPERTY(EditAnywhere)
-	float NextPointOnSplineThreshold = 1000;
-	*/
-
-	/*// car driving
-	UPROPERTY(EditAnywhere)
-	float ThrottleInput;
-	UPROPERTY(EditAnywhere)
-	float BrakeInput;
-	UPROPERTY(EditAnywhere)
-	float SteeringInput;
-	UPROPERTY(EditAnywhere)
-	float MaxSpeed = 1500.0f;*/
 	UFUNCTION(BlueprintCallable)
 	void SetTickEnabledAI(bool bTickEnabled);
-	FTimerHandle& GetMissileTimerHandle();
-	
 	UFUNCTION(BlueprintCallable)
-	void SetPulledTrigger(bool pulledTrigger);
+	void ResetPulledTriggerValues(bool bPulledTrigger);
+	
+	void SetHasNewSplineBeenSetup(bool bValue);
 
+	//get functions 
 	UFUNCTION(BlueprintCallable)
 	AAITurret* GetAITurret() const;
-	
+	FTimerHandle& GetMissileTimerHandle();
 private:
 	//weapon components
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
@@ -68,25 +44,22 @@ private:
 	UPROPERTY()
 	AAITurret* Turret;
 
-	/*AMinigun* Minigun;
-	UPROPERTY()
-	AHomingMissileLauncher* HomingMissileLauncher;*/
-
+	//AI components
 	UPROPERTY()
 	AAIController* AIController;
 	UPROPERTY()
 	UBlackboardComponent* BlackboardComp;
 	UPROPERTY()
 	class USplineComponent* MySpline = nullptr;
-	//UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
-	//UChaosVehicleMovementComponent* AIVehicleMovementComp = nullptr;
-
-	//pathfinding
-	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float SplineEndPointDistanceThreshold = 750;
-	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float NextPointOnSplineThreshold = 700;
-
+	
+	//Sensors
+	UPROPERTY()
+	float SensorGapDifference;
+	UPROPERTY()
+	USceneComponent* LeftSensor;
+	UPROPERTY()
+	USceneComponent* RightSensor;
+	
 	// car driving
 	UPROPERTY()
 	float ThrottleInput;
@@ -103,8 +76,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
 	float ClampedMinSpeed = 500.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float MinSpeedThatCarSlowsDownTo_WhileTurningALargerCurve = 1500.0f;
-	//Behavior //göra om till enumerator
+	float MinSpeedAtLargeCurve = 1500.0f;
+	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
+	int TurnSlowdownCurveThreshold = 9;
+	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
+	float MaxDeltaYaw = 30;
+	
+	//Behavior //göra om till enumerator, hann ej
+	UPROPERTY()
 	FString SwitchString = "Drive";
 
 	//spline values
@@ -112,15 +91,18 @@ private:
 	FVector SplineLocationPoint;
 	UPROPERTY()
 	float TargetSplineDistance;
-
-	//FVector SplineTangent;
+	
+	//pathfinding
+	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
+	float SplineEndPointDistanceThreshold = 750;
+	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
+	float NextPointOnSplineThreshold = 700;
 
 	UPROPERTY()
-	bool GoToEndOfSpline;
+	bool bGoToEndOfSpline;
 	UPROPERTY()
-	bool HasNewSplineBeenSetup = false;
-
-
+	bool bHasNewSplineBeenSetup = false;
+	
 	//rotation for turret
 	UPROPERTY()
 	FRotator TurretRotation;
@@ -136,72 +118,60 @@ private:
 	int32 TurretDelayTimeMaxRange = 2;
 
 	//shoot
-
 	UPROPERTY()
-	bool Overheating = false;
+	bool bOverheating = false;
 
 	//missile
 	UPROPERTY()
-	bool MinigunPulledTrigger = false;
+	bool bMinigunPulledTrigger = false;
 	UPROPERTY()
-	bool MissileIsAvailable = false;
+	bool bMissileIsAvailable = false;
 	UPROPERTY()
 	int32 MissileCharge;
 	UPROPERTY()
 	ABaseVehiclePawn* AIEnemy;
 
 	UPROPERTY()
-	bool HasKilled = false;
+	bool bHasKilled = false;
 
-
-	//timer // kan de göras om snyggare 
+	//timers
 	UPROPERTY()
-	bool TimerIsActive = false;
+	bool bTimerIsActive = false;
 	UPROPERTY()
-	bool TimerFirstTime = true;
-
-
-	FTimerHandle MissileCooldownTimer;
-
-	//Sensors
+	bool bTimerFirstTime = true;
 	UPROPERTY()
-	float SensorGapDifference;
-	UPROPERTY()
-	USceneComponent* LeftSensor;
-	UPROPERTY()
-	USceneComponent* RightSensor;
-
-	//timers - borde kollas igenom om dessa ska användas
+	bool bHominIsActive = false;
+	
 	UPROPERTY()
 	int TimeElapsed;
 	UPROPERTY()
 	int TurretDelayTime = FMath::RandRange(1.0f, 3.0f);
 	UPROPERTY()
 	float TurretChargeTime = 2.5f;
+	
+	UPROPERTY()
+	FTimerHandle MissileCooldownTimer;
 	UPROPERTY()
 	FTimerHandle ChargeAndFireTimer;
-
 	UPROPERTY()
 	FTimerHandle TimerHandle_SetStartingRotation;
 	UPROPERTY()
 	FTimerHandle TimerHandle_ResetRotationFlag;
 
-	UPROPERTY()
-	bool HominIsActive = false;
-	//Functions
-
-	FTimerHandle test;
-
 	//driving behavior functions
 	void DrivePath();
 	void DriveAndShoot();
 	void ReactToGetShot();
+	
 
 	//speed 
 	void ManageSpeed();
+	void AdjustSpeedBasedOnLargerTurnCurve(float ABSDeltaYaw, float Speed, float TempBrakeInput) const;
 
 	//spline behavior
 	void DriveAlongSpline();
+	void SetUpNewSpline();
+	void SetGoToEndOfSpline(float DifferenceYawStartPoint, float DifferenceYawEndPoint);
 	void CheckIfAtEndOfSpline();
 
 	//turret rotation
@@ -210,10 +180,11 @@ private:
 	void AddNewTurretRotation();
 	void RotateTowardsShootingEnemy();
 
-	//shoot
-	void Shoot();
-
+	//shoot minigun
+	void ShootMinigun();
+	void FireMinigun();
 	//missile
+	void FireHomingMissile(float DistToTarget);
 	void FireLoadedMissile();
 
 	//helper function

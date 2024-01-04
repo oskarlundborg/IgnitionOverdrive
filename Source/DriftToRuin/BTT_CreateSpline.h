@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+//Daniel Olsson - task som skapar en spline framåt längs bilens framåt rotation, änvändes inte i slutprodukt 
 #pragma once
 
 #include "CoreMinimal.h"

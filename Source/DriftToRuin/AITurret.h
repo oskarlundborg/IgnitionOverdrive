@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//Daniel Olsson - Enbart en annan class för turret som används till AI, då AI implementering skiljer sig från spelare.
+//Mihajlo Radotic - Står för implementering av Turret, då denna klass ärver från base turret, se Base Turret
 
 #pragma once
 
@@ -16,14 +17,11 @@ class DRIFTTORUIN_API AAITurret : public ABaseTurret
 
 public:
 	AAITurret();
-
-protected:
-	virtual void BeginPlay() override;
-
-	/*Updates the rotation of the turret based on the controllers Yaw rotation*/
-	virtual void UpdateTurretRotation() override;
-
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+protected:
+	virtual void BeginPlay() override;
+	/*Updates the rotation of the turret based on the controllers Yaw rotation*/
+	virtual void UpdateTurretRotation() override;
+	
 };
