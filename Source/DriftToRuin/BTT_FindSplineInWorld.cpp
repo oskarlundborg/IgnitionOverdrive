@@ -34,9 +34,9 @@ EBTNodeResult::Type UBTT_FindSplineInWorld::ExecuteTask(UBehaviorTreeComponent& 
 bool UBTT_FindSplineInWorld::ScanForSplines() const
 {
 	// Parameters for the scanraduis
-	float ScanRadius = 1000.0f;
+	float ScanRadius = 800.0f;
 	float TraceDistance = 100.0f;
-	float Offset = 1200.0f;
+	float Offset = 900.0f;
 
 	//scan parameters
 	TArray<FHitResult> HitResults;
@@ -56,12 +56,12 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	FVector ForwardVector = AIPawn->GetActorForwardVector();
 	FVector ScanStart = AIPawn->GetActorLocation() + FVector(0.0f, 0.0f, 130.0f) + ForwardVector * Offset;
 	FVector ScanEnd = ScanStart + ForwardVector * TraceDistance;
-
+	
 	// Perform the scan
 	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd,
 	                                            AIPawn->GetActorLocation().Rotation().Quaternion(), ECC_Visibility,
 	                                            FCollisionShape::MakeBox(
-		                                            FVector(ScanRadius, ScanRadius, ScanRadius / 3)), CollisionParams))
+		                                            FVector(ScanRadius, ScanRadius, ScanRadius / 2)), CollisionParams))
 	{
 		// Array to store eligible spline hits
 		TArray<USplineComponent*> EligibleSplineHits;

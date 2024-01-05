@@ -32,7 +32,7 @@ public:
 	void OnHit(AActor* Self, AActor* Other, FVector NormalImpulse, const FHitResult& Hit);
 	
 	UPROPERTY(EditAnywhere, Category=Deformation)
-	float MaxDeform = 33.f;
+	float MaxDeform = 40.f;
 
 	UPROPERTY(EditAnywhere, Category=Deformation)
 	TArray<FString> BoneIgnoreFilter;
@@ -44,7 +44,7 @@ public:
 	float PointDensity = 30.f;
 
 	UPROPERTY(EditAnywhere, Category=Grid)
-	float PointInfluenceMaxDistance = 60.f;
+	float PointInfluenceMaxDistance = 50.f;
 
 	UPROPERTY(EditAnywhere, Category=Grid)
 	int32 PointInfluenceMaxNum = 10;
@@ -59,24 +59,22 @@ private:
 
 	void UpdateRenderData();
 
+	struct FVertex
+	{
+		uint32		Id;
+		float		Influence;
+		FVector3f	InitPosition;
+	};
+	
 	struct FPoint
 	{
-		struct Vertex
-		{
-			uint32 Id;
-			float Influence;
-			FVector3f InitialPosition;
-		};
 		struct
 		{
 			UE::Math::TVector<float> Initial;
 			UE::Math::TVector<float> Active;
 		} Position;
-	
-		TMap<USkeletalMeshComponent*, TArray<Vertex>> SkeletalVertexInfluences;
-		TMap<UStaticMeshComponent*, TArray<Vertex>> StaticVertexInfluences;
-	
-		TMap<USceneComponent*, float> ComponentInfluences;
+		
+		TMap<USkeletalMeshComponent*, TArray<FVertex>>	VertexInfluences;
 	};
 
 	TArray<FPoint> Grid;

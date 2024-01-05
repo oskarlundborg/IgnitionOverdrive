@@ -37,6 +37,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AAITurret* GetAITurret() const;
 	FTimerHandle& GetMissileTimerHandle();
+
+	//events för ljud
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayMinigunSound();
+	UFUNCTION(BlueprintImplementableEvent)
+	void StopMinigunSound();
+	
+	
 private:
 	//weapon components
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
@@ -70,15 +78,17 @@ private:
 
 	//Speed
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float DynamicMaxSpeed = 1500.0f;
+	float DynamicMaxSpeed = 5000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float ClampedMaxSped = 3000.0f;
+	float ClampedMaxSped = 7000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float ClampedMinSpeed = 500.0f;
+	float ClampedMinSpeed = 2000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float MinSpeedAtLargeCurve = 1500.0f;
+	float MinSpeedAtLargeCurve = 2000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	int TurnSlowdownCurveThreshold = 9;
+	float EstimatedAverageSpeed = 3000.0f;
+	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
+	int TurnSlowdownCurveThreshold = 12;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
 	float MaxDeltaYaw = 30;
 	
@@ -94,9 +104,9 @@ private:
 	
 	//pathfinding
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float SplineEndPointDistanceThreshold = 750;
+	float SplineEndPointDistanceThreshold = 400;
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float NextPointOnSplineThreshold = 700;
+	float NextPointOnSplineThreshold = 1000;
 
 	UPROPERTY()
 	bool bGoToEndOfSpline;
@@ -111,7 +121,7 @@ private:
 	UPROPERTY()
 	FRotator NewRotation;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
-	float RotationInterpSpeed = 100.0f;
+	float RotationInterpSpeed = 15.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))
 	int32 TurretDelayTimeMinRange = 1;
 	UPROPERTY(EditDefaultsOnly, Category="Rotation", meta=(AllowPrivateAccess=true))

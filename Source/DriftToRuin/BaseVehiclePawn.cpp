@@ -620,7 +620,7 @@ float ABaseVehiclePawn::GetMaxBoostAmount()
 
 float ABaseVehiclePawn::GetBoostPercentage() const
 {
-	return Booster.BoostAmount/Booster.MaxBoostAmount;
+	return Booster.BoostAmount / Booster.MaxBoostAmount;
 }
 
 bool ABaseVehiclePawn::GetIsBoostEnabled() const
@@ -631,13 +631,12 @@ bool ABaseVehiclePawn::GetIsBoostEnabled() const
 void ABaseVehiclePawn::OnDeathDisableAll()
 {
 	FTimerHandle DeactivateMovementComp;
-	GetWorldTimerManager().SetTimer(DeactivateMovementComp, this,&ABaseVehiclePawn::DeactivateMovementComponent , 1.f, false, 1.f);
+	GetWorldTimerManager().SetTimer(DeactivateMovementComp, this, &ABaseVehiclePawn::DeactivateMovementComponent , 1.f, false, 1.f);
 	DisableBoost();
 	GetWorldTimerManager().ClearTimer(BoostCooldownTimer);
 	GetWorldTimerManager().ClearTimer(Booster.BoostTimer);
 	Minigun->DisableShooting();
 	HomingLauncher->DisableShooting();
-	//MeshDeformer->ResetMesh();
 }
 
 float ABaseVehiclePawn::GetMinigunDamage()
@@ -680,12 +679,12 @@ void ABaseVehiclePawn::RemoveDamageBoost(float OriginalDamage)
 	MinigunDamage = OriginalDamage;
 }
 
-UHealthComponent *ABaseVehiclePawn::GetHealthComponent()
+UHealthComponent* ABaseVehiclePawn::GetHealthComponent()
 {
     return HealthComponent;
 }
 
-UStaticMeshComponent *ABaseVehiclePawn::GetShieldMeshComponent()
+UStaticMeshComponent* ABaseVehiclePawn::GetShieldMeshComponent()
 {
     return ShieldMesh;
 }
@@ -770,14 +769,13 @@ void ABaseVehiclePawn::ResetScrapLevel()
 	Hide(Plow, true);
 }
 
-UPowerupComponent *ABaseVehiclePawn::GetPowerupComponent()
+UPowerupComponent* ABaseVehiclePawn::GetPowerupComponent()
 {
     return PowerupComponent;
 }
 
 void ABaseVehiclePawn::ActivatePowerup()
 {
-	
 	//Pickup.Vehicle = this;
 
 	switch (HeldPowerup)
@@ -886,9 +884,10 @@ USceneComponent* ABaseVehiclePawn::GetHomingTargetPoint() const
 
 void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == this || OverlappedComp != BumperCollision /* || (LastHitLocation - SweepResult.Location).Length() <= HitDistanceMinimum */) { return; }
+	if (OtherActor == this || OverlappedComp != BumperCollision) { return; }
+	
 	ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor);
-	if(OtherVehicle && !OtherVehicle->GetIsDead())
+	if (OtherVehicle && !OtherVehicle->GetIsDead())
 	{
 		const auto Speed = GetVehicleMovement()->GetForwardSpeed();
 		if( Speed < 100.f ) { return; }
@@ -911,11 +910,10 @@ void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 
 	const auto Speed = VehicleMovementComp->GetForwardSpeedMPH() < 0 ? -VehicleMovementComp->GetForwardSpeedMPH() : VehicleMovementComp->GetForwardSpeedMPH();
 	const auto ImpactForce = FMath::GetMappedRangeValueClamped(
-		FVector2d(0, 200),
+		FVector2d(0, 100000),
 		FVector2d(0.0f, 1.0f),
 		Speed
 	);
-	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, FString::Printf(TEXT("Impact force: %f"), ImpactForce));
 	
 	if(const APlayerController* PController = Cast<APlayerController>(GetController())) 
 	{
