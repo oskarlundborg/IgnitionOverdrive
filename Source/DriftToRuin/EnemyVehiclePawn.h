@@ -104,7 +104,7 @@ private:
 	
 	//pathfinding
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float SplineEndPointDistanceThreshold = 300;
+	float SplineEndPointDistanceThreshold = 400;
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
 	float NextPointOnSplineThreshold = 1000;
 

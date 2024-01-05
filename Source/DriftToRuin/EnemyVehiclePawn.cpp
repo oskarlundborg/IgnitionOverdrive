@@ -130,6 +130,8 @@ FTimerHandle& AEnemyVehiclePawn::GetMissileTimerHandle()
 
 void AEnemyVehiclePawn::DrivePath()
 {
+	StopMinigunSound();
+	
 	RandomlyRotateTurret();
 
 	DriveAlongSpline();
@@ -152,6 +154,8 @@ void AEnemyVehiclePawn::DriveAndShoot()
 
 void AEnemyVehiclePawn::ReactToGetShot()
 {
+	StopMinigunSound();
+	
 	RotateTowardsShootingEnemy();
 
 	DriveAlongSpline();
