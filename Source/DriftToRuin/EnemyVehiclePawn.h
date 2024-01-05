@@ -78,9 +78,9 @@ private:
 
 	//Speed
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float DynamicMaxSpeed = 6000.0f;
+	float DynamicMaxSpeed = 5000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float ClampedMaxSped = 8000.0f;
+	float ClampedMaxSped = 7000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
 	float ClampedMinSpeed = 2000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))

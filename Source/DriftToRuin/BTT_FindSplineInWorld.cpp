@@ -34,7 +34,7 @@ EBTNodeResult::Type UBTT_FindSplineInWorld::ExecuteTask(UBehaviorTreeComponent& 
 bool UBTT_FindSplineInWorld::ScanForSplines() const
 {
 	// Parameters for the scanraduis
-	float ScanRadius = 600.0f;
+	float ScanRadius = 800.0f;
 	float TraceDistance = 100.0f;
 	float Offset = 900.0f;
 
@@ -56,13 +56,6 @@ bool UBTT_FindSplineInWorld::ScanForSplines() const
 	FVector ForwardVector = AIPawn->GetActorForwardVector();
 	FVector ScanStart = AIPawn->GetActorLocation() + FVector(0.0f, 0.0f, 130.0f) + ForwardVector * Offset;
 	FVector ScanEnd = ScanStart + ForwardVector * TraceDistance;
-
-	//draw debug, ta bort sen. 
-	DrawDebugBox(AIPawn->GetWorld(), ScanEnd, FVector(ScanRadius, ScanRadius, ScanRadius / 2),
-	             FQuat(AIPawn->GetActorRotation()), FColor::Green, false, 5, 0, 1);
-	DrawDebugBox(AIPawn->GetWorld(), ScanStart, FVector(ScanRadius, ScanRadius, ScanRadius / 2),
-				 FQuat(AIPawn->GetActorRotation()), FColor::Green, false, 5, 0, 1);
-
 	
 	// Perform the scan
 	if (AIPawn->GetWorld()->SweepMultiByChannel(HitResults, ScanStart, ScanEnd,
