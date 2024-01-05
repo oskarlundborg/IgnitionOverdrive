@@ -463,7 +463,7 @@ void ABaseVehiclePawn::UpdateAirbornePhysics() const
 {
 	if(!IsGrounded())
 	{
-		VehicleMovementComp->UpdatedPrimitive->AddForce(FVector::DownVector*AirForceDownMultiplier, TEXT("Root"), true);
+		VehicleMovementComp->UpdatedPrimitive->AddForce(FVector::DownVector * AirForceDownMultiplier, TEXT("Root"), true);
 		if(!Booster.bEnabled)
 		{
 			GetMesh()->SetLinearDamping(0.2f);
@@ -889,15 +889,24 @@ void ABaseVehiclePawn::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 	ABaseVehiclePawn* OtherVehicle = Cast<ABaseVehiclePawn>(OtherActor);
 	if (OtherVehicle && !OtherVehicle->GetIsDead())
 	{
-		const auto Speed = GetVehicleMovement()->GetForwardSpeed();
-		if( Speed < 100.f ) { return; }
-		UGameplayStatics::ApplyDamage(
-			OtherActor,
-			FMath::Clamp(FMath::Clamp(Speed, 1.f, Speed) / BumperDamageDividedBy, 0.f, MaxBumperDamage),
-			GetInstigatorController(),
-			this,
-			UDamageType::StaticClass()
+		const auto Speed = GetVehicleMovement()->GetForwardSpeedMPH();
+		if( Speed < 10.f ) { return; }
+		const auto Damage = FMath::GetMappedRangeValueClamped(
+			FVector2d(0, 200),
+			FVector2d(0.0f, MaxBumperDamage),
+			Speed
 		);
+		if (Damage >= 1)
+		{
+			
+			UGameplayStatics::ApplyDamage(
+				OtherActor,
+				Damage,
+				GetInstigatorController(),
+				this,
+				UDamageType::StaticClass()
+			);
+		}
 	}
 }
 
