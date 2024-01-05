@@ -149,9 +149,9 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 	VehicleMovementComp->SetDownforceCoefficient(0.3f);
 	VehicleMovementComp->SetDifferentialFrontRearSplit(1);
 	
-	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
+	for (UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
-		if(Wheel->AxleType==EAxleType::Rear)
+		if (Wheel->AxleType==EAxleType::Rear)
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 0.33);
 			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, DriftRearFriction);
@@ -172,7 +172,7 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 	
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
-		if(Wheel->AxleType==EAxleType::Rear)
+		if (Wheel->AxleType==EAxleType::Rear)
 		{
 			VehicleMovementComp->SetWheelSlipGraphMultiplier(Wheel->WheelIndex, 1);
 			VehicleMovementComp->SetWheelFrictionMultiplier(Wheel->WheelIndex, 10.0f);
@@ -187,7 +187,7 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 
 void APlayerVehiclePawn::SideSwipeLeft()
 {
-	if(bCanSideSwipe)
+	if (bCanSideSwipe)
 	{
 		bCanSideSwipe = false;
 		SideThrusterRNiagaraComponent->Activate(true);
@@ -200,7 +200,7 @@ void APlayerVehiclePawn::SideSwipeLeft()
 
 void APlayerVehiclePawn::SideSwipeRight()
 {
-	if(bCanSideSwipe)
+	if (bCanSideSwipe)
 	{
 		bCanSideSwipe = false;
 		SideThrusterLNiagaraComponent->Activate(true);
@@ -212,11 +212,11 @@ void APlayerVehiclePawn::SideSwipeRight()
 
 void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 {
-	if(bCanAirRoll && !VehicleMovementComp->GetHandbrakeInput())
+	if (bCanAirRoll && !VehicleMovementComp->GetHandbrakeInput())
 	{
 		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetUpVector() * Value.Get<float>() * AirRollSensitivity, NAME_None, true);
 	}
-	else if(bCanAirRoll && VehicleMovementComp->GetHandbrakeInput())
+	else if (bCanAirRoll && VehicleMovementComp->GetHandbrakeInput())
 	{
 		GetMesh()->AddAngularImpulseInDegrees(GetMesh()->GetForwardVector() * -Value.Get<float>() * AirRollSensitivity, NAME_None, true);
 	}
@@ -224,7 +224,7 @@ void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::ApplyAirRollPitch(const FInputActionValue& Value)
 {
-	if(bCanAirRoll)
+	if (bCanAirRoll)
 	{
 		GetMesh()->AddAngularImpulseInDegrees(-(GetMesh()->GetRightVector() * Value.Get<float>()) * AirRollSensitivity, NAME_None, true);
 	}
@@ -232,60 +232,60 @@ void APlayerVehiclePawn::ApplyAirRollPitch(const FInputActionValue& Value)
 
 void APlayerVehiclePawn::FireMinigun()
 {
-	if(MinigunClass == nullptr || Minigun == nullptr) return;
+	if (MinigunClass == nullptr || Minigun == nullptr) return;
 	Minigun->PullTrigger();
 }
 
 void APlayerVehiclePawn::FireMinigunCompleted()
 {
-	if(MinigunClass == nullptr || Minigun == nullptr) return;
+	if (MinigunClass == nullptr || Minigun == nullptr) return;
 	Minigun->ReleaseTrigger();
 }
 
 void APlayerVehiclePawn::FireHomingMissiles()
 {
-	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return;
+	if (HomingLauncherClass == nullptr || HomingLauncher == nullptr) return;
 	HomingLauncher->PullTrigger();
 }
 
 void APlayerVehiclePawn::FireHomingMissilesCompleted()
 {
-	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return;
+	if (HomingLauncherClass == nullptr || HomingLauncher == nullptr) return;
 	HomingLauncher->ReleaseTrigger();
 }
 
 /*Blueprint callable implemented for use in HUD logic. Returns the percent of current overheat value of the minigun.*/
 float APlayerVehiclePawn::GetMinigunOverheatPercent() const
 {
-	if(MinigunClass == nullptr || Minigun == nullptr) return 0;
+	if (MinigunClass == nullptr || Minigun == nullptr) return 0;
 	return Minigun->GetOverheatValue() / Minigun->GetOverheatMaxValue();
 }
 
 /*Blueprint callable implemented for use in HUD logic. Returns if minigun is overheated or not*/
 bool APlayerVehiclePawn::GetMinigunIsOverheated() const
 {
-	if(MinigunClass == nullptr || Minigun == nullptr) return false;
+	if (MinigunClass == nullptr || Minigun == nullptr) return false;
 	return Minigun->GetIsOverheated();
 }
 
 /*Blueprint callable implemented for use in HUD logic. Returns the current percent of a singe missile charge.*/
 float APlayerVehiclePawn::GetMissileChargePercent() const
 {
-	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
+	if (HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
 	return HomingLauncher->GetChargeValue() / HomingLauncher->GetChargeCapValue();
 }
 
 /*Blueprint callable implemented for use in HUD logic. Returns if the missile launcher is charging or not*/
 bool APlayerVehiclePawn::GetHomingIsCharging() const
 {
-	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return false;
+	if (HomingLauncherClass == nullptr || HomingLauncher == nullptr) return false;
 	return HomingLauncher->IsCharging();
 }
 
 /*Blueprint callable implemented for use in HUD logic. Returns the amount of missiles charged.*/
 int32 APlayerVehiclePawn::GetHomingChargeAmount() const
 {
-	if(HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
+	if (HomingLauncherClass == nullptr || HomingLauncher == nullptr) return 0;
 	return HomingLauncher->GetChargeAmount();
 }
 
