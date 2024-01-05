@@ -27,20 +27,29 @@ public:
 	float SplinePointThreshold = 200;
 
 private:
+	UPROPERTY()
 	APawn* AIPawn;
+	UPROPERTY()
 	AAIController* AIController;
+	UPROPERTY()
 	UBlackboardComponent* BlackboardComp;
-	
+	UPROPERTY()
 	FVector Destination;
+	UPROPERTY()
 	class UChaosVehicleMovementComponent* VehicleMovementComponent = nullptr;
-
+	UPROPERTY()
 	class USplineComponent* MySpline;
 
 	//spline
+	UPROPERTY()
 	float TargetSplineDistance = 0.0f;
+	UPROPERTY()
 	float CurrentSplineDistance = 0.0f;
+	UPROPERTY()
 	int DistanceBetweenSplinePoint;
+	UPROPERTY()
 	FVector SplineLocationPoint;
+	UPROPERTY()
 	FVector SplineTangent;
 
 	

@@ -130,6 +130,8 @@ FTimerHandle& AEnemyVehiclePawn::GetMissileTimerHandle()
 
 void AEnemyVehiclePawn::DrivePath()
 {
+	StopMinigunSound();
+	
 	RandomlyRotateTurret();
 
 	DriveAlongSpline();
@@ -152,6 +154,8 @@ void AEnemyVehiclePawn::DriveAndShoot()
 
 void AEnemyVehiclePawn::ReactToGetShot()
 {
+	StopMinigunSound();
+	
 	RotateTowardsShootingEnemy();
 
 	DriveAlongSpline();
@@ -163,18 +167,21 @@ void AEnemyVehiclePawn::ReactToGetShot()
 
 void AEnemyVehiclePawn::ManageSpeed()
 {
-	if (!MySpline) return;
+	if (MySpline == nullptr)
+	{
+		return;
+	}
+
 	//get rotation of turn curve
 	const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), SplineLocationPoint);
 	const FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(LookAtRotation, GetActorRotation());
 	float DeltaYaw = FMath::Abs(DeltaRotator.Yaw);
 	float ABSDeltaYaw = DeltaYaw;
 
-	//3000 värdet kan lekas runt med, mindre värde ger mindre speed, högre värde ger mer speed. 
-	DeltaYaw = 3000 / DeltaYaw;
+	DeltaYaw = EstimatedAverageSpeed / DeltaYaw;
 
 	//slow down faster if max speed is bigger than delta yaw
-	const float DeltaTime = GetWorld()->GetDeltaSeconds() * DynamicMaxSpeed > DeltaYaw ? 20.0 : 0.1;
+	const float DeltaTime = GetWorld()->GetDeltaSeconds() * DynamicMaxSpeed > DeltaYaw ? 30.0 : 0.1;
 
 	//dynamically change maxspeed based on turn curve
 	DynamicMaxSpeed = FMath::Lerp(DynamicMaxSpeed, DeltaYaw, DeltaTime);
@@ -186,7 +193,8 @@ void AEnemyVehiclePawn::ManageSpeed()
 	AdjustSpeedBasedOnLargerTurnCurve(ABSDeltaYaw, Speed, TempBrakeInput);
 }
 
-void AEnemyVehiclePawn::AdjustSpeedBasedOnLargerTurnCurve(float ABSDeltaYaw, const float Speed, float TempBrakeInput) const
+void AEnemyVehiclePawn::AdjustSpeedBasedOnLargerTurnCurve(float ABSDeltaYaw, const float Speed,
+                                                          float TempBrakeInput) const
 {
 	if (ABSDeltaYaw > TurnSlowdownCurveThreshold && VehicleMovementComp->GetForwardSpeed() > MinSpeedAtLargeCurve)
 	{
@@ -297,8 +305,11 @@ void AEnemyVehiclePawn::SetGoToEndOfSpline(float DifferenceYawStartPoint, float 
 
 void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
 {
-	if (!MySpline) return;
-
+	if (MySpline == nullptr)
+	{
+		return;
+	}
+	
 	if (bGoToEndOfSpline
 		    ? FVector::Dist(GetActorLocation(), MySpline->GetLocationAtSplinePoint(
 			                    MySpline->GetNumberOfSplinePoints() - 1,
@@ -307,9 +318,11 @@ void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
 		    SplineEndPointDistanceThreshold)
 	{
 		//reset values and add LastRoadSpline as tempRoadSpline in BB
-		BlackboardComp->SetValueAsObject("TempRoadSpline", MySpline);
+		BlackboardComp->SetValueAsObject("TempRoadSpline", BlackboardComp->GetValueAsObject("RoadSpline"));
 		BlackboardComp->ClearValue("RoadSpline");
 		BlackboardComp->SetValueAsBool("AtRoadEnd", true);
+		VehicleMovementComp->SetSteeringInput(0);
+		MySpline = nullptr;
 		bHasNewSplineBeenSetup = false;
 		TargetSplineDistance = 0.0f;
 	}
@@ -344,7 +357,7 @@ void AEnemyVehiclePawn::AddNewTurretRotation()
 	TurretDelayTime = FMath::RandRange(TurretDelayTimeMinRange, TurretDelayTimeMaxRange);
 	const FRotator CarRotation = GetActorRotation();
 	TurretRotation = Turret->GetActorRotation();
-	
+
 	const bool random = FMath::RandBool();
 	const float RandomFloat = FMath::RandRange(0.0f, 1.0f);
 	const float RandomYawFloatCar = FMath::RandRange(30, 70);
@@ -401,15 +414,15 @@ void AEnemyVehiclePawn::ShootMinigun()
 	{
 		Turret->SetActorRotation(NewRotation);
 	}
-	
+
 	UObject* EnemyObject = BlackboardComp->GetValueAsObject("Enemy");
 	AIEnemy = Cast<ABaseVehiclePawn>(EnemyObject);
-	
+
 	//funkar detta när en person är död, fortsätter den skjuta
 	FireMinigun();
-	
+
 	float DistToTarget = GetDistanceTo(AIEnemy);
-	
+
 	FireHomingMissile(DistToTarget);
 }
 
@@ -420,20 +433,23 @@ void AEnemyVehiclePawn::FireMinigun()
 		UE_LOG(LogTemp, Warning, TEXT("enemy is dead"));
 		bMinigunPulledTrigger = false;
 		Minigun->ReleaseTrigger();
+		StopMinigunSound();
 		return;
 	}
-	
+
 	if (Minigun->GetIsOverheated() && bMinigunPulledTrigger)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("minigun overheating releasing trigger"));
 		Minigun->ReleaseTrigger();
 		bMinigunPulledTrigger = false;
+		StopMinigunSound();
 	}
 	if (Minigun->GetOverheatValue() < 0.1 && !bMinigunPulledTrigger)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("minigun not overheating, pulling trigger is shooting"));
 		bMinigunPulledTrigger = true;
 		Minigun->PullTrigger();
-		UE_LOG(LogTemp, Warning, TEXT("minigun not overheating, pulling trigger is shooting"));
+		PlayMinigunSound();
 	}
 }
 
