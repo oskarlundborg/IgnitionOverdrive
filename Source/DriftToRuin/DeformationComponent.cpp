@@ -1,8 +1,6 @@
 ﻿#include "DeformationComponent.h"
 #include "Engine/SkeletalMesh.h"
-#include "Engine/StaticMesh.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Components/StaticMeshComponent.h"
 #include "Rendering/SkeletalMeshModel.h"
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "Rendering/StaticMeshVertexBuffer.h"
