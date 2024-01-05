@@ -489,9 +489,6 @@ protected:
 	UCapsuleComponent* BumperCollision;
 
 	UPROPERTY(EditDefaultsOnly, Category="Bumper", meta=(AllowPrivateAccess=true))
-	float BumperDamageDividedBy = 1000.f;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Bumper", meta=(AllowPrivateAccess=true))
 	float MaxBumperDamage = 50.f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Deformer", meta=(AllowPrivateAccess=true))
