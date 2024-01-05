@@ -103,6 +103,11 @@ void AMinigun::OnPullTrigger()
 /*Builds up overheat while the weapon is firing*/
 void AMinigun::BuildUpOverheat()
 {
+	if (PoweredUp)
+	{
+		return;
+	}
+	
 	float OverheatAccumulation = OverheatValue + (OverheatBuildUpRate * GetWorld()->DeltaTimeSeconds);
 	OverheatValue = FMath::Clamp(OverheatAccumulation, 0.f, OverheatMax);
 	if (OverheatValue == OverheatMax)
@@ -237,6 +242,11 @@ bool AMinigun::GetIsOverheated()
 float AMinigun::GetOverheatValue() const
 {
 	return OverheatValue;
+}
+
+void AMinigun::SetOverheatValue(float NewValue)
+{
+	OverheatValue = NewValue;
 }
 
 float AMinigun::GetOverheatMaxValue() const

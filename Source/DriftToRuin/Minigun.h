@@ -99,6 +99,7 @@ private:
 
 public:
 	float GetOverheatValue() const;
+	void SetOverheatValue( float NewValue);
 	float GetOverheatMaxValue() const;
 	
 	UFUNCTION(BlueprintCallable)

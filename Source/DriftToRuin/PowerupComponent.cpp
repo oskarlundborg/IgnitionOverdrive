@@ -81,7 +81,7 @@ void UPowerupComponent::OverheatPowerup()
 
 	AMinigun* Minigun = Owner->GetMinigun();
 	Minigun->PoweredUp = true;
-	// Minigun->OverheatValue = 0; kanske ska sätta overheat till 0
+	Minigun->SetOverheatValue(0); //kanske ska sätta overheat till 0
 	OverheatPowerTime = OverheatPowerDuration;
 	Owner->SetMinigunDamage(Owner->GetMinigunDefaultDamage() * 2);
 	bOverHeatPowerupActive = true;
