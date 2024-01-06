@@ -59,15 +59,14 @@ private:
 
 	void UpdateRenderData();
 
-	struct FVertex
-	{
-		uint32		Id;
-		float		Influence;
-		FVector3f	InitPosition;
-	};
-	
 	struct FPoint
 	{
+		struct FVertex
+		{
+			uint32		Id;
+			float		Influence;
+			FVector3f	InitPosition;
+		};
 		struct
 		{
 			UE::Math::TVector<float> Initial;

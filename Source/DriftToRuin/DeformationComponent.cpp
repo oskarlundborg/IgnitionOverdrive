@@ -160,7 +160,7 @@ void UDeformationComponent::SetupInfluences()
 			for (int32 InfPointID = 0; const TTuple<int32, float> InfluencePoint : InfluencePoints)
 			{
 				Grid[InfluencePoint.Key].VertexInfluences.FindOrAdd(Mesh).Add(
-					FVertex {
+					FPoint::FVertex {
 						.Id				= i,
 						.Influence		= 1 - FMath::Sqrt(InfluencePoint.Value) / PointInfluenceMaxDistance,
 						.InitPosition	= LODRenderData.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(i)
@@ -303,7 +303,7 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 				->GetResourceForRendering()
 				->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
 
-			for (const FVertex& Vertex : VertexInfluence.Value)
+			for (const FPoint::FVertex& Vertex : VertexInfluence.Value)
 			{
 				const FVector VertexDelta = Movement * FVector(Vertex.Influence);
 				PositionVertexBuffer.VertexPosition(Vertex.Id) += FVector3f(VertexDelta);
@@ -325,7 +325,7 @@ void UDeformationComponent::ResetMesh()
 				->GetResourceForRendering()
 				->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
 
-			for (const FVertex& Vertex : VertexInfluence.Value)
+			for (const FPoint::FVertex& Vertex : VertexInfluence.Value)
 			{
 				PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitPosition;
 			}
