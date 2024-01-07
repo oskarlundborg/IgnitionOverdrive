@@ -10,6 +10,42 @@
 #include "Components/ActorComponent.h"
 #include "DeformationComponent.generated.h"
 
+USTRUCT()
+struct FVertexPositions
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FVector Initial;
+	
+	UPROPERTY()
+	FVector Active;
+};
+
+USTRUCT()
+struct FVertex
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	uint32		Id;
+	UPROPERTY()
+	float		Influence;
+	UPROPERTY()
+	FVector3f	InitPosition;
+};
+
+USTRUCT()
+struct FPoint
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	FVertexPositions Position;
+
+	TMap<USkeletalMeshComponent*, TArray<FVertex>>	VertexInfluences;
+};
+
 UCLASS()
 class DRIFTTORUIN_API UDeformationComponent : public UActorComponent
 {
@@ -58,23 +94,6 @@ private:
 	void SetupInfluences();
 
 	void UpdateRenderData();
-
-	struct FPoint
-	{
-		struct FVertex
-		{
-			uint32		Id;
-			float		Influence;
-			FVector3f	InitPosition;
-		};
-		struct
-		{
-			UE::Math::TVector<float> Initial;
-			UE::Math::TVector<float> Active;
-		} Position;
-		
-		TMap<USkeletalMeshComponent*, TArray<FVertex>>	VertexInfluences;
-	};
 
 	TArray<FPoint> Grid;
 	
