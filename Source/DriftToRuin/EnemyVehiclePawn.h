@@ -30,6 +30,8 @@ public:
 	void SetTickEnabledAI(bool bTickEnabled);
 	UFUNCTION(BlueprintCallable)
 	void ResetValues(bool bPulledTrigger);
+	UFUNCTION(BlueprintCallable)
+	void ResetBTTree();
 	
 	void SetHasNewSplineBeenSetup(bool bValue);
 

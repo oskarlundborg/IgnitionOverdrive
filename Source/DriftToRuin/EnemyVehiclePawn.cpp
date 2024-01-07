@@ -120,10 +120,14 @@ void AEnemyVehiclePawn::ResetValues(bool pulledTrigger)
 	TargetRotation = FRotator(0, 0, 0);
 	BlackboardComp->ClearValue("TempRoadSpline");
 	BlackboardComp->ClearValue("AIOwnedRoadSpline");
-	UBehaviorTreeComponent* AIBehaviorTreeComp = Cast<UBehaviorTreeComponent>(AIController->GetBrainComponent());
-	if (AIBehaviorTreeComp != nullptr)
+}
+
+void AEnemyVehiclePawn::ResetBTTree()
+{
+	UBehaviorTreeComponent* BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(AIController->GetBrainComponent());
+	if(BehaviorTreeComponent)
 	{
-		AIBehaviorTreeComp->RestartTree();
+		BehaviorTreeComponent->RestartTree();
 	}
 }
 
