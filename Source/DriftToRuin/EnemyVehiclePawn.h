@@ -29,7 +29,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetTickEnabledAI(bool bTickEnabled);
 	UFUNCTION(BlueprintCallable)
-	void ResetPulledTriggerValues(bool bPulledTrigger);
+	void ResetValues(bool bPulledTrigger);
 	
 	void SetHasNewSplineBeenSetup(bool bValue);
 
@@ -78,17 +78,17 @@ private:
 
 	//Speed
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float DynamicMaxSpeed = 5000.0f;
+	float DynamicMaxSpeed = 4000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float ClampedMaxSped = 7000.0f;
+	float ClampedMaxSped = 6000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float ClampedMinSpeed = 2000.0f;
+	float ClampedMinSpeed = 1500.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	float MinSpeedAtLargeCurve = 2000.0f;
+	float MinSpeedAtLargeCurve = 1500.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
 	float EstimatedAverageSpeed = 3000.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
-	int TurnSlowdownCurveThreshold = 12;
+	int TurnSlowdownCurveThreshold = 10;
 	UPROPERTY(EditDefaultsOnly, Category="Speed", meta=(AllowPrivateAccess=true))
 	float MaxDeltaYaw = 30;
 	
@@ -104,7 +104,7 @@ private:
 	
 	//pathfinding
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
-	float SplineEndPointDistanceThreshold = 400;
+	float SplineEndPointDistanceThreshold = 800;
 	UPROPERTY(EditDefaultsOnly, Category="Pathfinding|Spline", meta=(AllowPrivateAccess=true))
 	float NextPointOnSplineThreshold = 1000;
 

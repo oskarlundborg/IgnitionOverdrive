@@ -9,6 +9,7 @@
 #include "HomingMissileLauncher.h"
 #include "Minigun.h"
 #include "TimerManager.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SplineComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -106,11 +107,24 @@ void AEnemyVehiclePawn::SetTickEnabledAI(bool bTickEnabled)
 	SetActorTickEnabled(bTickEnabled);
 }
 
-void AEnemyVehiclePawn::ResetPulledTriggerValues(bool pulledTrigger)
+void AEnemyVehiclePawn::ResetValues(bool pulledTrigger)
 {
 	bMinigunPulledTrigger = pulledTrigger;
 	Minigun->ReleaseTrigger();
 	bHominIsActive = false;
+	//reset more values
+	BlackboardComp->ClearValue("Enemy");
+	BlackboardComp->ClearValue("EnemyLocation");
+	SwitchString = "Drive";
+	Turret->SetActorRelativeRotation(FRotator(GetActorRotation().Pitch, 0, GetActorRotation().Roll));
+	TargetRotation = FRotator(0, 0, 0);
+	BlackboardComp->ClearValue("TempRoadSpline");
+	BlackboardComp->ClearValue("AIOwnedRoadSpline");
+	UBehaviorTreeComponent* AIBehaviorTreeComp = Cast<UBehaviorTreeComponent>(AIController->GetBrainComponent());
+	if (AIBehaviorTreeComp != nullptr)
+	{
+		AIBehaviorTreeComp->RestartTree();
+	}
 }
 
 void AEnemyVehiclePawn::SetHasNewSplineBeenSetup(bool bValue)
@@ -131,7 +145,7 @@ FTimerHandle& AEnemyVehiclePawn::GetMissileTimerHandle()
 void AEnemyVehiclePawn::DrivePath()
 {
 	StopMinigunSound();
-	
+
 	RandomlyRotateTurret();
 
 	DriveAlongSpline();
@@ -155,7 +169,7 @@ void AEnemyVehiclePawn::DriveAndShoot()
 void AEnemyVehiclePawn::ReactToGetShot()
 {
 	StopMinigunSound();
-	
+
 	RotateTowardsShootingEnemy();
 
 	DriveAlongSpline();
@@ -309,7 +323,7 @@ void AEnemyVehiclePawn::CheckIfAtEndOfSpline()
 	{
 		return;
 	}
-	
+
 	if (bGoToEndOfSpline
 		    ? FVector::Dist(GetActorLocation(), MySpline->GetLocationAtSplinePoint(
 			                    MySpline->GetNumberOfSplinePoints() - 1,
@@ -388,7 +402,8 @@ void AEnemyVehiclePawn::RotateTowardsShootingEnemy()
 		return;
 	}
 
-	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ShootingEnemyActor->GetActorLocation());
+	TargetRotation.Yaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(),
+	                                                            ShootingEnemyActor->GetActorLocation()).Yaw;
 
 	NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), TargetRotation,
 	                               GetWorld()->GetDeltaSeconds(), RotationInterpSpeed);
@@ -402,7 +417,7 @@ void AEnemyVehiclePawn::ShootMinigun()
 {
 	//rotate towards enemy
 	const FVector EnemyLocation = BlackboardComp->GetValueAsVector("EnemyLocation");
-	TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLocation);
+	TargetRotation.Yaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLocation).Yaw;
 	if (Minigun == nullptr || HomingLauncher == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("null minigun or homin, returning"));
