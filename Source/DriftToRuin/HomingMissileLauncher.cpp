@@ -285,6 +285,10 @@ void AHomingMissileLauncher::SetTarget(ABaseProjectile* Projectile, ABaseVehicle
 void AHomingMissileLauncher::PlayCanLockOnSound()
 {
 	if(!bCanPlayLockOn) return;
+	if(GetOwner()->IsA(AEnemyVehiclePawn::StaticClass()))
+	{
+		return;
+	}
 	CanLockOnAudioComponent->Play();
 	bCanPlayLockOn = false;
 	GetWorldTimerManager().SetTimer(LockOnSoundTimer, this, &AHomingMissileLauncher::ResetCanLockOnSoundCooldown, 0.8f, false, 0.8f);
