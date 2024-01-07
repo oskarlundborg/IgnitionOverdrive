@@ -91,7 +91,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	//Creates Audio component for CRAZY EXPLOSIVE BOOSTS or something...
 	BoostAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("BoostAudioSource"));
 	
-	//Creates Audio Component for CRASHING or something...
+	//Creates Audio Component for hit collisions.
 	CrashAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("CrashAudioSource"));
 
 	//Audio Component for level up sound
