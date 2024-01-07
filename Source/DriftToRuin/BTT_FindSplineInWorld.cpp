@@ -34,7 +34,7 @@ EBTNodeResult::Type UBTT_FindSplineInWorld::ExecuteTask(UBehaviorTreeComponent& 
 bool UBTT_FindSplineInWorld::ScanForSplines() const
 {
 	// Parameters for the scanraduis
-	float ScanRadius = 800.0f;
+	float ScanRadius = 1000.0f;
 	float TraceDistance = 100.0f;
 	float Offset = 900.0f;
 
