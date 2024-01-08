@@ -109,6 +109,7 @@ void APlayerVehiclePawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	bCanAirRoll = !IsGrounded();
 
+	//Förflyttar kameran mot spelarens riktning om spelaren inte flyttar kameran manuellt eller om CameraLock är false.
 	if(CameraLock && !IsMovingCameraX && !IsMovingCameraY) GetController()->SetControlRotation(FMath::RInterpTo(GetControlRotation(), GetActorForwardVector().Rotation(), DeltaSeconds, CameraLockSpeed));
 	
 }
@@ -143,6 +144,7 @@ void APlayerVehiclePawn::LookUp(const FInputActionValue& Value)
 	
 }
 
+//Ändrad fysik för att få enklare sladd
 void APlayerVehiclePawn::OnHandbrakePressed()
 {
 	VehicleMovementComp->SetHandbrakeInput(true);
@@ -163,7 +165,7 @@ void APlayerVehiclePawn::OnHandbrakePressed()
 		}
 	}
 }
-
+//Ta tillbaka alla värden från sladd.
 void APlayerVehiclePawn::OnHandbrakeReleased()
 {
 	VehicleMovementComp->SetHandbrakeInput(false);
@@ -185,6 +187,7 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 	}
 }
 
+//Sideswipers med cooldown
 void APlayerVehiclePawn::SideSwipeLeft()
 {
 	if (bCanSideSwipe)
@@ -210,6 +213,7 @@ void APlayerVehiclePawn::SideSwipeRight()
 	}
 }
 
+//Aerial rotation för bilen om i luften.
 void APlayerVehiclePawn::ApplyAirRollYaw(const FInputActionValue& Value)
 {
 	if (bCanAirRoll && !VehicleMovementComp->GetHandbrakeInput())
