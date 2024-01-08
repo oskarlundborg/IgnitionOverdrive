@@ -5,7 +5,7 @@
 *	Creator of class and some functions.
 *
 * @author Hugo Westgren
-*	Developed to work correctly with other gameplay systems.
+*	Developed to work correctly with other gameplay systems (powerups, delegate OnDeath).
 *
 * @author Mihajlo Radotic
 *   Responsible for setting up damage system. 

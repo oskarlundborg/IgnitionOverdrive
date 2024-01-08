@@ -293,6 +293,276 @@
 				}
 			},
 			{
+				"label": "DriftToRuin IOS Debug Build",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Debug",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Debug Rebuild",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Debug",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"DriftToRuin IOS Debug Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Debug Clean",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Debug",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS DebugGame Build",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"DebugGame",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS DebugGame Rebuild",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"DebugGame",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"DriftToRuin IOS DebugGame Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS DebugGame Clean",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"DebugGame",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Development Build",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Development",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Development Rebuild",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Development",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"DriftToRuin IOS Development Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Development Clean",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Development",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Test Build",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Test",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Test Rebuild",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Test",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"DriftToRuin IOS Test Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Test Clean",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Test",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Shipping Build",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Shipping",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Shipping Rebuild",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Shipping",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"DriftToRuin IOS Shipping Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
+				"label": "DriftToRuin IOS Shipping Clean",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+				"args": [
+					"DriftToRuin",
+					"IOS",
+					"Shipping",
+					"C:\\Users\\hugge\\Documents\\GitHub\\IgnitionOverdrive\\DriftToRuin.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "C:\\Program Files\\Epic Games\\UE_5.3"
+				}
+			},
+			{
 				"label": "DriftToRuinEditor Win64 Debug Build",
 				"group": "build",
 				"command": "Engine\\Build\\BatchFiles\\Build.bat",

@@ -1,15 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "DeathMatchGameMode.h"
 #include "EngineUtils.h"
 #include "IgnitionOverdriveGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
+// spawnar in spelare i rätt player start, ser till att ingen spawnar på samma plats
+// körs när en spelare skapas, är överskriven från vanliga FindPlayerStart
+
 AActor *ADeathMatchGameMode::FindPlayerStart_Implementation(AController *Player, const FString &IncomingName)
 {
     //APlayerController* PlayerController;
     int PlayerId;
+
+    //får en array av playerstarts från gameinstance
+
     TArray<AActor*> PlayerStarts = Cast<UIgnitionOverdriveGameInstance>(GetGameInstance())->GetPlayerStarts();
 
     if (Cast<APlayerController>(Player))
