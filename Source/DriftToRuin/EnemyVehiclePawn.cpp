@@ -446,9 +446,10 @@ void AEnemyVehiclePawn::ShootMinigun()
 
 void AEnemyVehiclePawn::FireMinigun()
 {
-	if (AIEnemy && AIEnemy->GetIsDead() && Minigun->GetIsFiring())
+	if (AIEnemy == nullptr || (AIEnemy && AIEnemy->GetIsDead()/* && Minigun->GetIsFiring()*/))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("enemy is dead"));
+		UE_LOG(LogTemp, Warning, TEXT("enemy is dead or null"));
+		SwitchString = "Drive";
 		bMinigunPulledTrigger = false;
 		Minigun->ReleaseTrigger();
 		StopMinigunSound();
