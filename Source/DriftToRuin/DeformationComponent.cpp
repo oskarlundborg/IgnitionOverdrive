@@ -82,9 +82,7 @@ void UDeformationComponent::BuildGrid()
 		{
 			for (int32 z = 0; z < Points.Z; z++)
 			{
-				Grid.Add(FPoint {
-					.Position = { BoundsStart + FVector(x * Distance.X, y * Distance.Y, z * Distance.Z) }
-				});
+				Grid.Add(FPoint({UE::Math::TVector<float>(BoundsStart) + UE::Math::TVector<float>(x * Distance.X, y * Distance.Y, z * Distance.Z)}));
 			}
 		}
 	}
@@ -162,7 +160,7 @@ void UDeformationComponent::SetupInfluences()
 			for (int32 InfPointID = 0; const TTuple<int32, float> InfluencePoint : InfluencePoints)
 			{
 				Grid[InfluencePoint.Key].VertexInfluences.FindOrAdd(Mesh).Add(
-					FVertex {
+					FPoint::FVertex {
 						.Id				= i,
 						.Influence		= 1 - FMath::Sqrt(InfluencePoint.Value) / PointInfluenceMaxDistance,
 						.InitPosition	= LODRenderData.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(i)
@@ -291,7 +289,7 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 
 		const float Percent = 1 - FMath::Clamp(FMath::Sqrt(DistSquared) / Size, 0.f, 1.f);
 		const FVector PreviousPos = FVector(Point.Position.Active);
-		Point.Position.Active = (Point.Position.Active + Normal * Percent).GetClampedToMaxSize(MaxDeform);
+		Point.Position.Active = (Point.Position.Active + UE::Math::TVector<float>(Normal) * UE::Math::TVector<float>(Percent)).GetClampedToMaxSize(MaxDeform);
 		const FVector Movement = FVector(Point.Position.Active) - PreviousPos;
 
 		// __________________
@@ -305,7 +303,7 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 				->GetResourceForRendering()
 				->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
 
-			for (const FVertex& Vertex : VertexInfluence.Value)
+			for (const FPoint::FVertex& Vertex : VertexInfluence.Value)
 			{
 				const FVector VertexDelta = Movement * FVector(Vertex.Influence);
 				PositionVertexBuffer.VertexPosition(Vertex.Id) += FVector3f(VertexDelta);
@@ -317,27 +315,30 @@ void UDeformationComponent::DeformMesh(const FVector Location, const FVector Nor
 
 void UDeformationComponent::ResetMesh()
 {
-	for (FPoint& Point : Grid)
-	{
-		for (const auto& VertexInfluence : Point.VertexInfluences)
-		{
-			if (!VertexInfluence.Key) { continue; }
-			FPositionVertexBuffer& PositionVertexBuffer = VertexInfluence.Key
-				->GetSkeletalMeshAsset()
-				->GetResourceForRendering()
-				->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
+	// __________________
+	// Broken for now in build (for whatever reason...)
+	
+	//for (FPoint& Point : Grid)
+	//{
+	//	for (const auto& VertexInfluence : Point.VertexInfluences)
+	//	{
+	//		if (!VertexInfluence.Key) { continue; }
+	//		FPositionVertexBuffer& PositionVertexBuffer = VertexInfluence.Key
+	//			->GetSkeletalMeshAsset()
+	//			->GetResourceForRendering()
+	//			->LODRenderData[0].StaticVertexBuffers.PositionVertexBuffer;
 
-			for (const FVertex& Vertex : VertexInfluence.Value)
-			{
-				PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitPosition;
-			}
-		}
-		Point.Position.Active = Point.Position.Initial;
-	}
-	Grid.Empty();
-	BuildGrid();
-	SetupInfluences();
-	UpdateRenderData();
+	//		for (const FPoint::FVertex& Vertex : VertexInfluence.Value)
+	//		{
+	//			PositionVertexBuffer.VertexPosition(Vertex.Id) = Vertex.InitPosition;
+	//		}
+	//	}
+	//	Point.Position.Active = Point.Position.Initial;
+	//}
+	//Grid.Empty();
+	//BuildGrid();
+	//SetupInfluences();
+	//UpdateRenderData();
 }
 
 void UDeformationComponent::UpdateRenderData()
