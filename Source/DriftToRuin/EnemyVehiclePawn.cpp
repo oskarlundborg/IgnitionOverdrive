@@ -112,19 +112,22 @@ void AEnemyVehiclePawn::ResetValues(bool pulledTrigger)
 	bMinigunPulledTrigger = pulledTrigger;
 	Minigun->ReleaseTrigger();
 	bHominIsActive = false;
-	//reset more values
+}
+
+void AEnemyVehiclePawn::ResetBTTree()
+{
+	UBehaviorTreeComponent* BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(AIController->GetBrainComponent());
+	if(BehaviorTreeComponent)
+	{
+		BehaviorTreeComponent->RestartTree();
+	}
+	SwitchString = "Drive";
 	BlackboardComp->ClearValue("Enemy");
 	BlackboardComp->ClearValue("EnemyLocation");
-	SwitchString = "Drive";
 	Turret->SetActorRelativeRotation(FRotator(GetActorRotation().Pitch, 0, GetActorRotation().Roll));
 	TargetRotation = FRotator(0, 0, 0);
 	BlackboardComp->ClearValue("TempRoadSpline");
 	BlackboardComp->ClearValue("AIOwnedRoadSpline");
-	UBehaviorTreeComponent* AIBehaviorTreeComp = Cast<UBehaviorTreeComponent>(AIController->GetBrainComponent());
-	if (AIBehaviorTreeComp != nullptr)
-	{
-		AIBehaviorTreeComp->RestartTree();
-	}
 }
 
 void AEnemyVehiclePawn::SetHasNewSplineBeenSetup(bool bValue)
