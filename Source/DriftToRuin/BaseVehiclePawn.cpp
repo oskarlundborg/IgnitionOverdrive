@@ -73,7 +73,7 @@ ABaseVehiclePawn::ABaseVehiclePawn()
 	VehicleMovementComp->DragCoefficient = 0.5f;
 	VehicleMovementComp->DownforceCoefficient = 4.0f;
 
-	//WINGS?
+	//Torque Control
 	VehicleMovementComp->TorqueControl.Enabled = true;
 	VehicleMovementComp->TorqueControl.YawTorqueScaling = 400.0f;
 	VehicleMovementComp->TorqueControl.YawFromRollTorqueScaling = 50.0f;
@@ -297,6 +297,7 @@ void ABaseVehiclePawn::Tick(float DeltaSeconds)
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, FString::Printf(TEXT("BOOST AMOUNT: %f"), Booster.BoostAmount)); //DEBUG FÖR BOOST AMOUNT
 }
 
+//Kod för vad som ska hända när man klickar boost (starta metasound).
 void ABaseVehiclePawn::OnBoostPressed()
 {
 	if(Booster.BoostAmount <= 0) return;
@@ -304,43 +305,15 @@ void ABaseVehiclePawn::OnBoostPressed()
 	bCanFadeOutBoost = true;
 	bBoostReleased = false;
 	GetWorld()->GetTimerManager().SetTimer(BoostCooldownTimer, this, &ABaseVehiclePawn::EnableBoost, 0.7f, false);
-	
-	
 }
 
+//Kod för när man släpper boost.
 void ABaseVehiclePawn::OnBoostReleased()
 {
 	bBoostReleased = true;
 	DisableBoost();
 }
-
-void ABaseVehiclePawn::OnBoosting()
-{
-	if(Booster.bEnabled && Booster.BoostAmount <= 0)
-	{
-		DisableBoost();
-		return;
-	}
-	if(!Booster.bEnabled)
-	{
-		if(bUseCrazyCamera)
-		{
-			SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, DefaultCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed);
-			CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, DefaultCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed));
-		}
-		return;
-	}
-	if(bUseCrazyCamera)
-	{
-		SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, BoostCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed);
-		CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, BoostCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed));
-	}
-	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
-	VehicleMovementComp->SetThrottleInput(1);
-	SetBoostAmount(FMath::Clamp(Booster.BoostAmount - BoostCost * GetWorld()->DeltaTimeSeconds, 0.f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate * GetWorld()->DeltaTimeSeconds, true);
-}
-
+//Kod för engångsändringar vid boost start.
 void ABaseVehiclePawn::EnableBoost()
 {
 	if(!bBoostReleased)
@@ -368,9 +341,37 @@ void ABaseVehiclePawn::EnableBoost()
 		}
 		OnBoosting();
 	}
-	
 }
 
+//Kod för rekursiva "tick" baserade händelser (kamera movement, forced throttle input, check för om boost är slut, ändra boostmängd).
+void ABaseVehiclePawn::OnBoosting()
+{
+	if(Booster.bEnabled && Booster.BoostAmount <= 0)
+	{
+		DisableBoost();
+		return;
+	}
+	if(!Booster.bEnabled)
+	{
+		if(bUseCrazyCamera)
+		{
+			SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, DefaultCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed);
+			CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, DefaultCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostEndCameraInterpSpeed));
+		}
+		return;
+	}
+	if(bUseCrazyCamera)
+	{
+		SpringArmComponent->CameraLagMaxDistance = FMath::FInterpTo(SpringArmComponent->CameraLagMaxDistance, BoostCameraLagMaxDistance, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed);
+		CameraComponent->SetFieldOfView(FMath::FInterpTo(CameraComponent->FieldOfView, BoostCameraFOV, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), BoostCameraInterpSpeed));
+	}
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("BOOSTING")); 
+	VehicleMovementComp->SetThrottleInput(1);
+	SetBoostAmount(FMath::Clamp(Booster.BoostAmount - BoostCost * GetWorld()->DeltaTimeSeconds, 0.f, Booster.MaxBoostAmount));
+	GetWorld()->GetTimerManager().SetTimer(Booster.BoostTimer, this, &ABaseVehiclePawn::OnBoosting, BoostConsumptionRate * GetWorld()->DeltaTimeSeconds, true);
+}
+
+//Kod för händelser när boost är slut/stängs av.
 void ABaseVehiclePawn::DisableBoost()
 {
 	Booster.SetEnabled(false);
@@ -398,6 +399,15 @@ void ABaseVehiclePawn::DisableBoost()
 	RechargeBoost();
 }
 
+//Kod för rekursiv boost uppladdning.
+void ABaseVehiclePawn::RechargeBoost()
+{
+	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
+	
+	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount * GetWorld()->DeltaTimeSeconds, 0.0f, Booster.MaxBoostAmount));
+	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate * GetWorld()->DeltaTimeSeconds, true);
+}
+
 void ABaseVehiclePawn::SetBoostCost(float NewBoostCost)
 {
 	BoostCost = NewBoostCost;
@@ -406,14 +416,6 @@ void ABaseVehiclePawn::SetBoostCost(float NewBoostCost)
 void ABaseVehiclePawn::ResetBoostCost()
 {
 	BoostCost = DefaultBoostCost;
-}
-
-void ABaseVehiclePawn::RechargeBoost()
-{
-	if(Booster.bEnabled || Booster.BoostAmount >= Booster.MaxBoostAmount) return;
-	
-	SetBoostAmount(FMath::Clamp(Booster.BoostAmount+BoostRechargeAmount * GetWorld()->DeltaTimeSeconds, 0.0f, Booster.MaxBoostAmount));
-	GetWorld()->GetTimerManager().SetTimer(Booster.RechargeTimer, this, &ABaseVehiclePawn::RechargeBoost, BoostRechargeRate * GetWorld()->DeltaTimeSeconds, true);
 }
 
 bool ABaseVehiclePawn::IsGrounded() const
@@ -499,7 +501,6 @@ void ABaseVehiclePawn::UpdateEngineSFX() const
 
 void ABaseVehiclePawn::UpdateWheelSFX() const
 {
-
 	WheelAudioComponent->SetPaused(!IsGrounded());
 	
 	const float MappedForwardSpeed = FMath::GetMappedRangeValueClamped(FVector2d(0, 100.0f),
