@@ -71,7 +71,7 @@ public:
 	
 private:
 	UPROPERTY()
-	const ABaseVehiclePawn* CarOwner;
+	ABaseVehiclePawn* CarOwner;
 	UPROPERTY()
 	APlayerVehiclePawn* CarOwnerPlayer;
 	/*UPROPERTY()
