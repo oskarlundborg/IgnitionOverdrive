@@ -942,7 +942,7 @@ void ABaseVehiclePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 	{
 		CrashAudioComponent->SetFloatParameter(TEXT("ImpactForce"), ImpactForce);
 		CrashAudioComponent->Play();
-		CrashAudioComponent->FadeOut(1.f, .2f, EAudioFaderCurve::Sin);
+		CrashAudioComponent->FadeOut(1.f, .2f, EAudioFaderCurve::Linear);
 	}
 	FTimerHandle THandle;
 	FTimerDelegate TDelegate;
