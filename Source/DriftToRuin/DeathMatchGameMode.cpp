@@ -19,7 +19,8 @@ AActor *ADeathMatchGameMode::FindPlayerStart_Implementation(AController *Player,
 
     if (Cast<APlayerController>(Player))
     {
-        
+        // Sätter PlayerId till controller id och returnar korrekt playerstart för den spelaren, om den inte hittas körs ChoosePlayerStart som hittar "bästa" playerstart, den är overriden i blueprint
+
         PlayerId = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(Player));
         UE_LOG(LogTemp, Warning, TEXT("PLAYER: %i") , PlayerId);
 

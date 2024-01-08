@@ -9,7 +9,7 @@
 *	Responsible for all weapon systems.
 *
 * @author Hugo Westgren
-*	Responsible for code regarding gamestate systems (pickups & scrap)
+*	Responsible for code regarding gamestate systems (powerup-related & scrap)
 *	
 * @author Gin Lindelöw
 *	Bumper and deformation functionality.

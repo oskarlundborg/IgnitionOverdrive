@@ -23,6 +23,11 @@ UPowerupComponent::UPowerupComponent()
 //
 //
 
+
+ // De fyra funktioner under här är vad som händer vid olika powerups: sätter powerupen till aktiv och aktiverar de olika powerupsens förmågor
+
+
+//Healthpowerup interagerar med HealthComponent.cpp
 void UPowerupComponent::HealthPowerup()
 {
 	if (Owner == nullptr)
@@ -36,6 +41,7 @@ void UPowerupComponent::HealthPowerup()
 	Owner->GetHealthComponent()->RegenerateHealth();
 }
 
+//Boost powerup interagerar med Boost-funktioner i BaseVehiclePawn.cpp
 void UPowerupComponent::BoostPowerup()
 {
 
@@ -53,6 +59,8 @@ void UPowerupComponent::BoostPowerup()
 	//GetWorld()->GetTimerManager().SetTimer(TempHandle, this, &UPowerupComponent::ClearPowerup, BoostPowerDuration, false);
 }
 
+
+//Shield Powerup gör BaseVehiclePawns shield synlig och interagerbar (borde kanske använda sig av Hide(false) i basevehiclepawn)
 void UPowerupComponent::ShieldPowerup()
 {
 	if (Owner == nullptr)
@@ -72,6 +80,8 @@ void UPowerupComponent::ShieldPowerup()
 
 }
 
+
+//Denna powerup interagerar med Minigun.cpp
 void UPowerupComponent::OverheatPowerup()
 {
 	if (Owner == nullptr)
@@ -81,12 +91,14 @@ void UPowerupComponent::OverheatPowerup()
 
 	AMinigun* Minigun = Owner->GetMinigun();
 	Minigun->PoweredUp = true;
-	Minigun->SetOverheatValue(0); //kanske ska sätta overheat till 0
+	Minigun->SetOverheatValue(0); //sätter overheat till 0 så overheat-bar inte fastnar i mitten eller full
 	OverheatPowerTime = OverheatPowerDuration;
 	Owner->SetMinigunDamage(Owner->GetMinigunDefaultDamage() * 2);
 	bOverHeatPowerupActive = true;
-	//Aktivera progressbar för powered ammo ovanpå overheat bar
-}
+	}
+
+
+//	ClearPowerup tar in en integer för vilken powerup som ska deaktiveras och sätter sedan powerupen till false och resettar det som powerupen ändrade
 
 void UPowerupComponent::ClearPowerup(int PowerupId)
 {
@@ -133,6 +145,7 @@ void UPowerupComponent::ClearPowerup(int PowerupId)
 	}
 }
 
+//En funktion för att ta bort alla powerups, använda t.ex. vid death
 void UPowerupComponent::ResetPowerups()
 {
 	ClearPowerup(1);
@@ -142,6 +155,8 @@ void UPowerupComponent::ResetPowerups()
 	Owner->SetHeldPowerup(0);
 }
 
+
+// Den här användes när powerups hade en timer/bar som visade när den tog slut
 float UPowerupComponent::GetPowerupPercentage(float PowerupFloat, float PowerupDuration)
 {
 	return FMath::Clamp(PowerupFloat / PowerupDuration, 0.f, 1.f);
@@ -158,6 +173,8 @@ void UPowerupComponent::BeginPlay()
 
 
 // Called every frame
+
+//	Tick används för att räkna ner powerups aktiva tid i sekunder med hjälp av DeltaTime
 void UPowerupComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
