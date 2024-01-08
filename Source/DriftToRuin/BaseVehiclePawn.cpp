@@ -665,6 +665,8 @@ void ABaseVehiclePawn::SetMinigunDamage(int NewDamage)
 	MinigunDamage = NewDamage;
 }
 
+
+//är en gammal metod för första damage powerup men vågar inte ta bort just innan inlämning
 void ABaseVehiclePawn::ApplyDamageBoost(float NewDamage, float TimerDuration)
 {
 	float OriginalDamage = MinigunDamage;

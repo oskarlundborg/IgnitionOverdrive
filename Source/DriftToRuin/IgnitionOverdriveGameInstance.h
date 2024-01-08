@@ -1,5 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+/**
+* @author Hugo Westgren
+	PlayerStarts sätt i level blueprint
+	Finns så att gamemode kan komma åt playerstarts genom gameinstance i kod
+**/
 #pragma once
 
 #include "CoreMinimal.h"

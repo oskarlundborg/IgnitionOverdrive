@@ -1,5 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+/**
+* @author Hugo Westgren
+**/
+
 #pragma once
 
 #include "CoreMinimal.h"
