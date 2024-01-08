@@ -58,7 +58,7 @@ private:
 	void SetupInfluences();
 
 	void UpdateRenderData();
-
+	
 	struct FPoint
 	{
 		struct FVertex
@@ -76,7 +76,7 @@ private:
 		TMap<USkeletalMeshComponent*, TArray<FVertex>>	VertexInfluences;
 	};
 
-	TArray<FPoint> Grid;
+	TArray<TUniquePtr<FPoint>> Grid;
 	
 	UPROPERTY()
 	TArray<USkeletalMeshComponent*> SkeletalMeshComponents;
