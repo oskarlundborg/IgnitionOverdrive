@@ -67,13 +67,15 @@ private:
 			float		Influence;
 			FVector3f	InitPosition;
 		};
+		typedef TArray<TUniquePtr<FVertex>> FVertexArray;
+		
 		struct
 		{
-			UE::Math::TVector<float> Initial;
-			UE::Math::TVector<float> Active;
+			FVector Initial;
+			FVector Active;
 		} Position;
 		
-		TMap<USkeletalMeshComponent*, TArray<FVertex>>	VertexInfluences;
+		TMap<USkeletalMeshComponent*, FVertexArray>	VertexInfluences;
 	};
 
 	TArray<TUniquePtr<FPoint>> Grid;
