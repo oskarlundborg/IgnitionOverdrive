@@ -59,8 +59,7 @@ void APlayerVehiclePawn::BeginPlay()
 void APlayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	//Vehicle control axis
+	
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		//Vehicle control axis
@@ -170,7 +169,7 @@ void APlayerVehiclePawn::OnHandbrakeReleased()
 {
 	VehicleMovementComp->SetHandbrakeInput(false);
 	VehicleMovementComp->SetDownforceCoefficient(4);
-	VehicleMovementComp->SetDifferentialFrontRearSplit(0.7f);
+	VehicleMovementComp->SetDifferentialFrontRearSplit(0.5f);
 	
 	for(UChaosVehicleWheel* Wheel : VehicleMovementComp->Wheels)
 	{
