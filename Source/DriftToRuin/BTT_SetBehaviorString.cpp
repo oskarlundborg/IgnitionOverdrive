@@ -5,22 +5,35 @@
 #include "EnemyVehiclePawn.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
-UBTT_ShootPlayer::UBTT_ShootPlayer()
+UBTT_SetBehaviorString::UBTT_SetBehaviorString()
 {
 }
 
-EBTNodeResult::Type UBTT_ShootPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+// Executes the behavior tree task to set the behavior string for the AI pawn.
+// Returns the result of the task execution, indicating success or failure.
+
+EBTNodeResult::Type UBTT_SetBehaviorString::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	// Call the parent class's ExecuteTask method to ensure any necessary setup is performed.
 	Super::ExecuteTask(OwnerComp, NodeMemory);
-	// Access the Blackboard
+
+	// Access the blackboard component associated with the behavior tree.
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	
+    
+	// Get a reference to the AI pawn controlled by the AI controller, casting it to AEnemyVehiclePawn.
 	AEnemyVehiclePawn* AIPawn = Cast<AEnemyVehiclePawn>(OwnerComp.GetAIOwner()->GetPawn());
+    
+	// Check if both the AI pawn and the blackboard component are valid.
 	if (AIPawn != nullptr && BlackboardComp != nullptr)
 	{
-		//set new behavior
+		// Set the new behavior for the AI pawn using the string value from the blackboard.
 		AIPawn->SetSwitchString(BlackboardComp->GetValueAsString("StringBehavior"));
+        
+		// Return success if the behavior was set successfully.
 		return EBTNodeResult::Succeeded;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("failed to set drive and shoot"));
+    
+	// Return failure if the AI pawn or the blackboard component is invalid.
 	return EBTNodeResult::Failed;
 }
