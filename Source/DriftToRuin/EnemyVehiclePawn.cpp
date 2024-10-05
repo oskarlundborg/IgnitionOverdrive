@@ -566,7 +566,7 @@ void AEnemyVehiclePawn::FireLoadedMissile()
 	}
 }
 
-// This method initializes the left and right sensors for the vehicle.
+// This method initializes the left and right sensors for the vehicle. These were not used in any later calculations, but perhaps in future development they could be used for obstacle avoidance
 
 bool AEnemyVehiclePawn::InitializeSensors()
 {
