@@ -10,11 +10,11 @@
  * 
  */
 UCLASS()
-class DRIFTTORUIN_API UBTT_ShootPlayer : public UBTTaskNode
+class DRIFTTORUIN_API UBTT_SetBehaviorString : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
-	UBTT_ShootPlayer();
+	UBTT_SetBehaviorString();
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 };

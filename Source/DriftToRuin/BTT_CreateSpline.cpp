@@ -29,8 +29,6 @@ EBTNodeResult::Type UBTT_CreateSpline::ExecuteTask(UBehaviorTreeComponent& Owner
 	return EBTNodeResult::Succeeded;
 }
 
-//göra om detta till A* pathfinding spline creating. ! 
-
 //göra om så att den tar en annan spline, ka nej ta custom defined spline och göra om de
 
 
